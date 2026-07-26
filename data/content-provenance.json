@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "lastUpdated": "2026-07-16",
+  "credentialStatus": "unsigned-local-provenance",
+  "credentialNote": "这是网站自行公开的来源与哈希档案，不冒充受信任机构签发的 C2PA Content Credential。",
+  "hashAlgorithm": "SHA-256",
+  "assets": [
+    {
+      "path": "public/work-color-system.webp",
+      "publicUrl": "/work-color-system.webp",
+      "title": "强鹰彩色胶·色彩主视觉",
+      "kind": "AI 辅助产品视觉",
+      "humanContribution": "需求梳理、卖点选择、构图判断、文字与最终筛选",
+      "aiContribution": "参与生成和视觉草案探索",
+      "disclosure": "AI 辅助，不代表完全由模型自动完成",
+      "sha256": "0a1414a8c0d2b59e68a853979d6382f5465fe1951f75a035722f3b6ec6cf4bcb",
+      "bytes": 59696
+    },
+    {
+      "path": "public/work-packaging-system.webp",
+      "publicUrl": "/work-packaging-system.webp",
+      "title": "包装细节信息图",
+      "kind": "AI 辅助信息设计",
+      "humanContribution": "信息层级、内容组织、版式判断与最终筛选",
+      "aiContribution": "参与视觉素材和草案生成",
+      "disclosure": "AI 辅助，不代表完全由模型自动完成",
+      "sha256": "e374b415e0836b95a3bac62d2150b37e049fc4e4dddabae26c01fa2414ea24ea",
+      "bytes": 76966
+    },
+    {
+      "path": "public/work-engineering-system.webp",
+      "publicUrl": "/work-engineering-system.webp",
+      "title": "六项核心优势视觉",
+      "kind": "AI 辅助产品叙事",
+      "humanContribution": "卖点拆分、场景规划、统一风格与最终筛选",
+      "aiContribution": "参与场景素材和视觉草案生成",
+      "disclosure": "AI 辅助，不代表完全由模型自动完成",
+      "sha256": "4d72c05d623916a8da5d446ee627ec9eba09d346d58a4151e31819fa0911b1c0",
+      "bytes": 83710
+    },
+    {
+      "path": "public/serkon-share.jpg",
+      "publicUrl": "/serkon-share.jpg",
+      "title": "Serkon 个人主页分享图",
+      "kind": "网站分享视觉",
+      "humanContribution": "个人网站设计、内容选择与发布决定",
+      "aiContribution": "参与页面与视觉方案辅助",
+      "disclosure": "用于网站分享预览；不包含受信任 C2PA 签章",
+      "sha256": "d59bc19bea3c8ea4aacba1edc7bcc2bf38248d11da2c9e63622f487b3b96f5d8",
+      "bytes": 31879
+    }
+  ]
+}

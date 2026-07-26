@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Serkon 个人网站版本更新</title>
+    <link>https://personal-homepage.maxc565.chatgpt.site/updates</link>
+    <description>Serkon 个人网站每次正式更新的版本号、日期与摘要。</description>
+    <language>zh-cn</language>
+    <lastBuildDate>Fri, 24 Jul 2026 16:00:00 GMT</lastBuildDate>
+    <item>
+      <title>第 34 版｜第34版·Google验证路由修复</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-34</link>
+      <guid isPermaLink="false">serkon-site-edition-34</guid>
+      <pubDate>Sat, 25 Jul 2026 16:00:00 GMT</pubDate>
+      <description>修正 Cloudflare Pages 自动移除 .html 扩展名后落入 404 的问题，让 Google 验证文件的原始地址与重定向终点都返回精确验证文本。</description>
+    </item>
+    <item>
+      <title>第 33 版｜第33版·Google站点验证</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-33</link>
+      <guid isPermaLink="false">serkon-site-edition-33</guid>
+      <pubDate>Sat, 25 Jul 2026 16:00:00 GMT</pubDate>
+      <description>为原站与国内镜像加入 Google Search Console 所有权验证文件，建立后续搜索表现监测与 sitemap 提交通道。</description>
+    </item>
+    <item>
+      <title>第 32 版｜第32版·身份实体与入口纠错</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-32</link>
+      <guid isPermaLink="false">serkon-site-edition-32</guid>
+      <pubDate>Sat, 25 Jul 2026 16:00:00 GMT</pubDate>
+      <description>建立 Serkon 与侯世康的公开身份实体层，修正妙笔 AI 国内入口与 Gmail 显示，并同步清理隐藏类型问题和动态版本细节。</description>
+    </item>
+    <item>
+      <title>第 31 版｜第31版·内容与结构升级</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-31</link>
+      <guid isPermaLink="false">serkon-site-edition-31</guid>
+      <pubDate>Tue, 21 Jul 2026 16:00:00 GMT</pubDate>
+      <description>重整首页信息层级，补齐四大真实作品案例、精选生活影像、NOW 状态与独立互动归档。</description>
+    </item>
+    <item>
+      <title>第 30 版｜第30版·基础质量修复</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-30</link>
+      <guid isPermaLink="false">serkon-site-edition-30</guid>
+      <pubDate>Tue, 21 Jul 2026 16:00:00 GMT</pubDate>
+      <description>补齐完整双语、搜索入口、站点地图、robots、品牌化错误页与安全响应头，并完成正式部署验收。</description>
+    </item>
+    <item>
+      <title>第 29 版｜Serkon 动态思想档案与导航升级</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-29</link>
+      <guid isPermaLink="false">serkon-site-edition-29</guid>
+      <pubDate>Sun, 19 Jul 2026 16:00:00 GMT</pubDate>
+      <description>将强动态滚动叙事、20 条站长随笔与个人作品线索合并，并补齐首页、顶部与横屏目录入口。</description>
+    </item>
+    <item>
+      <title>第 28 版｜Serkon Cosmos 宇宙沉浸档案</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-28</link>
+      <guid isPermaLink="false">serkon-site-edition-28</guid>
+      <pubDate>Sun, 19 Jul 2026 16:00:00 GMT</pubDate>
+      <description>上线由五幕滚动叙事、实时星空、轨道光场与原创音乐组成的独立宇宙体验。</description>
+    </item>
+    <item>
+      <title>第 27 版｜独立沉浸空间设计定稿</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-27</link>
+      <guid isPermaLink="false">serkon-site-edition-27</guid>
+      <pubDate>Sun, 19 Jul 2026 16:00:00 GMT</pubDate>
+      <description>确定将动态前端体验放入独立模块，保持主页原有编辑档案画风与阅读节奏。</description>
+    </item>
+    <item>
+      <title>第 26 版｜沉浸式动效档案升级</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-26</link>
+      <guid isPermaLink="false">serkon-site-edition-26</guid>
+      <pubDate>Fri, 17 Jul 2026 16:00:00 GMT</pubDate>
+      <description>参考公开 UI 社区的交互模式，以本站原生 CSS 和浏览器能力加入点阵光场、聚光卡片、信号边框、墨迹显影与按钮扫光。</description>
+    </item>
+    <item>
+      <title>第 25 版｜横屏导航、双语体验与内容扩充</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-25</link>
+      <guid isPermaLink="false">serkon-site-edition-25</guid>
+      <pubDate>Fri, 17 Jul 2026 16:00:00 GMT</pubDate>
+      <description>修复手机横屏目录遮挡，加入本地中英文切换，将站长随笔扩充至20条，并在创作工坊接入妙笔AI。</description>
+    </item>
+    <item>
+      <title>第 24 版｜国内版安全增量与身份校验</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-24</link>
+      <guid isPermaLink="false">serkon-site-edition-24</guid>
+      <pubDate>Thu, 16 Jul 2026 16:00:00 GMT</pubDate>
+      <description>加强国内版关键响应头、接口输入边界与管理员校验，同时继续沿用固定网址和全部既有数据。</description>
+    </item>
+    <item>
+      <title>第 23 版｜公共大厅视觉与玩法引导</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-23</link>
+      <guid isPermaLink="false">serkon-site-edition-23</guid>
+      <pubDate>Thu, 16 Jul 2026 16:00:00 GMT</pubDate>
+      <description>将世界频道整理为更聚焦的信号卡片流，补齐个人线索小游戏的三步说明与逐项玩法提示，并调整公开能力入口文案。</description>
+    </item>
+    <item>
+      <title>第 22 版｜世界频道实时在线人数</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-22</link>
+      <guid isPermaLink="false">serkon-site-edition-22</guid>
+      <pubDate>Thu, 16 Jul 2026 16:00:00 GMT</pubDate>
+      <description>公共大厅上线真实活跃访客计数，以低频匿名心跳显示当前在线人数，并补齐零成本与隐私说明。</description>
+    </item>
+    <item>
+      <title>第 21 版｜大厅发送确认体验修正</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-21</link>
+      <guid isPermaLink="false">serkon-site-edition-21</guid>
+      <pubDate>Thu, 16 Jul 2026 16:00:00 GMT</pubDate>
+      <description>公共大厅发送前确认改为默认勾选，减少访客误以为发送功能失效的情况，同时继续保留公开与不可自行删除说明。</description>
+    </item>
+    <item>
+      <title>第 20 版｜持久大厅与未来交互层</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-20</link>
+      <guid isPermaLink="false">serkon-site-edition-20</guid>
+      <pubDate>Thu, 16 Jul 2026 16:00:00 GMT</pubDate>
+      <description>修复公共大厅发送引导并补齐精确时间与完整历史读取，同时上线流动文字、照片扫描、卡片倾斜、磁性按钮和阅读进度等交互设计。</description>
+    </item>
+    <item>
+      <title>第 19 版｜匿名公共大厅与开放零成本能力</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-19</link>
+      <guid isPermaLink="false">serkon-site-edition-19</guid>
+      <pubDate>Thu, 16 Jul 2026 16:00:00 GMT</pubDate>
+      <description>上线不要求实名的全站公共大厅，并补齐无障碍、轻量阅读、机器可读资料、内容来源哈希与零成本构建保护。</description>
+    </item>
+    <item>
+      <title>第 18 版｜版本档案与双版本同步</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-18</link>
+      <guid isPermaLink="false">serkon-site-edition-18</guid>
+      <pubDate>Wed, 15 Jul 2026 16:00:00 GMT</pubDate>
+      <description>新增版本更新档案与自动记录机制，统一原站与国内版的更新依据。</description>
+    </item>
+    <item>
+      <title>第 17 版｜视觉档案与玩法升级</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-17</link>
+      <guid isPermaLink="false">serkon-site-edition-17</guid>
+      <pubDate>Wed, 15 Jul 2026 16:00:00 GMT</pubDate>
+      <description>升级编辑档案式画风、真实作品展示与互动游戏群。</description>
+    </item>
+    <item>
+      <title>第 16 版｜专业体验与安全整改</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-16</link>
+      <guid isPermaLink="false">serkon-site-edition-16</guid>
+      <pubDate>Wed, 15 Jul 2026 16:00:00 GMT</pubDate>
+      <description>完善约稿流程、无障碍、隐私和上传安全。</description>
+    </item>
+    <item>
+      <title>第 15 版｜全站排行榜</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-15</link>
+      <guid isPermaLink="false">serkon-site-edition-15</guid>
+      <pubDate>Fri, 10 Jul 2026 16:00:00 GMT</pubDate>
+      <description>加入全站持久排行榜并完善游戏交互反馈。</description>
+    </item>
+  </channel>
+</rss>

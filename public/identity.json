@@ -1,0 +1,104 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "ProfilePage",
+      "@id": "https://personal-homepage.maxc565.chatgpt.site/serkon#profile-page",
+      "url": "https://personal-homepage.maxc565.chatgpt.site/serkon",
+      "name": "Serkon 是 侯世康｜官方身份说明",
+      "description": "Serkon 是侯世康长期使用的网络身份与创作名。",
+      "inLanguage": [
+        "zh-CN",
+        "en"
+      ],
+      "mainEntity": {
+        "@id": "https://personal-homepage.maxc565.chatgpt.site/serkon#person"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "@id": "https://personal-homepage.maxc565.chatgpt.site/serkon#person",
+      "name": "侯世康",
+      "alternateName": "Serkon",
+      "description": "Serkon 是侯世康长期使用的网络身份与创作名。",
+      "url": "https://personal-homepage.maxc565.chatgpt.site/serkon",
+      "image": "https://personal-homepage.maxc565.chatgpt.site/serkon-hero.jpg",
+      "sameAs": [
+        "https://serkon-homepage-cn.pages.dev/",
+        "https://github.com/jackmac566"
+      ],
+      "identifier": {
+        "@type": "PropertyValue",
+        "propertyID": "online identity",
+        "value": "Serkon"
+      },
+      "homeLocation": {
+        "@type": "Place",
+        "name": "中国北京"
+      },
+      "knowsAbout": [
+        "AI 创作",
+        "视觉设计",
+        "个人网站",
+        "互动体验",
+        "影像记录"
+      ],
+      "mainEntityOfPage": "https://personal-homepage.maxc565.chatgpt.site/serkon",
+      "subjectOf": [
+        {
+          "@type": "CreativeWork",
+          "name": "强鹰彩色胶·产品视觉系统",
+          "url": "https://qiangying-color-sealant-cn.pages.dev/"
+        },
+        {
+          "@type": "CreativeWork",
+          "name": "伦敦 Vlog·AI 影像实验",
+          "url": "https://personal-homepage.maxc565.chatgpt.site/life"
+        },
+        {
+          "@type": "CreativeWork",
+          "name": "《创世纪》·原创音乐",
+          "url": "https://personal-homepage.maxc565.chatgpt.site/life"
+        },
+        {
+          "@type": "CreativeWork",
+          "name": "Serkon 个人主页",
+          "url": "https://personal-homepage.maxc565.chatgpt.site/"
+        },
+        {
+          "@type": "CreativeWork",
+          "name": "妙笔 AI 全能文案助手",
+          "url": "https://miaobi-appl-serkon.pages.dev/"
+        },
+        {
+          "@type": "CreativeWork",
+          "name": "微信年轮",
+          "url": "https://github.com/jackmac566/wechat-yearbook"
+        },
+        {
+          "@type": "CreativeWork",
+          "name": "Serkon Cosmos · Motion Lab",
+          "url": "https://personal-homepage.maxc565.chatgpt.site/cosmos"
+        }
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://personal-homepage.maxc565.chatgpt.site/#website",
+      "url": "https://personal-homepage.maxc565.chatgpt.site/",
+      "name": "Serkon 侯世康",
+      "alternateName": [
+        "Serkon",
+        "侯世康个人主页"
+      ],
+      "author": {
+        "@id": "https://personal-homepage.maxc565.chatgpt.site/serkon#person"
+      },
+      "inLanguage": [
+        "zh-CN",
+        "en"
+      ]
+    }
+  ]
+}

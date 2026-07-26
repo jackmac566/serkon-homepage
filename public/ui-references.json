@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "lastUpdated": "2026-07-25",
+  "policy": "Interaction patterns are referenced transparently and reimplemented locally without runtime third-party requests.",
+  "references": [
+    {
+      "name": "React Bits",
+      "url": "https://reactbits.dev/",
+      "influence": "文字流动、滚动显影与指针互动节奏",
+      "implementation": "仅参考交互模式，使用本站现有 React 与 CSS 本地重写，未安装该组件库"
+    },
+    {
+      "name": "Aceternity UI",
+      "url": "https://ui.aceternity.com/components",
+      "influence": "点阵光场、聚光卡片与信号边框",
+      "implementation": "仅参考免费组件目录中的设计思路，不使用 Pro 模板或付费区块"
+    },
+    {
+      "name": "Uiverse.io",
+      "url": "https://uiverse.io/",
+      "influence": "按钮扫光与微交互反馈",
+      "implementation": "使用本地 CSS 重写，不加载外部脚本、样式或追踪代码"
+    },
+    {
+      "name": "MotionSites",
+      "url": "https://motionsites.ai/",
+      "influence": "镜头式滚动、大字重组、卡片层级与指针响应节奏",
+      "implementation": "仅观察公开展示与用户提供的录屏，不复制付费提示词、代码、素材或完整构图；全部交互使用本站 Canvas、React 与 CSS 原创实现"
+    }
+  ]
+}

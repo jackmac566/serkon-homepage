@@ -1,0 +1,126 @@
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Serkon 公开作品",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "item": {
+        "@type": "CreativeWork",
+        "name": "强鹰彩色胶·产品视觉系统",
+        "description": "把 126 色、两类产品规格、使用场景与核心卖点组织成可持续扩展的网站与销售视觉。",
+        "genre": "产品网站与视觉系统",
+        "creativeWorkStatus": "已上线",
+        "url": "https://qiangying-color-sealant-cn.pages.dev/",
+        "creator": {
+          "@type": "Person",
+          "name": "侯世康",
+          "alternateName": "Serkon"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "item": {
+        "@type": "CreativeWork",
+        "name": "伦敦 Vlog·AI 影像实验",
+        "description": "从地标、人物与食物镜头规划，到素材生成和视频导出，验证连续旅行短片工作流。",
+        "genre": "AI 影像工作流",
+        "creativeWorkStatus": "实验完成",
+        "url": "https://personal-homepage.maxc565.chatgpt.site/life",
+        "creator": {
+          "@type": "Person",
+          "name": "侯世康",
+          "alternateName": "Serkon"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "item": {
+        "@type": "CreativeWork",
+        "name": "《创世纪》·原创音乐",
+        "description": "围绕宇宙、回声与创造完成原创歌曲，并接入个人网站的互动档案。",
+        "genre": "原创音乐",
+        "creativeWorkStatus": "已发布",
+        "url": "https://personal-homepage.maxc565.chatgpt.site/life",
+        "creator": {
+          "@type": "Person",
+          "name": "侯世康",
+          "alternateName": "Serkon"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "item": {
+        "@type": "CreativeWork",
+        "name": "Serkon 个人主页",
+        "description": "融合个人档案、作品、公共大厅、影像、游戏与开放机器层的数字空间。",
+        "genre": "持续更新的个人产品",
+        "creativeWorkStatus": "持续更新",
+        "url": "https://personal-homepage.maxc565.chatgpt.site/",
+        "creator": {
+          "@type": "Person",
+          "name": "侯世康",
+          "alternateName": "Serkon"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 5,
+      "item": {
+        "@type": "CreativeWork",
+        "name": "妙笔 AI 全能文案助手",
+        "description": "面向更完整创作需求的独立 AI 文案工作台，可从个人网站创作工坊直接进入。",
+        "genre": "AI 文案工具",
+        "creativeWorkStatus": "已上线",
+        "url": "https://miaobi-appl-serkon.pages.dev/",
+        "creator": {
+          "@type": "Person",
+          "name": "侯世康",
+          "alternateName": "Serkon"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 6,
+      "item": {
+        "@type": "CreativeWork",
+        "name": "微信年轮",
+        "description": "面向完整微信聊天记录的本地分析与双系统使用体验，优先保护本地数据安全。",
+        "genre": "本地聊天记录分析工具",
+        "creativeWorkStatus": "持续完善",
+        "url": "https://github.com/jackmac566/wechat-yearbook",
+        "creator": {
+          "@type": "Person",
+          "name": "侯世康",
+          "alternateName": "Serkon"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 7,
+      "item": {
+        "@type": "CreativeWork",
+        "name": "Serkon Cosmos · Motion Lab",
+        "description": "用五幕强动态滚动叙事连接全部 20 条站长随笔、个人影像、真实作品与原创音乐。",
+        "genre": "动态思想档案",
+        "creativeWorkStatus": "已上线",
+        "url": "https://personal-homepage.maxc565.chatgpt.site/cosmos",
+        "creator": {
+          "@type": "Person",
+          "name": "侯世康",
+          "alternateName": "Serkon"
+        }
+      }
+    }
+  ]
+}
