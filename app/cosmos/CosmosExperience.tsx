@@ -76,7 +76,7 @@ const thoughtGroups = [
   [
     { index: 2, title: "十九岁，不急着把自己定义清楚" },
     { index: 4, title: "凌晨两点以后，很多想法都会变得认真" },
-    { index: 6, title: "北京朝阳的风，总是比计划先到" },
+    { index: 6, title: "北京傍晚的风，总是比计划先到" },
     { index: 14, title: "我给网站加上大厅，是因为不想让它太孤独" },
   ],
   [
@@ -318,7 +318,9 @@ export default function CosmosExperience({ edition }: { edition: number }) {
           >
             <div className="motion-copy">
               <div className="motion-meta"><span>{chapter.code}</span><i /><small>{chapter.eyebrow}</small></div>
-              <h1 id={`motion-title-${index}`}>{chapter.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h1>
+              {index === 0
+                ? <h1 id={`motion-title-${index}`}>{chapter.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h1>
+                : <h2 id={`motion-title-${index}`}>{chapter.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h2>}
               <p>{chapter.copy}</p>
               <small className="motion-signal">{index === chapters.length - 1 ? `EDITION ${edition} / ${chapter.signal}` : chapter.signal}</small>
               <div className="motion-thoughts" aria-label={`第 ${index + 1} 幕关联站长随笔`}>
@@ -345,7 +347,7 @@ export default function CosmosExperience({ edition }: { edition: number }) {
       </div>
 
       <div className="motion-hint" aria-hidden="true"><span>滚动推进镜头</span><i /></div>
-      <p className="sr-only" aria-live="polite">当前第 {active + 1} 幕，共 {chapters.length} 幕。</p>
+      <p className="sr-only" aria-live="polite">{`当前第 ${active + 1} 幕，共 ${chapters.length} 幕。`}</p>
       <noscript><p className="motion-noscript">动态实验室包含五幕文字与作品线索。开启 JavaScript 可观看本地滚动、指针与画面重组效果。</p></noscript>
     </main>
   );

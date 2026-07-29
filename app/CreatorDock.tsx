@@ -17,7 +17,7 @@ const templates: { name: Template; desc: string; placeholder: string }[] = [
 const questions: QuizQuestion[] = [
   { q: "站长最喜欢研究的新东西是？", options: ["球鞋收藏", "AI 工具", "咖啡拉花"], answer: 1 },
   { q: "站长放松时更常玩的游戏是？", options: ["赛车游戏", "音游", "王者荣耀"], answer: 2 },
-  { q: "站长现在生活在哪里？", options: ["北京朝阳", "上海浦东", "成都锦江"], answer: 0 },
+  { q: "站长公开写下的城市是？", options: ["北京", "上海", "成都"], answer: 0 },
   { q: "这个网站最想长期记录什么？", options: ["纯技术文档", "消费账单", "作品与真实日常"], answer: 2 },
   { q: "站长目前处于哪个阶段？", options: ["高中", "大一", "毕业工作"], answer: 1 },
   { q: "站长更喜欢哪种网站感觉？", options: ["杂志感里带一点科技", "纯商务蓝", "极简表格"], answer: 0 },
@@ -94,7 +94,7 @@ function downloadVisitLetter(nickname: string, lines: string[]) {
   ctx.strokeStyle = "rgba(112,91,69,.38)"; ctx.lineWidth = 2; ctx.strokeRect(54, 54, 972, 1332);
   ctx.strokeStyle = "rgba(139,30,45,.55)"; ctx.beginPath(); ctx.moveTo(90, 210); ctx.lineTo(990, 210); ctx.stroke();
   ctx.fillStyle = "#6d5f50"; ctx.font = "28px Georgia"; ctx.fillText("SERKON · A LETTER FROM THE SITE", 90, 128);
-  ctx.fillStyle = "#8b1e2d"; ctx.font = "20px sans-serif"; ctx.fillText(`${serialLabel} / BEIJING CHAOYANG / LOCAL EDITION`, 90, 176);
+  ctx.fillStyle = "#8b1e2d"; ctx.font = "20px sans-serif"; ctx.fillText(`${serialLabel} / BEIJING / LOCAL EDITION`, 90, 176);
   ctx.fillStyle = "#302a25"; ctx.font = "56px KaiTi, STKaiti, serif"; ctx.fillText(`给 ${nickname}：`, 100, 330);
   ctx.font = "42px KaiTi, STKaiti, serif";
   letter.forEach((line, index) => ctx.fillText(line, 110, 440 + index * 78));

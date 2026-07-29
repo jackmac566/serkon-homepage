@@ -3,7 +3,7 @@
 Serkon（侯世康）的双语个人网站源码：个人档案、作品案例、公共大厅、共享影像、互动实验、无障碍模式、机器可读资料、内容来源档案与自动版本记录。
 
 - 国内正式站：[serkon-homepage-cn.pages.dev](https://serkon-homepage-cn.pages.dev/)
-- 当前源码基线：第 34 版
+- 当前源码基线：第 35 版
 - 运行原则：尽可能保持 0 成本；不把会暗中产生费用的能力接入生产环境
 
 ## 为什么公开
@@ -56,7 +56,7 @@ npm ci
 npm run dev
 ```
 
-`vite.config.ts` 在没有私人托管配置时，会自动读取 `.openai/hosting.example.json`，因此公开仓库可以直接启动开发服务器。完整构建、测试或生产部署前，请复制示例并在本地填写真实配置：
+`vite.config.ts` 在没有私人托管配置时，会自动读取 `.openai/hosting.example.json`，因此公开仓库可以直接开发、构建和运行测试。只有部署到 ChatGPT Sites 时，才需要复制示例并在本地填写真实配置：
 
 ```bash
 cp .openai/hosting.example.json .openai/hosting.json
@@ -71,6 +71,24 @@ npm test
 ```
 
 构建脚本使用 GNU `timeout`。macOS 可通过 Homebrew 安装 GNU coreutils，或在 Linux/CI 环境运行测试。
+
+## 更新 GitHub
+
+不需要在网页里逐个上传文件。修改并通过测试后，使用 Git 提交和推送即可：
+
+```bash
+git add .
+git commit -m "release: publish edition 35"
+git push origin main
+```
+
+`git push` 会让 GitHub 仓库立即更新，但“源码同步”和“网站部署”是两件事：
+
+- GitHub 仓库：每次推送后自动保存完整历史。
+- Cloudflare Pages：可在控制台一次性连接这个仓库，之后由 `main` 分支推送自动触发部署。
+- ChatGPT Sites：使用自己的托管项目和私有清单，不应把真实 `project_id` 提交到 GitHub。
+
+现有正式站包含 D1、管理密钥和固定 Pages 项目。开启 Cloudflare Git 自动部署前，必须先确认构建命令、输出目录、D1 binding 和 secrets 都指向原资源，避免自动化把正确源码部署到错误环境。
 
 ## 生产环境变量
 

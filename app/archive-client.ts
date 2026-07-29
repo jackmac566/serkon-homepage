@@ -28,7 +28,7 @@ function freshVisitorId() {
 
 export function getOrCreateVisitor() {
   let id = freshVisitorId();
-  let alias = `朝阳旅人${Math.floor(1000 + Math.random() * 9000)}`;
+  let alias = `BJ-Traveler-${Math.floor(1000 + Math.random() * 9000)}`;
   try {
     id = window.localStorage.getItem(VISITOR_KEY) || id;
     alias = window.localStorage.getItem(ALIAS_KEY) || alias;

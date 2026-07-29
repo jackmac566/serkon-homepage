@@ -38,7 +38,13 @@ test("renders the public profile and commission entry", async () => {
   assert.match(html, /个人作品与创作交流站点/);
   assert.match(html, /个人档案局/);
   assert.match(html, /强鹰彩色胶·产品视觉系统/);
-  assert.match(html, /第 32 版身份实体升级/);
+  assert.match(html, /Serkon 个人网站/);
+  assert.doesNotMatch(html, /CHINA · BEIJING · CHAOYANG/);
+  assert.match(html, /CHINA · BEIJING/);
+  assert.doesNotMatch(html, /CHAOYANG/);
+  assert.match(html, /打开网易云发布页/);
+  assert.match(html, /music\.163\.com\/#\/song\?id=2753362002/);
+  assert.match(html, /查看版本进化/);
   assert.match(html, /进入完整互动档案/);
   assert.match(html, /六项能力，收进一个清晰入口/);
   assert.match(html, /隐私与公共上传规则/);
@@ -211,6 +217,26 @@ test("keeps future interactions optional, local and reduced-motion aware", () =>
   assert.match(page, /data-magnetic/);
 });
 
+test("keeps the current edition, bilingual labels and heading structure coherent", () => {
+  const page = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const creator = fs.readFileSync(new URL("../app/CreatorDock.tsx", import.meta.url), "utf8");
+  const language = fs.readFileSync(new URL("../app/LanguageController.tsx", import.meta.url), "utf8");
+  const cosmos = fs.readFileSync(new URL("../app/cosmos/CosmosExperience.tsx", import.meta.url), "utf8");
+  const game = fs.readFileSync(new URL("../app/games/doudizhu/DouDizhuGame.tsx", import.meta.url), "utf8");
+  const profile = JSON.parse(fs.readFileSync(new URL("../data/machine-profile.json", import.meta.url), "utf8"));
+  const releases = JSON.parse(fs.readFileSync(new URL("../data/releases.json", import.meta.url), "utf8"));
+
+  assert.equal(releases.at(-1).edition, 35);
+  assert.equal(profile.lastUpdated, "2026-07-29");
+  assert.doesNotMatch(profile.person.currentFocus, /第 32 版/);
+  assert.doesNotMatch(`${page}\n${creator}`, /CHAOYANG|北京朝阳/);
+  assert.match(language, /currentEditionMatch/);
+  assert.match(language, /workSummaryMatch/);
+  assert.equal((cosmos.match(/<h1\b/g) ?? []).length, 1);
+  assert.match(cosmos, /<h2\b/);
+  assert.match(game, /<h1>Serkon 斗地主牌桌<\/h1>/);
+});
+
 test("publishes the curated archive without exposing the third-party livestream console", () => {
   const gallery = fs.readFileSync(new URL("../app/life/LifeGallery.tsx", import.meta.url), "utf8");
   const language = fs.readFileSync(new URL("../app/LanguageController.tsx", import.meta.url), "utf8");
@@ -307,10 +333,11 @@ test("ships edition 29 as a merged motion and notes archive", () => {
   assert.ok(releases.some((release) => release.edition === 29));
 });
 
-test("records editions 30–34 according to the approved roadmap", () => {
+test("records editions 30–35 as a continuous, verifiable roadmap", () => {
   const releases = JSON.parse(fs.readFileSync(new URL("../data/releases.json", import.meta.url), "utf8"));
-  assert.equal(releases.at(-1).edition, 34);
-  assert.equal(releases.at(-1).date, "2026-07-26");
+  assert.deepEqual(releases.slice(-6).map((release) => release.edition), [30, 31, 32, 33, 34, 35]);
+  assert.equal(releases.at(-1).edition, 35);
+  assert.equal(releases.at(-1).date, "2026-07-29");
   assert.match(releases.find((release) => release.edition === 30).title, /基础质量修复/);
   assert.ok(releases.find((release) => release.edition === 30).changes.some((change) => change.includes("安全响应头")));
   const edition31 = releases.find((release) => release.edition === 31);
@@ -322,8 +349,12 @@ test("records editions 30–34 according to the approved roadmap", () => {
   const edition33 = releases.find((release) => release.edition === 33);
   assert.match(edition33.title, /Google站点验证/);
   assert.ok(edition33.changes.some((change) => change.includes("Google Search Console")));
-  assert.match(releases.at(-1).title, /Google验证路由修复/);
-  assert.ok(releases.at(-1).changes.some((change) => change.includes("Cloudflare Pages")));
+  const edition34 = releases.find((release) => release.edition === 34);
+  assert.match(edition34.title, /Google验证路由修复/);
+  assert.ok(edition34.changes.some((change) => change.includes("Cloudflare Pages")));
+  const edition35 = releases.find((release) => release.edition === 35);
+  assert.match(edition35.title, /全站细节与可维护性精修/);
+  assert.ok(edition35.changes.some((change) => change.includes("关键链接")));
   assert.equal(
     fs.readFileSync(new URL("../public/google0145912d521186e0.html", import.meta.url), "utf8").trim(),
     "google-site-verification: google0145912d521186e0.html",

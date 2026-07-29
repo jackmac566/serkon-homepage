@@ -14,9 +14,18 @@ const PAGE_TITLE_EN: Record<string, string> = {
   "网站系统层｜Serkon 侯世康": "Website System Layer | Serkon",
   "生活影像｜Serkon 侯世康": "Creative & Life Archive | Serkon",
   "站长随笔｜Serkon 侯世康": "Notes | Serkon",
+  "站长随笔｜Serkon": "Notes | Serkon",
   "公共大厅｜Serkon 侯世康": "Public Lobby | Serkon",
+  "Serkon 公共大厅｜世界频道": "Serkon Public Lobby | World Channel",
+  "Serkon Motion Lab｜动态思想档案": "Serkon Motion Lab | Motion Archive",
+  "Serkon 个人主页｜纯文字轻量版": "Serkon Personal Site | Text-only Edition",
   "版本更新记录｜Serkon 侯世康": "Release Ledger | Serkon",
   "隐私与公共上传规则｜Serkon 侯世康": "Privacy & Public Content Rules | Serkon",
+  "无障碍与阅读辅助｜Serkon": "Accessibility & Reading Assistance | Serkon",
+  "斗地主牌桌｜Serkon": "Dou Dizhu Table | Serkon",
+  "公共大厅管理｜Serkon": "Public Lobby Moderation | Serkon",
+  "内容来源与哈希档案｜Serkon": "Provenance & Hash Archive | Serkon",
+  "0 元运营原则｜Serkon": "Zero-cost Operating Principle | Serkon",
 };
 
 const EN: Record<string, string> = {
@@ -53,7 +62,7 @@ const EN: Record<string, string> = {
   "把你的天马行空告诉我，我用 AI 帮你实现。按需求单独报价，先确认档期再开始。": "Tell me your wildest idea and I will help bring it to life with AI. Each brief is quoted individually after availability is confirmed.",
   "聊聊你的想法": "Share your idea",
   "兴趣不只是消遣，它们也在悄悄塑造我的观察方式。": "Interests are more than pastimes—they quietly shape how I observe the world.",
-  "玩 AI": "AI EXPLORATION",
+  "玩 AI": "CREATING WITH AI",
   "喜欢尝试新的 AI 工具，把脑海里的点子快速变成图像、内容和真正能使用的作品。": "I explore new AI tools and quickly turn ideas into visuals, content and genuinely usable work.",
   "打开个人 AI 创作站": "Open my AI studio",
   "王者荣耀": "HONOR OF KINGS",
@@ -383,19 +392,59 @@ Object.assign(EN, {
   "加入六张精选创作与生活影像并保护第三方隐私": "Add six curated creation and life images while protecting third-party privacy",
   "互动档案与网站系统层改为独立页面": "Move the interactive archive and website system layer to dedicated pages",
   "加入 NOW 状态板并减少首页重复功能陈列": "Add a NOW board and reduce repeated feature displays on the homepage",
+  "第32版·身份实体与入口纠错": "Edition 32 · Identity entity and entry-point corrections",
+  "建立 Serkon 与侯世康的公开身份实体层，修正妙笔 AI 国内入口与 Gmail 显示，并同步清理隐藏类型问题和动态版本细节。": "Establish the public identity link between Serkon and Hou Shikang, correct the domestic Miaobi AI entry and Gmail display, and clean up hidden type and release details.",
+  "建立可见双语身份说明页与 ProfilePage、Person、WebSite 结构化数据": "Add a visible bilingual identity page and ProfilePage, Person and WebSite structured data",
+  "新增 identity.json 与 humans.txt，并增强 llms.txt、profile.json 和站点地图": "Add identity.json and humans.txt while strengthening llms.txt, profile.json and the sitemap",
+  "妙笔 AI 全部入口统一指向国内正式网址": "Point every Miaobi AI entry to its official domestic URL",
+  "Gmail 地址恢复标准 @ 显示": "Restore the standard @ character in the Gmail address",
+  "修正首页动态章节、Cosmos 版本标识与原站 WebP 加载": "Correct homepage motion chapters, the Cosmos release label and WebP loading on the original site",
+  "补齐 Cloudflare 类型定义并通过严格类型检查": "Complete Cloudflare type definitions and pass strict type checking",
+  "第33版·Google站点验证": "Edition 33 · Google site verification",
+  "为原站与国内镜像加入 Google Search Console 所有权验证文件，建立后续搜索表现监测与 sitemap 提交通道。": "Add the Google Search Console ownership file to the original and domestic sites, enabling search-performance monitoring and sitemap submission.",
+  "加入 Google Search Console 根目录验证文件": "Add the Google Search Console verification file at the site root",
+  "保持验证资源长期公开以维持网站所有权状态": "Keep the verification resource public to preserve ownership status",
+  "为 Google 收录监测及 Bing 导入建立基础": "Establish the basis for Google indexing reports and Bing import",
+  "第34版·Google验证路由修复": "Edition 34 · Google verification route fix",
+  "修正 Cloudflare Pages 自动移除 .html 扩展名后落入 404 的问题，让 Google 验证文件的原始地址与重定向终点都返回精确验证文本。": "Fix the Cloudflare Pages extensionless redirect that caused a 404, so both the original Google verification URL and its redirect target return the exact verification text.",
+  "兼容 Cloudflare Pages 的 HTML 无扩展名重定向规则": "Support Cloudflare Pages' extensionless HTML redirect behavior",
+  "让带 .html 与不带扩展名的两个验证路径均返回 200": "Return 200 from both verification paths, with and without .html",
+  "保持验证文本、固定网址与全部现有 D1 数据不变": "Preserve the verification text, fixed URL and all existing D1 data",
+  "增加验证路由自动化回归测试": "Add an automated regression test for the verification route",
+  "第35版·全站细节与可维护性精修": "Edition 35 · Sitewide detail and maintainability refinement",
+  "经过八轮内容、视觉、交互、双语、适配、无障碍、性能与安全复核，修正过期信息和作品跳转，并统一原站与开源源码的版本依据。": "After eight review passes across content, visuals, interaction, bilingual coverage, responsiveness, accessibility, performance and security, correct stale information and project links while aligning the original site and open-source release.",
+  "更新 NOW 状态并减少不必要的精确位置披露": "Refresh the NOW board and reduce unnecessary location precision",
+  "让四项作品分别跳转到与成果相符的产品、影像、音乐和版本页面": "Point the four projects to the matching product, visual, music and release pages",
+  "细化卡片焦点、页脚链接、窄屏标题和正文换行": "Refine card focus, footer links, narrow-screen headings and paragraph wrapping",
+  "补齐近期版本、按钮与状态内容的英文映射": "Complete English mappings for recent releases, actions and current status",
+  "增加内容与关键链接的自动化回归检查": "Add automated regression checks for content and key links",
+  "保持现有数据库、公共内容、固定网址和零成本运行边界": "Preserve the existing database, public content, fixed URLs and zero-cost operating boundary",
+  "Serkon 个人网站": "Serkon Personal Site",
+  "持续校正内容层级、移动端细节、双语与长期维护流程，让每次更新都有依据、记录和回归检查。": "Keep refining content hierarchy, mobile details, bilingual coverage and long-term maintenance so every update has a reason, a record and regression checks.",
+  "持续校正个人网站的内容层级、移动端细节、双语与长期维护流程，同时继续打磨微信年轮本地分析并整理强鹰彩色胶产品视觉": "Keep refining the personal site's hierarchy, mobile details, bilingual coverage and long-term maintenance while improving WeChat Yearbook's local analysis and Qiangying product visuals",
   "微信年轮": "WeChat Yearbook",
   "继续完善面向完整聊天记录的本地分析与双系统使用体验，安全边界优先于功能数量。": "Continue improving local analysis of complete chat records and the two-system experience, with safety ahead of feature count.",
   "强鹰彩色胶": "Qiangying Color Sealant",
   "继续整理产品视觉、规格信息与销售场景，让网站真正服务于理解和沟通。": "Continue refining product visuals, specifications and sales contexts so the site genuinely supports understanding and communication.",
   "不再重复陈列同一个项目：这里选择四条不同方向，并同时公开问题、我的角色、过程与当前结果。": "No repeated slices of the same project: these four directions disclose the problem, my role, process and current result.",
   "强鹰彩色胶·产品视觉系统": "Qiangying Color Sealant · Product Visual System",
+  "把 126 色、两类产品规格、使用场景与核心卖点组织成可持续扩展的网站与销售视觉。": "Organize 126 colors, two product formats, use cases and core benefits into an extensible website and sales-visual system.",
   "伦敦 Vlog·AI 影像实验": "London Vlog · AI Film Experiment",
+  "从地标、人物与食物镜头规划，到素材生成和视频导出，验证连续旅行短片工作流。": "Validate a continuous travel-film workflow from landmark, portrait and food-shot planning through generation and export.",
+  "围绕宇宙、回声与创造完成原创歌曲，并接入个人网站的互动档案。": "Create an original song around space, echoes and creation, then connect it to the site's playable archive.",
+  "面向完整微信聊天记录的本地分析与双系统使用体验，优先保护本地数据安全。": "Analyze complete WeChat histories locally across two desktop systems, with local-data safety first.",
+  "用五幕强动态滚动叙事连接全部 20 条站长随笔、个人影像、真实作品与原创音乐。": "Connect all 20 notes, personal imagery, real projects and original music through a five-act motion narrative.",
   "《创世纪》·原创音乐发布": "Genesis · Original Music Release",
+  "《创世纪》·原创音乐": "Genesis · Original Music",
   "妙笔 AI 全能文案助手": "Miaobi AI Writing Workspace",
   "另外两项可直接使用的产品": "Two more products you can open now",
   "它们不冒充视觉案例，但同样是已经做出来、可以打开验证的真实成果。": "They are not presented as visual case studies, but they are real products that can be opened and verified.",
   "打开产品": "Open product",
   "查看开源项目": "View open-source project",
+  "打开产品网站": "Open product site",
+  "查看影像过程": "View visual process",
+  "打开网易云发布页": "Open the NetEase release",
+  "查看版本进化": "View release evolution",
   "把兴趣变成，": "Turn interests into",
   "可以亲自试的线索。": "clues you can try yourself.",
   "主题切换、100 张灵感卡、记忆翻牌、灵感球和五种个人线索玩法已移入独立互动档案。首页只保留说明，想玩时再进入，不打断作品阅读。": "Themes, 100 idea cards, memory matching, the inspiration orb and five personal-clue activities now live in a dedicated playable archive. The homepage keeps only the explanation so work remains easy to read.",
@@ -406,6 +455,10 @@ Object.assign(EN, {
   "六项能力，收进一个清晰入口。": "Six capabilities, one clear entrance.",
   "首页只回答“为什么值得了解”；完整说明、状态与公开文件集中到系统层，减少重复浏览。": "The homepage explains why these capabilities matter; full descriptions, status and public files are gathered in the system layer.",
   "打开网站系统层": "Open the website system layer",
+  "打开阅读辅助": "Open reading assistance",
+  "查看来源": "View provenance",
+  "查看规则": "View policy",
+  "查看版本": "View releases",
   "网站系统层": "Website system layer",
   "把整座网站，玩成一份个人档案。": "Turn the whole site into a personal field file.",
   "怎么玩：": "How it works:",
@@ -413,9 +466,52 @@ Object.assign(EN, {
   "第一次来，任选一项开始。每个玩法都有独立说明；除全站排行榜外，操作主要保存在当前浏览器，不需要下载应用。": "First time here? Start anywhere. Every activity explains itself; except for the public leaderboard, progress mainly stays in this browser and needs no app download.",
   "返回个人主页": "Return to the homepage",
   "动态思想档案": "Motion archive",
+  "动态思想档案 ↗": "Motion archive ↗",
   "把技术能力从首页的视觉噪音中移出来，集中说明它们解决什么问题、现在能做什么，以及公开入口在哪里。": "Move technical capabilities out of the homepage noise and clearly explain what they solve, what is available now and where to verify it.",
   "网站公开能力": "Public website capabilities",
+  "隐私规则 ↗": "Privacy rules ↗",
+  "字号、高对比度、减少动画、链接标识与键盘焦点。": "Text size, high contrast, reduced motion, link cues and keyboard focus.",
+  "不加载大图、音乐和游戏，低带宽与旧设备也能阅读。": "Read without large images, music or games—even on slow connections and older devices.",
+  "公开人工与 AI 分工、文件摘要、参考来源与 SHA-256。": "Disclose human and AI roles, file digests, references and SHA-256.",
+  "记录免费额度、降级边界和不会暗中产生费用的设计选择。": "Document free quotas, fallback boundaries and choices that avoid hidden costs.",
+  "按日期记录每一版真正的改动，不回放可能泄露隐私的旧页面。": "Record each edition's real changes by date without replaying privacy-sensitive old pages.",
   "能力必须真实存在、说明必须可以验证、成本边界必须公开；如果某项服务需要付费或无法确认，就不把它包装成已经上线。": "Capabilities must exist, claims must be verifiable and cost boundaries must be public. Anything paid or uncertain is never presented as already available.",
+  "把正式介绍之外的个人瞬间、创作过程、视觉作品与访客记录，整理成一份既有证据也有温度的线上档案。": "An online archive that brings personal moments, creative process, visual work and visitor records beyond the formal introduction together with both evidence and warmth.",
+  "Serkon 是侯世康长期使用的网络身份与创作名。": "Serkon is the long-term online identity and creator name used by Hou Shikang.",
+  "站长专用": "OWNER ONLY",
+  "大厅管理台": "Lobby moderation console",
+  "管理能力由服务器验证。访问此页面本身不会获得站长权限。": "Administrative capability is verified by the server. Simply visiting this page grants no owner privileges.",
+  "国内版站长密钥": "Domestic-site admin key",
+  "验证并进入": "Verify and enter",
+  "原个人网站中，站长登录身份也可直接通过验证；密钥只保存在当前标签页。": "On the original site, the signed-in owner identity can also pass verification. The key remains only in this browser tab.",
+  "需要站长权限": "Owner authorization required",
+  "正在验证站长权限…": "Verifying owner authorization…",
+  "管理操作失败": "Moderation action failed",
+  "隐藏": "Hide",
+  "恢复": "Restore",
+  "恢复公开": "Restore publicly",
+  "彻底删除": "Delete permanently",
+  "处理说明：": "Moderation note: ",
+  "举报": "Reports",
+  "复核后恢复公开": "Restore after review",
+  "依据公共大厅规则处理": "Handled under the public-lobby rules",
+  "← 返回公共大厅": "← Back to public lobby",
+  "个人主页": "Homepage",
+  "不接入必须付费的运行时服务；免费额度不足时让对应动态功能暂时不可用，不自动切换付费方案。 网站构建还会扫描常见付费服务 SDK 和代码里的外部运行请求；发现后直接停止构建，要求人工确认。": "The site uses no runtime service that requires payment. When a free quota is insufficient, the related dynamic feature pauses instead of switching to a paid plan. The build also scans for common paid-service SDKs and external runtime requests, stopping for human review if either appears.",
+  "不接入必须付费的运行时服务；免费额度不足时让对应动态功能暂时不可用，不自动切换付费方案。": "The site uses no runtime service that requires payment. When a free quota is insufficient, the related dynamic feature pauses instead of switching to a paid plan.",
+  "网站构建还会扫描常见付费服务 SDK 和代码里的外部运行请求；发现后直接停止构建，要求人工确认。": "The build also scans for common paid-service SDKs and external runtime requests, stopping for human review if either appears.",
+  "身份关系 JSON-LD": "Identity relationship JSON-LD",
+  "IDENTITY / 人与名字的关联": "IDENTITY / NAME LINK",
+  "原个人主页 ↗": "Original personal site ↗",
+  "国内镜像 ↗": "Domestic mirror ↗",
+  "妙笔 AI ↗": "Miaobi AI ↗",
+  "微信年轮 ↗": "WeChat Yearbook ↗",
+  "强鹰彩色胶 ↗": "Qiangying Color Sealant ↗",
+  "身份关系 JSON ↗": "Identity relationship JSON ↗",
+  "HONESTY NOTE / 真实性边界": "HONESTY NOTE / PUBLIC BOUNDARIES",
+  "个人主页 / Personal site": "Personal site",
+  "版本记录 / Releases": "Releases",
+  "内容来源 / Provenance": "Provenance",
   "这页不在档案里。": "This page is not in the archive.",
   "链接可能已经变化，或者你来到了一个尚未公开的页面。可以从下面三个真实入口继续。": "The link may have changed, or this page is not public yet. Continue through one of these three real routes.",
   "浏览创作与生活影像": "Browse creative and life imagery",
@@ -437,8 +533,52 @@ Object.assign(EN, {
   "玩法选择": "Activity selection",
   "可约稿方向": "Commission services",
   "公共大厅规则预览": "Public lobby rules preview",
+  "互动档案玩法说明": "Playable archive instructions",
+  "Serkon 个人档案局": "Serkon Archive Office",
+  "档": "S",
+  "© 2026 Serkon 侯世康 · 个人作品与创作交流站点": "© 2026 Serkon Hou Shikang · Personal work & creative exchange",
+  "关闭个人档案局": "Close the Archive Office",
+  "个人 AI 站点快捷工具": "Personal AI site tools",
+  "关闭工具栏": "Close the tool dock",
+  "打开目录": "Open directory",
+  "关闭目录": "Close directory",
+  "移动端目录": "Mobile directory",
+  "身份说明导航": "Identity profile navigation",
+  "Serkon 身份资料": "Serkon identity profile",
+  "照片分类": "Photo categories",
+  "播放背景音乐": "Play background music",
+  "记忆翻牌游戏": "Memory matching game",
+  "大厅核心规则": "Lobby core rules",
+  "在线人数正在连接": "Connecting live visitor count",
+  "按最近 2 分钟内保持页面活跃的匿名访客统计": "Counts anonymous visitors active on this page within the last two minutes",
+  "快捷留言": "Quick messages",
+  "想说什么，就在这里留下一句。不要填写手机号、邮箱、微信或其他私人信息。": "Leave a short message here. Do not include a phone number, email, WeChat ID or other private information.",
+  "动态章节": "Motion chapters",
+  "选择一种个人视觉线索": "Choose one personal visual clue",
+  "版本档案概览": "Release archive overview",
+  "轻量版目录": "Text-only edition directory",
+  "页面阅读进度": "Page reading progress",
+  "捕捉灵感小游戏区域": "Inspiration-catching mini game",
+  "跟随节奏点击": "Tap with the rhythm",
+  "Serkon 的视频瞬间": "Serkon video moments",
+  "Serkon 做出打电话手势的轻松瞬间": "A relaxed moment of Serkon making a phone gesture",
+  "Serkon 向镜头挥手的瞬间": "A moment of Serkon waving to the camera",
   "身穿灰色西装、面带微笑的 Serkon 侯世康": "Serkon smiling in a grey suit",
   "灰色西装正面照": "Front portrait in a grey suit",
+  "由多张日常自拍组成的拍立得拼贴": "A Polaroid collage made from everyday self-portraits",
+  "伦敦短片的 AI 影像素材工作区": "AI visual workspace for the London short film",
+  "伦敦 Vlog 视频导出设置与处理前后封面": "London vlog export settings with before-and-after cover frames",
+  "玖源璃象蓝金色圆形品牌标志设计": "Blue-and-gold circular brand mark for Jiuyuan Lixiang",
+  "Serkon 个人网站第一版完成时的工作界面": "Workspace from the completion of the first Serkon personal-site edition",
+  "原创歌曲《创世纪》在网易云音乐的发布页面": "NetEase Cloud Music release page for the original song Genesis",
+  "做打电话手势的瞬间": "A moment making a phone gesture",
+  "向镜头挥手的瞬间": "A moment waving to the camera",
+  "Serkon 的个人照片": "A personal photo of Serkon",
+  "站长公开写下的城市是？": "Which city does Serkon publicly list?",
+  "北京": "Beijing",
+  "上海": "Shanghai",
+  "成都": "Chengdu",
+  "北京傍晚的风，总是比计划先到": "Beijing's evening wind always arrives before the plan",
   "例如：高中最后一个夏天": "For example: the last summer of high school",
   "侯世康": "Hou Shikang",
   "进入全站共享的": "Enter the site-wide",
@@ -559,6 +699,48 @@ function translateValue(value: string) {
   if (!trimmed) return value;
   const exact = EN[trimmed.replace(/\s+/g, " ")];
   if (exact) return value.replace(trimmed, exact);
+  const exploredMatch = trimmed.match(/^已探索 (\d+) \/ (\d+)$/);
+  if (exploredMatch) return `EXPLORED ${exploredMatch[1]} / ${exploredMatch[2]}`;
+  const releaseLinkMatch = trimmed.match(/^版本记录：第 (\d+) 版 · (.+)$/);
+  if (releaseLinkMatch) return `Release ledger · Edition ${releaseLinkMatch[1]} · ${releaseLinkMatch[2]}`;
+  const currentEditionMatch = trimmed.match(/^当前为第 (\d+) 版$/);
+  if (currentEditionMatch) return `Current edition: ${currentEditionMatch[1]}`;
+  const currentEditionLinkMatch = trimmed.match(/^版本更新记录：当前第 (\d+) 版$/);
+  if (currentEditionLinkMatch) return `Release ledger: current edition ${currentEditionLinkMatch[1]}`;
+  const currentActMatch = trimmed.match(/^当前第 (\d+) 幕，共 (\d+) 幕。$/);
+  if (currentActMatch) return `Act ${currentActMatch[1]} of ${currentActMatch[2]}.`;
+  const cardCountMatch = trimmed.match(/^(\d+) 张$/);
+  if (cardCountMatch) return `${cardCountMatch[1]} cards`;
+  const memoryProgressMatch = trimmed.match(/^(\d+) 步 · (\d+)\/(\d+) 对$/);
+  if (memoryProgressMatch) return `${memoryProgressMatch[1]} moves · ${memoryProgressMatch[2]}/${memoryProgressMatch[3]} pairs`;
+  const scoreMatch = trimmed.match(/^(\d+)s · (\d+)分$/);
+  if (scoreMatch) return `${scoreMatch[1]}s · ${scoreMatch[2]} pts`;
+  const loadedAdminMatch = trimmed.match(/^已读取 (\d+) 条管理记录$/);
+  if (loadedAdminMatch) return `${loadedAdminMatch[1]} moderation records loaded`;
+  const reportCountMatch = trimmed.match(/^举报 (\d+)$/);
+  if (reportCountMatch) return `${reportCountMatch[1]} reports`;
+  const currentFocusMatch = trimmed.match(/^当前关注：(.+)。$/);
+  if (currentFocusMatch) return `Current focus: ${translateValue(currentFocusMatch[1])}.`;
+  const liteUpdatedMatch = trimmed.match(/^最后更新：(.+) · 本页不加载大图、音乐或游戏脚本。$/);
+  if (liteUpdatedMatch) return `Last updated: ${liteUpdatedMatch[1]} · This page loads no large images, music or game scripts.`;
+  const workSummaryMatch = trimmed.match(/^展开查看(.+)项目详情$/);
+  if (workSummaryMatch) return `Expand ${EN[workSummaryMatch[1]] ?? workSummaryMatch[1]} project details`;
+  const copyLabelMatch = trimmed.match(/^复制(WECHAT|DOUYIN)：(.+)$/);
+  if (copyLabelMatch) return `Copy ${copyLabelMatch[1]}: ${copyLabelMatch[2]}`;
+  const defaultNameMatch = trimmed.match(/^默认：(.+)$/);
+  if (defaultNameMatch) return `Default: ${translateValue(defaultNameMatch[1])}`;
+  const legacyAliasMatch = trimmed.match(/^朝阳旅人(\d+)$/);
+  if (legacyAliasMatch) return `BJ-Traveler-${legacyAliasMatch[1]}`;
+  const visitorNameMatch = trimmed.match(/^访客-(.+)$/);
+  if (visitorNameMatch) return `Visitor-${visitorNameMatch[1]}`;
+  const nicknameLabelMatch = trimmed.match(/^昵称（默认：(.+)）$/);
+  if (nicknameLabelMatch) return `Nickname (default: ${translateValue(nicknameLabelMatch[1])})`;
+  const beatCountMatch = trimmed.match(/^已记录 (\d+) 个节拍$/);
+  if (beatCountMatch) return `${beatCountMatch[1]} beats recorded`;
+  const actNavigationMatch = trimmed.match(/^前往第 (\d+) 幕：(.+)$/);
+  if (actNavigationMatch) return `Go to Act ${actNavigationMatch[1]}: ${actNavigationMatch[2]}`;
+  const actNotesMatch = trimmed.match(/^第 (\d+) 幕关联站长随笔$/);
+  if (actNotesMatch) return `Notes linked to Act ${actNotesMatch[1]}`;
   let next = value;
   for (const [zh, en] of FRAGMENTS) if (next.includes(zh)) next = next.replaceAll(zh, en);
   const subjectMatch = trimmed.match(/“([^”]+)”/);
@@ -574,6 +756,15 @@ function translateValue(value: string) {
   if (dateMatch) return `${dateMatch[2]}/${dateMatch[3]}/${dateMatch[1]}`;
   const countMatch = trimmed.match(/^(\d+) 次$/);
   if (countMatch) return `${countMatch[1]} editions`;
+  const standaloneUnits: Record<string, string> = {
+    "次": "editions",
+    "张": "cards",
+    "步": "moves",
+    "对": "pairs",
+    "分": "pts",
+    "元": "cost",
+  };
+  if (standaloneUnits[trimmed]) return value.replace(trimmed, standaloneUnits[trimmed]);
   return next;
 }
 

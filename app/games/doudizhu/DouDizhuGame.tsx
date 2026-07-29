@@ -164,10 +164,10 @@ export default function DouDizhuGame() {
 
   return (
     <main className="ddz-page">
-      <header className="ddz-nav"><Link href="/">← 返回个人主页</Link><strong>Serkon 斗地主牌桌</strong><button type="button" onClick={reset}>重新发牌</button></header>
+      <header className="ddz-nav"><Link href="/">← 返回个人主页</Link><h1>Serkon 斗地主牌桌</h1><button type="button" onClick={reset}>重新发牌</button></header>
       <section className="ddz-table">
-        <div className="opponent opponent-left"><span className="avatar">农</span><strong>左边农民</strong><small>{hands.left.length} 张</small></div>
-        <div className="opponent opponent-right"><span className="avatar">农</span><strong>右边农民</strong><small>{hands.right.length} 张</small></div>
+        <div className="opponent opponent-left"><span className="avatar">农</span><strong>左边农民</strong><small>{`${hands.left.length} 张`}</small></div>
+        <div className="opponent opponent-right"><span className="avatar">农</span><strong>右边农民</strong><small>{`${hands.right.length} 张`}</small></div>
         <div className="bottom-cards"><small>地主底牌</small><div>{hands.bottom.map((card) => <CardView card={card} mini key={card.id} />)}</div></div>
         <div className="play-area">
           {winner ? <div className="winner"><strong>{winner === "user" ? "你赢了！" : "农民获胜"}</strong><button type="button" onClick={reset}>再来一局</button></div> : last ? <><small>{last.player === "user" ? "你" : last.player === "left" ? "左边农民" : "右边农民"} · {last.combo.type}</small><div className="played-cards">{last.cards.map((card) => <CardView card={card} mini key={card.id} />)}</div></> : <strong>新一轮 · 请出牌</strong>}

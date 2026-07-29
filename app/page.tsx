@@ -107,6 +107,7 @@ const works = [
     image: "/work-color-system.webp",
     imageAlt: "强鹰彩色胶产品色彩主视觉，展示多色胶条、产品包装与适用范围",
     href: "https://qiangying-color-sealant-cn.pages.dev/",
+    cta: "打开产品网站",
   },
   {
     number: "02",
@@ -125,6 +126,7 @@ const works = [
     image: "/archive/london-ai-workspace.webp",
     imageAlt: "伦敦 Vlog 的 AI 影像素材工作区，展示地标、人物和食物镜头",
     href: "/life",
+    cta: "查看影像过程",
   },
   {
     number: "03",
@@ -142,7 +144,8 @@ const works = [
     className: "work-yellow",
     image: "/archive/genesis-music-release.webp",
     imageAlt: "原创歌曲《创世纪》在网易云音乐的公开发布页面",
-    href: "/life",
+    href: "https://music.163.com/#/song?id=2753362002",
+    cta: "打开网易云发布页",
   },
   {
     number: "04",
@@ -160,12 +163,13 @@ const works = [
     className: "work-mint",
     image: "/archive/serkon-first-build.webp",
     imageAlt: "Serkon 个人网站第一版在 ChatGPT Sites 中完成时的工作记录",
-    href: "/",
+    href: "/updates",
+    cta: "查看版本进化",
   },
 ];
 
 const nowItems = [
-  { code: "01", title: "第 32 版身份实体升级", copy: "以公开身份页、结构化数据和机器资料明确说明 Serkon 与侯世康是同一人的两个公开名称。" },
+  { code: "01", title: "Serkon 个人网站", copy: "持续校正内容层级、移动端细节、双语与长期维护流程，让每次更新都有依据、记录和回归检查。" },
   { code: "02", title: "微信年轮", copy: "继续完善面向完整聊天记录的本地分析与双系统使用体验，安全边界优先于功能数量。" },
   { code: "03", title: "强鹰彩色胶", copy: "继续整理产品视觉、规格信息与销售场景，让网站真正服务于理解和沟通。" },
 ];
@@ -276,7 +280,7 @@ export default function Home() {
             </article>
             <article>
               <span>02</span>
-              <p><small>LOCATION</small><strong>CHINA · BEIJING · CHAOYANG</strong></p>
+              <p><small>LOCATION</small><strong>CHINA · BEIJING</strong></p>
             </article>
             <article>
               <span>03</span>
@@ -410,7 +414,7 @@ export default function Home() {
                     </span>
                     <span className="work-body">
                       <small className="project-label">{work.badge}</small>
-                      <span className="work-title">{work.title}</span>
+                      <h3 className="work-title">{work.title}</h3>
                       <span className="work-copy">{work.copy}</span>
                       <span className="work-meta"><i>{work.phase}</i><i>{work.deliverables.length} 项输出</i></span>
                       <span className="tags">
@@ -436,7 +440,7 @@ export default function Home() {
                     <strong>{work.result}</strong>
                   </div>
                   <div className="work-deliverables"><small>DELIVERABLES</small><p>{work.deliverables.map((item) => <span key={item}>{item}</span>)}</p></div>
-                  <a className="work-live-link" href={work.href} target={work.href.startsWith("http") ? "_blank" : undefined} rel={work.href.startsWith("http") ? "noopener noreferrer" : undefined}>查看真实成果 <span aria-hidden="true">↗</span></a>
+                  <a className="work-live-link" href={work.href} target={work.href.startsWith("http") ? "_blank" : undefined} rel={work.href.startsWith("http") ? "noopener noreferrer" : undefined}>{work.cta} <span aria-hidden="true">↗</span></a>
                 </div>
               </details>
             ))}
@@ -554,7 +558,7 @@ export default function Home() {
           <a href="/provenance">内容来源</a>
           <a href="/zero-cost">0 元运营原则</a>
           <a href="/serkon">身份说明：Serkon = 侯世康</a>
-          <a className="footer-release-link" href="/updates">版本记录：第 {latestRelease.edition} 版 · {latestReleaseDate}</a>
+          <a className="footer-release-link" href="/updates">{`版本记录：第 ${latestRelease.edition} 版 · ${latestReleaseDate}`}</a>
           <a href="mailto:1052709298@qq.com">备用联系：1052709298@qq.com</a>
         </div>
       </footer>

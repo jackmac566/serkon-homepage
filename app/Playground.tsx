@@ -368,7 +368,7 @@ export default function Playground() {
 
         <article className="lab-card memory-lab">
           <span className="lab-number">03 / MEMORY FLIP</span>
-          <div className="memory-heading"><h3>Serkon 记忆翻牌</h3><span>{memoryMoves} 步 · {memoryMatched.length}/{memoryMode} 对</span></div>
+          <div className="memory-heading"><h3>Serkon 记忆翻牌</h3><span>{`${memoryMoves} 步 · ${memoryMatched.length}/${memoryMode} 对`}</span></div>
           <p aria-live="polite">{memoryStatus === "won" ? `全部配对成功！你用了 ${memoryMoves} 步。` : `翻开两张卡，找出属于 Serkon 的 ${memoryMode} 组相同记忆。`}</p>
           <div className="memory-mode" aria-label="翻牌难度"><button type="button" aria-pressed={memoryMode === 4} onClick={() => { setMemoryMode(4); exitMemoryGame(); }}>快速 4 对</button><button type="button" aria-pressed={memoryMode === 6} onClick={() => { setMemoryMode(6); exitMemoryGame(); }}>完整 6 对</button></div>
           <small className="memory-help" id="memory-help">玩法：每次翻两张，图形和文字相同即保留；卡面使用本站专属双色档案符号。</small>
@@ -389,7 +389,7 @@ export default function Playground() {
 
         <article className="lab-card game-lab">
           <span className="lab-number">04 / MINI GAME</span>
-          <div className="game-heading"><h3>捕捉灵感</h3><span aria-live="polite">{timeLeft}s · {score}分</span></div>
+          <div className="game-heading"><h3>捕捉灵感</h3><span aria-live="polite">{`${timeLeft}s · ${score}分`}</span></div>
           <p>10 秒内判断颜色并捕捉：黄色加分、蓝色稀有、红色会打断连击。</p>
           <small className="game-feedback" role="status">{gameFeedback}</small>
           <div className="game-stage" aria-label="捕捉灵感小游戏区域">

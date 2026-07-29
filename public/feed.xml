@@ -5,7 +5,14 @@
     <link>https://personal-homepage.maxc565.chatgpt.site/updates</link>
     <description>Serkon 个人网站每次正式更新的版本号、日期与摘要。</description>
     <language>zh-cn</language>
-    <lastBuildDate>Fri, 24 Jul 2026 16:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 28 Jul 2026 16:00:00 GMT</lastBuildDate>
+    <item>
+      <title>第 35 版｜第35版·全站细节与可维护性精修</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-35</link>
+      <guid isPermaLink="false">serkon-site-edition-35</guid>
+      <pubDate>Tue, 28 Jul 2026 16:00:00 GMT</pubDate>
+      <description>经过八轮内容、视觉、交互、双语、适配、无障碍、性能与安全复核，修正过期信息和作品跳转，并统一原站与开源源码的版本依据。</description>
+    </item>
     <item>
       <title>第 34 版｜第34版·Google验证路由修复</title>
       <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-34</link>
@@ -138,13 +145,6 @@
       <guid isPermaLink="false">serkon-site-edition-16</guid>
       <pubDate>Wed, 15 Jul 2026 16:00:00 GMT</pubDate>
       <description>完善约稿流程、无障碍、隐私和上传安全。</description>
-    </item>
-    <item>
-      <title>第 15 版｜全站排行榜</title>
-      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-15</link>
-      <guid isPermaLink="false">serkon-site-edition-15</guid>
-      <pubDate>Fri, 10 Jul 2026 16:00:00 GMT</pubDate>
-      <description>加入全站持久排行榜并完善游戏交互反馈。</description>
     </item>
   </channel>
 </rss>

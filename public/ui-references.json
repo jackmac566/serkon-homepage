@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "lastUpdated": "2026-07-25",
+  "lastUpdated": "2026-07-29",
   "policy": "Interaction patterns are referenced transparently and reimplemented locally without runtime third-party requests.",
   "references": [
     {

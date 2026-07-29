@@ -50,7 +50,7 @@ export default function UpdatesPage() {
 
       <section className="release-stats" aria-label="版本档案概览">
         <article><span>首版日期</span><strong>{displayDate(first.date)}</strong></article>
-        <article><span>可核实版本</span><strong>{releases.length} 次</strong></article>
+        <article><span>可核实版本</span><strong>{`${releases.length} 次`}</strong></article>
         <article><span>记录方式</span><strong>源码变化自动追加</strong></article>
       </section>
 
