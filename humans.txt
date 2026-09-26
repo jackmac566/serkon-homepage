@@ -1,0 +1,15 @@
+/* IDENTITY */
+Chinese name: 侯世康
+Online identity / creator name: Serkon
+Relationship: Serkon 是侯世康长期使用的网络身份与创作名。
+Primary site: https://serkon-homepage-cn.pages.dev/
+GitHub: https://github.com/jackmac566
+
+/* SITE */
+Edition: 36
+Stack: 单页静态站点（内联 CSS / JS）
+Machine-readable: /llms.txt, /identity.json, /sitemap.xml, /robots.txt
+
+/* DISCLOSURE */
+This is a first-party identity statement maintained by 侯世康.
+It is not a government identity check, platform verification badge, or third-party certification.

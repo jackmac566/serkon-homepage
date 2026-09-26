@@ -1,131 +1,57 @@
 # Serkon Homepage
 
-Serkon（侯世康）的双语个人网站源码：个人档案、作品案例、公共大厅、共享影像、互动实验、无障碍模式、机器可读资料、内容来源档案与自动版本记录。
+Serkon（侯世康）的个人网站源码。
 
 - 国内正式站：[serkon-homepage-cn.pages.dev](https://serkon-homepage-cn.pages.dev/)
-- 当前源码基线：第 35 版
-- 运行原则：尽可能保持 0 成本；不把会暗中产生费用的能力接入生产环境
+- 当前版本：第 36 版（交互与视觉改版，单页静态站点）
+- 上一版（第 35 版，Next.js 多页应用）：见本仓库 git 历史与 `edition-35` 标签
 
-## 为什么公开
+## 这一版是什么
 
-这份仓库用于技术交流、问题审查和后续协作，也让未来的开发者或 AI 能在完整上下文中继续维护。仓库只包含代码与站长已公开展示的素材，不包含：
+一次以「体验」为主线的视觉与交互改版。整站是**一个自包含的静态页面**：
 
-- Cloudflare 项目 ID、账号信息或 OAuth 凭证
-- `ADMIN_KEY`、`ADMIN_EMAIL` 等生产环境变量
-- D1 中的访客照片、留言、排行榜、在线状态或管理日志
-- 任何数据库导出、备份和本地缓存
+- 玻璃折射标题、可探索的个人档案与真实作品
+- 中英文切换、无障碍模式（对比度 / 字号 / 减少动画）
+- 全部样式与脚本内联在 `index.html` 中，不依赖任何外部 CDN
+- 不需要后端、数据库或构建步骤
 
-## 主要能力
-
-- 中英文界面与移动端适配
-- 作品案例、NOW 状态、站长随笔与版本档案
-- 公共大厅：持久留言、回复、举报、限流与管理员处理
-- 共享影像：登录上传、真实格式校验、限额和服务端删除权限
-- 互动档案、斗地主、记忆翻牌与沉浸式动态模块
-- 高对比度、字号、减少动画与键盘可访问性
-- `sitemap.xml`、`robots.txt`、`llms.txt`、JSON-LD 和公开身份资料
-- 内容来源与 0 成本边界说明
-
-## 技术结构
-
-- Next.js 16 + React 19
-- Vinext + Vite
-- Cloudflare Workers / Pages
-- Cloudflare D1 + Drizzle ORM
-- TypeScript
-
-关键目录：
+## 目录结构
 
 | 路径 | 用途 |
 |---|---|
-| `app/` | 页面、组件及 API 路由 |
-| `worker/` | Cloudflare Worker 入口与静态资源路由 |
-| `db/`、`drizzle/` | 数据结构和增量迁移 |
-| `data/` | 版本、来源、机器可读及零成本策略源数据 |
-| `public/` | 公开静态文件和站长素材 |
-| `scripts/` | 构建校验、来源生成和版本记录 |
-| `tests/` | 页面、接口、搜索资料与安全边界回归测试 |
-| `docs/AI-HANDOFF.md` | 后续开发者或 AI 的接手约束 |
+| `index.html` | 站点本体（单文件，含内联 CSS / JS / JSON-LD） |
+| `_redirects` | 旧版多页路由回落到首页 |
+| `robots.txt`、`sitemap.xml` | 搜索引擎收录 |
+| `llms.txt`、`identity.json` | 给 AI 的机器可读身份说明 |
+| `humans.txt` | 人类可读的作者与身份备注 |
+| `serkon-hero.jpg`、`work-color-system.webp`、`archive/` | 页面引用的图片素材 |
+| `creation-fk.mp3` | 页面引用的音频素材 |
+| `tools/build_site.py` | 从改版设计稿构建本仓库内容的脚本 |
 
-## 本地运行
+## 部署
 
-需要 Node.js `>=22.13.0`。
-
-```bash
-npm ci
-npm run dev
-```
-
-`vite.config.ts` 在没有私人托管配置时，会自动读取 `.openai/hosting.example.json`，因此公开仓库可以直接开发、构建和运行测试。只有部署到 ChatGPT Sites 时，才需要复制示例并在本地填写真实配置：
+本站是 Cloudflare Pages 项目 `serkon-homepage-cn` 的直传内容（Production 分支 `main`）：
 
 ```bash
-cp .openai/hosting.example.json .openai/hosting.json
+wrangler pages deploy . --project-name=serkon-homepage-cn --branch=main
 ```
 
-`.openai/hosting.json` 已被 Git 忽略，禁止提交真实 `project_id`。
+Pages 控制台保留历史部署记录，如需回滚上一版可直接在控制台把旧部署重新提升为生产版本。
 
-完整测试：
+## 本地预览
+
+直接双击打开 `index.html` 即可；或起一个静态服务器：
 
 ```bash
-npm test
+python3 -m http.server 8080
 ```
 
-构建脚本使用 GNU `timeout`。macOS 可通过 Homebrew 安装 GNU coreutils，或在 Linux/CI 环境运行测试。
+## 版本历史
 
-## 更新 GitHub
-
-不需要在网页里逐个上传文件。修改并通过测试后，使用 Git 提交和推送即可：
-
-```bash
-git add .
-git commit -m "release: publish edition 35"
-git push origin main
-```
-
-`git push` 会让 GitHub 仓库立即更新，但“源码同步”和“网站部署”是两件事：
-
-- GitHub 仓库：每次推送后自动保存完整历史。
-- Cloudflare Pages：可在控制台一次性连接这个仓库，之后由 `main` 分支推送自动触发部署。
-- ChatGPT Sites：使用自己的托管项目和私有清单，不应把真实 `project_id` 提交到 GitHub。
-
-现有正式站包含 D1、管理密钥和固定 Pages 项目。开启 Cloudflare Git 自动部署前，必须先确认构建命令、输出目录、D1 binding 和 secrets 都指向原资源，避免自动化把正确源码部署到错误环境。
-
-## 生产环境变量
-
-生产环境至少需要：
-
-| 名称 | 类型 | 用途 |
-|---|---|---|
-| `DB` | D1 binding | 大厅、共享影像、排行榜与互动数据 |
-| `ADMIN_EMAIL` | secret | 共享影像管理员身份 |
-| `ADMIN_KEY` | secret | 国内版大厅管理密钥 |
-| `BUCKET` | R2 binding | 预留的对象存储绑定；当前主要影像数据仍由既有后端处理 |
-
-不要把值写进源码、Issue、日志或截图。公开仓库只描述变量名称。
-
-## 数据与部署边界
-
-这是源码仓库，不是生产数据库备份。部署到新环境前应：
-
-1. 创建自己的 D1 数据库并绑定为 `DB`。
-2. 按顺序应用 `drizzle/` 中的迁移。
-3. 在部署平台设置管理员 secret。
-4. 先在空白测试数据库验证，再连接生产资源。
-
-维护现有 Serkon 正式站时，必须复用既有 Pages 项目与 D1 数据，禁止重建、清空或覆盖线上数据。详见 [AI 接手说明](docs/AI-HANDOFF.md)。
-
-## 内容审核的真实边界
-
-共享影像当前会检查登录身份、请求来源、文件大小、MIME 类型、文件头、上传频率和删除权限；这些检查不能判断图片是否拥有版权，也不能自动识别所有违规内容。
-
-照片版权和公开授权由上传者负责，站长进行事后人工处理。当前仓库没有接入付费版权识别库或第三方自动内容审核服务。若用于更大规模的公开社区，应先增加照片举报、管理员审核队列、处置记录和申诉流程。
+- 第 36 版：交互与视觉改版，改为单页静态站点
+- 第 35 版：Next.js 16 + React 19 多页应用（作品案例、公共大厅留言、共享影像上传、互动游戏、双语与无障碍）
+- 第 34 版及更早：见 git 历史
 
 ## 许可
 
-源代码按 [MIT License](LICENSE) 开放。Serkon / 侯世康的姓名、品牌、文字作品、照片、音乐、肖像和其他个人素材不随代码授权，详见 [素材与品牌许可](ASSET-LICENSE.md)。
-
-开源不等于允许复制个人身份或把本项目冒充为自己的作品。
-
-## 安全
-
-请不要在公开 Issue 中提交密钥、完整日志、访客信息或数据库内容。漏洞报告方式见 [SECURITY.md](SECURITY.md)。
+代码部分适用根目录 MIT License；个人素材与品牌内容保留权利，详见 `ASSET-LICENSE.md`。

@@ -1,0 +1,82 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://serkon-homepage-cn.pages.dev/#person",
+      "name": "侯世康",
+      "alternateName": "Serkon",
+      "description": "Serkon 是侯世康长期使用的网络身份与创作名。",
+      "url": "https://serkon-homepage-cn.pages.dev/",
+      "image": "https://serkon-homepage-cn.pages.dev/serkon-hero.jpg",
+      "sameAs": [
+        "https://github.com/jackmac566",
+        "https://personal-homepage.maxc565.chatgpt.site/"
+      ],
+      "identifier": {
+        "@type": "PropertyValue",
+        "propertyID": "online identity",
+        "value": "Serkon"
+      },
+      "homeLocation": {
+        "@type": "Place",
+        "name": "中国北京"
+      },
+      "knowsAbout": [
+        "AI 创作",
+        "视觉设计",
+        "个人网站",
+        "互动体验",
+        "影像记录"
+      ],
+      "subjectOf": [
+        {
+          "@type": "CreativeWork",
+          "name": "强鹰彩色胶·产品视觉系统",
+          "url": "https://qiangying-color-sealant-cn.pages.dev/"
+        },
+        {
+          "@type": "CreativeWork",
+          "name": "妙笔 AI 全能文案助手",
+          "url": "https://miaobi-appl-serkon.pages.dev/"
+        },
+        {
+          "@type": "CreativeWork",
+          "name": "微信年轮",
+          "url": "https://github.com/jackmac566/wechat-yearbook"
+        }
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://serkon-homepage-cn.pages.dev/#website",
+      "url": "https://serkon-homepage-cn.pages.dev/",
+      "name": "Serkon 侯世康",
+      "alternateName": [
+        "Serkon",
+        "侯世康个人主页"
+      ],
+      "author": {
+        "@id": "https://serkon-homepage-cn.pages.dev/#person"
+      },
+      "inLanguage": [
+        "zh-CN",
+        "en"
+      ]
+    },
+    {
+      "@type": "ProfilePage",
+      "@id": "https://serkon-homepage-cn.pages.dev/#profile-page",
+      "url": "https://serkon-homepage-cn.pages.dev/",
+      "name": "Serkon 侯世康 — 好奇，成为作品",
+      "description": "Serkon（侯世康）个人网站：可探索的个人档案、真实作品与互动实验。Serkon 是侯世康长期使用的网络身份与创作名。",
+      "inLanguage": [
+        "zh-CN",
+        "en"
+      ],
+      "mainEntity": {
+        "@id": "https://serkon-homepage-cn.pages.dev/#person"
+      }
+    }
+  ]
+}
