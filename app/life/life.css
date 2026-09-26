@@ -1,0 +1,59 @@
+:root { --life-paper: #f4f0e7; --life-ink: #151515; --life-red: #8b1e2d; --life-blue: #2454ff; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--life-paper); color: var(--life-ink); font-family: "PingFang SC", "Microsoft YaHei", sans-serif; }
+.life-page { min-height: 100vh; }
+.life-nav { display: flex; justify-content: space-between; align-items: center; min-height: 78px; padding: 0 clamp(20px, 5vw, 72px); border-bottom: 1px solid #cfc8ba; font-size: 12px; letter-spacing: .08em; }
+.life-nav a { color: inherit; text-decoration: none; }
+.life-hero { padding: clamp(70px, 10vw, 140px) clamp(20px, 7vw, 110px) 60px; }
+.life-hero small { color: var(--life-red); letter-spacing: .16em; }
+.life-hero h1 { margin: 24px 0 18px; font-family: "Songti SC", Georgia, serif; font-size: clamp(64px, 11vw, 160px); line-height: .9; letter-spacing: -.07em; }
+.life-hero p { max-width: 620px; color: #5f5a52; font-family: "Songti SC", Georgia, serif; font-size: 18px; line-height: 1.8; }
+.gallery-section { padding: 0 clamp(20px, 5vw, 72px) 110px; }
+.gallery-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 22px; padding: 24px 0; border-top: 1px solid #cfc8ba; }
+.gallery-toolbar > span { color: #777168; font-size: 10px; letter-spacing: .1em; white-space: nowrap; }
+.gallery-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.gallery-filters button { min-height: 42px; padding: 0 15px; border: 1px solid #bbb3a6; border-radius: 999px; background: transparent; cursor: pointer; }
+.gallery-filters button.active { border-color: var(--life-ink); background: var(--life-ink); color: white; }
+.community-upload { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .85fr); gap: clamp(28px, 5vw, 80px); align-items: end; margin: 12px 0 16px; padding: clamp(26px, 4vw, 48px); border: 1px solid #bfb7aa; background: linear-gradient(135deg, rgba(255,250,240,.96), rgba(225,233,218,.76)); box-shadow: 10px 12px 0 rgba(139,30,45,.06); }
+.community-upload small { color: var(--life-red); font: 11px Georgia, serif; letter-spacing: .16em; }
+.community-upload h2 { max-width: 620px; margin: 13px 0 10px; font-family: "Songti SC", Georgia, serif; font-size: clamp(28px, 4vw, 52px); font-weight: 500; line-height: 1.15; }
+.community-upload p { max-width: 620px; margin: 0; color: #686158; line-height: 1.8; }
+.upload-controls { display: grid; grid-template-columns: 120px 1fr; gap: 9px; }
+.upload-controls select, .upload-controls > input { min-width: 0; min-height: 42px; padding: 0 12px; border: 1px solid #aaa196; border-radius: 0; background: rgba(255,255,255,.7); color: inherit; font: inherit; }
+.upload-controls .upload-note { grid-column: 1 / -1; }
+.upload-controls .local-upload { grid-column: 1 / -1; display: grid; place-items: center; min-height: 44px; background: var(--life-red); color: white; text-align: center; }
+.local-upload.disabled { cursor: wait; opacity: .65; }
+.signin-upload { display: grid; place-items: center; min-height: 48px; padding: 0 22px; background: var(--life-ink); color: white; text-decoration: none; }
+.photo-wall { columns: 3 280px; column-gap: 18px; margin-top: 26px; }
+.photo-shell { position: relative; margin: 0 0 18px; break-inside: avoid; }
+.photo-item { position: relative; width: 100%; margin: 0; padding: 0; overflow: hidden; border: 0; background: #ddd; cursor: zoom-in; text-align: left; }
+.photo-item img { display: block; width: 100%; height: auto; transition: transform .45s ease, filter .45s ease; }
+.photo-item:hover img { transform: scale(1.025); filter: saturate(1.05); }
+.photo-item > span { position: absolute; inset: auto 0 0; display: flex; justify-content: space-between; align-items: end; gap: 16px; padding: 42px 16px 16px; background: linear-gradient(transparent, rgba(0,0,0,.72)); color: white; }
+.photo-item small { font-size: 9px; letter-spacing: .12em; }
+.photo-item strong { font-family: "Songti SC", Georgia, serif; font-size: 14px; }
+.local-upload { min-height: 38px; padding: 10px 15px; border: 1px solid var(--life-red); color: var(--life-red); font-size: 12px; cursor: pointer; white-space: nowrap; }.local-upload input { display: none; }
+.upload-boundary { margin: 0 0 20px; padding: 13px 16px; border-left: 4px solid var(--life-blue); background: rgba(36,84,255,.06); color: #655e55; font-size: 12px; line-height: 1.7; }
+.upload-notice { color: #276654; font-size: 12px; }
+.delete-photo { width: 100%; min-height: 38px; border: 1px solid #b88f88; border-top: 0; background: #fff7ef; color: #8b1e2d; cursor: pointer; }
+.gallery-note { display: grid; grid-template-columns: 150px 1fr; gap: 30px; margin-top: 62px; padding: 30px; border: 1px solid #bfb7aa; background: #fffaf0; }
+.gallery-note span { color: var(--life-blue); font-family: Georgia, serif; font-size: 11px; letter-spacing: .14em; }
+.gallery-note p { max-width: 720px; margin: 0; color: #5d5850; line-height: 1.8; }
+.empty-album { min-height: 300px; display: grid; place-content: center; text-align: center; border: 1px dashed #aaa196; }
+.empty-album strong { font-family: "Songti SC", Georgia, serif; font-size: 28px; }
+.empty-album p { color: #777168; }
+.lightbox { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 30px; background: rgba(5,8,16,.92); color: white; cursor: zoom-out; }
+.lightbox img { max-width: min(88vw, 900px); max-height: 82vh; object-fit: contain; box-shadow: 0 24px 80px rgba(0,0,0,.45); }
+.lightbox > button { position: fixed; right: 24px; top: 18px; border: 0; background: none; color: white; font-size: 42px; cursor: pointer; }
+.lightbox p { position: fixed; bottom: 14px; display: grid; gap: 5px; margin: 0; text-align: center; }
+.lightbox p small { color: #c8c2b8; font-size: 11px; }
+:focus-visible { outline: 3px solid var(--life-blue); outline-offset: 3px; }
+@media (max-width: 800px) { .community-upload { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .life-nav span { display: none; } .gallery-toolbar { align-items: flex-start; flex-direction: column; } .upload-controls { grid-template-columns: 1fr; } .upload-controls .local-upload { grid-column: auto; } .photo-wall { columns: 2 140px; column-gap: 10px; } .photo-shell { margin-bottom: 10px; } .gallery-note { grid-template-columns: 1fr; } .lightbox { padding: 18px; } .lightbox p { bottom: 10px; max-width: 82vw; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+
+.curated-archive-note { display: grid; grid-template-columns: .35fr .85fr 1fr; gap: clamp(22px, 4vw, 60px); align-items: start; margin: 0 0 28px; padding: 26px 0; border-top: 1px solid #1a1a1a; border-bottom: 1px solid #c8c0b3; }
+.curated-archive-note small { color: #8b1e2d; font: 700 10px/1.4 Georgia, serif; letter-spacing: .15em; }
+.curated-archive-note strong { font-family: "Songti SC", "STSong", Georgia, serif; font-size: clamp(20px, 2.1vw, 31px); line-height: 1.4; }
+.curated-archive-note p { margin: 0; color: #6f6a62; font-size: 13px; line-height: 1.8; }
+@media (max-width: 760px) { .curated-archive-note { grid-template-columns: 1fr; } }

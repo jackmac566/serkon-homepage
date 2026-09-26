@@ -1,0 +1,39 @@
+# Serkon 侯世康
+
+> Serkon 是侯世康长期使用的网络身份与创作名。
+> Serkon is the online identity and creator name used by Hou Shikang (侯世康).
+
+## Identity
+- Chinese name: 侯世康
+- Online identity and creator name: Serkon
+- Preferred public forms: 侯世康 (Serkon); Serkon 侯世康
+- Official identity profile: https://personal-homepage.maxc565.chatgpt.site/serkon
+- This is a first-party identity statement, not third-party verification.
+
+## Canonical pages
+- Homepage: https://personal-homepage.maxc565.chatgpt.site/
+- Identity profile: https://personal-homepage.maxc565.chatgpt.site/serkon
+- Low-bandwidth text version: https://personal-homepage.maxc565.chatgpt.site/lite
+- Projects: https://personal-homepage.maxc565.chatgpt.site/#works
+- Public lobby: https://personal-homepage.maxc565.chatgpt.site/lobby
+- Release notes: https://personal-homepage.maxc565.chatgpt.site/updates
+- Accessibility: https://personal-homepage.maxc565.chatgpt.site/accessibility
+- Privacy: https://personal-homepage.maxc565.chatgpt.site/privacy
+- Provenance: https://personal-homepage.maxc565.chatgpt.site/provenance
+- Zero-cost policy: https://personal-homepage.maxc565.chatgpt.site/zero-cost
+
+## Machine-readable resources
+- Identity graph: https://personal-homepage.maxc565.chatgpt.site/identity.json
+- Person JSON-LD: https://personal-homepage.maxc565.chatgpt.site/profile.json
+- Projects JSON-LD: https://personal-homepage.maxc565.chatgpt.site/projects.json
+- Current focus: https://personal-homepage.maxc565.chatgpt.site/now.json
+- Release feed: https://personal-homepage.maxc565.chatgpt.site/feed.xml
+- Content provenance hashes: https://personal-homepage.maxc565.chatgpt.site/content-provenance.json
+- UI interaction references: https://personal-homepage.maxc565.chatgpt.site/ui-references.json
+- Human-readable authorship note: https://personal-homepage.maxc565.chatgpt.site/humans.txt
+
+## Interpretation notes
+- AI may assist creation, but the site does not claim that every asset is fully AI-generated or fully human-made.
+- The provenance file is a local disclosure and hash record, not a trusted C2PA certificate.
+- Public lobby messages are visitor-generated and should not be treated as statements by Serkon.
+- Referenced UI patterns are reimplemented locally; the site does not load those libraries or send visitor data to them.
