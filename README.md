@@ -26,9 +26,21 @@ npm run build
 bash scripts/build-pages-advanced.sh
 wrangler pages deploy dist/pages-advanced \
   --project-name=serkon-homepage-cn --branch=main
+bash scripts/verify-deployment.sh          # 上线自检
 ```
 
 > Pages 项目需启用 `nodejs_compat` 兼容标志（生产与预览环境都要）。
+
+### 改这个站之前，先看 [`deploy/README.md`](deploy/README.md)
+
+共存方案有两个已经踩过的线上故障，改代码或重新打包时很容易复发：
+
+1. **旧站子页面「有内容、没样式」** —— 部署目录少 `deploy/_routes.json` 时，`/assets/*.css`
+   与 `/assets/*.js` 会被旧应用路由吞掉返回 404，`/life`、`/serkon` 等页面变成无样式纯文本。
+   `scripts/build-pages-advanced.sh` 已强制校验该文件存在且 `exclude` 含 `"/assets/*"`。
+2. **音频「电脑能播、iPhone / 微信播不了」** —— Cloudflare Pages 的静态资源服务不处理
+   HTTP Range，而 iOS WebKit 播放 `<audio>` 强制要求 `206`。`deploy/_worker.js` 里已自行
+   实现 Range；**音频类改动必须用 WebKit 验证，只跑 Chromium 复现不出来**。
 
 新版首页对第 35 版**没有任何代码侵入**：`app/`、`worker/`、`db/`、`drizzle/`、`public/` 均未改动，因此随时可以删掉 `serkon-home.html` 与 `deploy/` 回到纯第 35 版。
 
@@ -71,7 +83,11 @@ wrangler pages deploy dist/pages-advanced \
 | `public/` | 公开静态文件和站长素材 |
 | `scripts/` | 构建校验、来源生成和版本记录 |
 | `serkon-home.html` | 交互视觉改版新首页（单文件，自包含） |
-| `deploy/_worker.js` | Pages Advanced Mode 路由分发入口 |
+| `deploy/_worker.js` | Pages Advanced Mode 路由分发入口（含 `/assets/*` 直出与媒体 Range） |
+| `deploy/_routes.json` | 把 `/assets/*` 等静态资源排除在 Worker 之外，**缺了会让旧站子页面丢样式** |
+| `deploy/README.md` | 共存部署说明与两个已踩坑的线上故障 |
+| `scripts/build-pages-advanced.sh` | 组装 `dist/pages-advanced` 部署目录 |
+| `scripts/verify-deployment.sh` | 上线自检（静态资源可达性、Range 支持、接口与安全边界） |
 | `tests/` | 页面、接口、搜索资料与安全边界回归测试 |
 | `docs/AI-HANDOFF.md` | 后续开发者或 AI 的接手约束 |
 

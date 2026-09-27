@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": [
+    "/assets/*",
+    "/archive/*",
+    "/*.jpg",
+    "/*.jpeg",
+    "/*.png",
+    "/*.webp",
+    "/*.svg",
+    "/*.ico",
+    "/favicon.svg",
+    "/content-provenance.json",
+    "/identity.json",
+    "/now.json",
+    "/profile.json",
+    "/projects.json",
+    "/ui-references.json",
+    "/feed.xml",
+    "/humans.txt",
+    "/llms.txt",
+    "/google0145912d521186e0.html"
+  ]
+}

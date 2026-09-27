@@ -38,6 +38,8 @@ next-env.d.ts
 *.tsbuildinfo
 /dist/
 /dist-*/
+/dist.*/
+/dist.old/
 /package-omitted/
 /.wrangler/
 /.sites-runtime/

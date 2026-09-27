@@ -10,6 +10,27 @@
 - 保留公共大厅、共享影像、排行榜、在线状态和站长管理能力。
 - 管理 secret 只存在于部署环境，不进入 Git。
 - 每次正式更新都在 `data/releases.json` 追加版本，不改写历史版本。
+- 正式站是「新首页 + 第 35 版共存」形态：`deploy/` 下的 `_worker.js` 与 `_routes.json`
+  **两个文件都必须带上部署**，缺任一都会造成线上故障。详见 [deploy/README.md](../deploy/README.md)。
+
+## 共存部署的两个硬约束（2026-09-27 两次线上故障的结论）
+
+改这个站之前务必先读 [`deploy/README.md`](../deploy/README.md)。要点：
+
+1. **部署目录必须包含 `deploy/_routes.json`，且 `exclude` 里要有 `"/assets/*"`。**
+   少了它，`/assets/*.css`、`/assets/*.js` 会落进旧应用路由并返回 404，导致
+   `/life`、`/serkon` 等**所有旧站子页面变成无样式纯文本**（PC 与手机都坏，手机更容易被先发现）。
+   `scripts/build-pages-advanced.sh` 已强制校验这一点，重建时不要绕过它。
+
+2. **媒体文件（`/creation-fk.mp3`）必须返回 `206` 而不是 `200`。**
+   Cloudflare Pages 的静态资源服务不处理 HTTP Range。iOS Safari / 所有 WKWebView
+   （含微信内置浏览器）播放 `<audio>` 时强制要求字节范围，拿不到 `206` 会**静默失败**，
+   表现为「电脑能播、iPhone 播不了」。Range 由 `deploy/_worker.js` 自行实现，
+   因此媒体后缀不能放进 `_routes.json` 的 `exclude`，并且 `Cache-Control` 必须由 Worker 设置
+   （Pages 的 `_headers` 对 Worker 响应不生效）。
+
+上线后必须运行 `bash scripts/verify-deployment.sh`，它会逐条检查上述两点。
+**音频类改动只用 Chromium 验证是不够的**，必须用 WebKit（真机 iPhone 或 Playwright WebKit）。
 
 ## 变更顺序
 
