@@ -10,9 +10,47 @@ const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/g
 const ALLOWED_CATEGORIES = new Set(["访客影像", "日常", "旅行", "朋友", "人物", "随手拍"]);
 const MAX_VISITOR_PHOTOS = 50;
 const MAX_UPLOADS_PER_HOUR = 16;
+const ADMIN_KEY_COOKIE = "serkon_admin_key";
 
-function isAdmin(email: string, env: CloudflareEnv) {
+function isAdminEmail(email: string, env: CloudflareEnv) {
   return Boolean(env.ADMIN_EMAIL && email.toLowerCase() === String(env.ADMIN_EMAIL).toLowerCase());
+}
+
+/**
+ * 站长通道：`/lobby/manage` 页面已经把站长密钥放在 `X-Serkon-Admin-Key` 头里，
+ * 照片墙沿用同一套密钥；同时接受 `serkon_admin_key` cookie，方便站长在浏览器里直接管理。
+ * 设备身份是 `{uuid}@device.serkon.local`，永远不可能等于 ADMIN_EMAIL，
+ * 所以只靠邮箱判断会让站长彻底失去管理权限。
+ */
+function adminKeySupplied(request: Request): string {
+  const header = request.headers.get("X-Serkon-Admin-Key")?.trim();
+  if (header) return header;
+  const cookie = request.headers.get("Cookie") ?? "";
+  for (const pair of cookie.split(";")) {
+    const [key, ...value] = pair.trim().split("=");
+    if (key === ADMIN_KEY_COOKIE) return decodeURIComponent(value.join("=")).trim();
+  }
+  return "";
+}
+
+async function digest(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  const hash = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function equalSecret(first: string, second: string) {
+  const [left, right] = await Promise.all([digest(first), digest(second)]);
+  let mismatch = left.length ^ right.length;
+  for (let index = 0; index < Math.min(left.length, right.length); index += 1) mismatch |= left.charCodeAt(index) ^ right.charCodeAt(index);
+  return mismatch === 0;
+}
+
+async function isAdminRequest(request: Request, env: CloudflareEnv) {
+  const supplied = adminKeySupplied(request);
+  const secret = (env.ADMIN_KEY || env.ADMIN_TOKEN || "").trim();
+  if (!supplied || !secret) return false;
+  return equalSecret(supplied, secret);
 }
 
 function cleanText(value: FormDataEntryValue | null, fallback: string, max: number) {
@@ -34,14 +72,15 @@ function sameOrigin(request: Request) {
   return !origin || origin === new URL(request.url).origin;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const { env } = await import("cloudflare:workers");
-    const user = await getChatGPTUser();
+    const [user, adminByKey] = await Promise.all([getChatGPTUser(), isAdminRequest(request, env)]);
     const rows = await getDb(env.DB).select().from(lifePhotos).orderBy(desc(lifePhotos.createdAt)).limit(200);
     return Response.json({
       signedIn: Boolean(user),
       displayName: user?.displayName ?? null,
+      isAdmin: adminByKey,
       photos: rows.map((photo) => ({
         id: photo.id,
         src: `/api/life/image?id=${encodeURIComponent(photo.id)}`,
@@ -50,7 +89,7 @@ export async function GET() {
         note: photo.note,
         ownerName: photo.ownerName,
         createdAt: photo.createdAt,
-        canDelete: Boolean(user && (photo.ownerEmail === user.email || isAdmin(user.email, env))),
+        canDelete: Boolean(adminByKey || (user && (photo.ownerEmail === user.email || isAdminEmail(user.email, env)))),
       })),
     }, { headers: { "Cache-Control": "private, no-store" } });
   } catch {
@@ -73,7 +112,7 @@ export async function POST(request: Request) {
     if (file.size > MAX_FILE_SIZE) return Response.json({ error: "国内版单张照片不能超过 1.5MB，请压缩后重试" }, { status: 413 });
 
     const db = getDb(env.DB);
-    if (!isAdmin(user.email, env)) {
+    if (!isAdminEmail(user.email, env) && !await isAdminRequest(request, env)) {
       const [total] = await db.select({ value: count() }).from(lifePhotos).where(eq(lifePhotos.ownerEmail, user.email));
       if ((total?.value ?? 0) >= MAX_VISITOR_PHOTOS) {
         return Response.json({ error: `每位访客最多保留 ${MAX_VISITOR_PHOTOS} 张照片，请先删除旧照片` }, { status: 429 });
@@ -93,7 +132,6 @@ export async function POST(request: Request) {
 
     const id = crypto.randomUUID();
     const objectKey = `d1/${id}`;
-    await env.DB.prepare("CREATE TABLE IF NOT EXISTS life_photo_blobs (photo_id TEXT PRIMARY KEY NOT NULL, image_data BLOB NOT NULL)").run();
     await env.DB.prepare("INSERT INTO life_photo_blobs (photo_id, image_data) VALUES (?, ?)")
       .bind(id, new Uint8Array(buffer)).run();
 
@@ -132,7 +170,7 @@ export async function DELETE(request: Request) {
 
   const [photo] = await getDb(env.DB).select().from(lifePhotos).where(eq(lifePhotos.id, id)).limit(1);
   if (!photo) return Response.json({ error: "照片不存在" }, { status: 404 });
-  if (photo.ownerEmail !== user.email && !isAdmin(user.email, env)) {
+  if (photo.ownerEmail !== user.email && !isAdminEmail(user.email, env) && !await isAdminRequest(request, env)) {
     return Response.json({ error: "你只能删除自己上传的照片" }, { status: 403 });
   }
 

@@ -9,7 +9,16 @@ export const OWNER_EMAIL = "shikanghou4@gmail.com";
 export type LobbyEnv = {
   DB: D1Database;
   ADMIN_KEY?: string;
+  ADMIN_TOKEN?: string;
 };
+
+/**
+ * 线上 Pages 项目实际配置的密钥名是 `ADMIN_TOKEN`，而代码只读 `ADMIN_KEY`，
+ * 结果站长管理页永远返回 401。这里同时接受两个名字，避免再次错位。
+ */
+export function adminSecret(env: LobbyEnv): string {
+  return (env.ADMIN_KEY || env.ADMIN_TOKEN || "").trim();
+}
 
 const ALLOWED_REPORT_REASONS = new Set(["个人信息", "骚扰攻击", "广告引流", "不适内容", "其他"]);
 const RESERVED_NAME_PATTERN = /(serkon|侯世康|站长|管理员|管理員|官方|系统|系統|客服)/iu;
@@ -191,5 +200,6 @@ export async function isLobbyAdmin(request: Request, env: LobbyEnv) {
   const authenticatedEmail = request.headers.get("oai-authenticated-user-email")?.trim().toLowerCase();
   if (authenticatedEmail === OWNER_EMAIL) return true;
   const supplied = request.headers.get("X-Serkon-Admin-Key")?.trim();
-  return Boolean(supplied && env.ADMIN_KEY && await equalSecret(supplied, env.ADMIN_KEY));
+  const secret = adminSecret(env);
+  return Boolean(supplied && secret && await equalSecret(supplied, secret));
 }
