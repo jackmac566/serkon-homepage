@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   keywords: ["Serkon", "侯世康", "Serkon 侯世康", "侯世康 Serkon", "AI 创作", "个人网站", "视觉作品"],
   formatDetection: { telephone: false },
   robots: { index: true, follow: true },
+  verification: { other: { "msvalidate.01": "8659DEB102E9ACF93EE58D94AAE6678E" } },
   openGraph: {
     title: "Serkon 侯世康｜个人主页与作品档案",
     description: "Serkon 是侯世康长期使用的网络身份与创作名。认识他的 AI 创作、作品与个人项目。",
