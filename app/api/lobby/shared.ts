@@ -1,7 +1,13 @@
 import { and, count, eq, gt, lt } from "drizzle-orm";
 import { ensureLobbyTables, getDb } from "../../../db";
 import { lobbyRateEvents } from "../../../db/schema";
-import { LOBBY_COOKIE, parseDeviceId, signDeviceId } from "../../device-identity";
+import {
+  ADMIN_COOKIE_NAME,
+  LOBBY_COOKIE,
+  isAdminCredential,
+  parseDeviceId,
+  signDeviceId,
+} from "../../device-identity";
 
 export { LOBBY_COOKIE };
 export const LOBBY_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
@@ -192,17 +198,19 @@ export async function recordRateEvent(
   });
 }
 
-async function equalSecret(first: string, second: string) {
-  const [left, right] = await Promise.all([digest(first), digest(second)]);
-  let mismatch = left.length ^ right.length;
-  for (let index = 0; index < Math.min(left.length, right.length); index += 1) mismatch |= left.charCodeAt(index) ^ right.charCodeAt(index);
-  return mismatch === 0;
-}
-
 export async function isLobbyAdmin(request: Request, env: LobbyEnv) {
   const authenticatedEmail = request.headers.get("oai-authenticated-user-email")?.trim().toLowerCase();
   if (authenticatedEmail === OWNER_EMAIL) return true;
-  const supplied = request.headers.get("X-Serkon-Admin-Key")?.trim();
-  const secret = adminSecret(env);
-  return Boolean(supplied && secret && await equalSecret(supplied, secret));
+  const supplied = request.headers.get("X-Serkon-Admin-Key")?.trim() || lobbyAdminCookie(request);
+  return isAdminCredential(supplied, env);
+}
+
+/** 浏览器里可选的站长票据；只认 HMAC 派生值，不存密钥原文。 */
+export function lobbyAdminCookie(request: Request): string {
+  const cookie = request.headers.get("Cookie") ?? "";
+  for (const pair of cookie.split(";")) {
+    const [key, ...value] = pair.trim().split("=");
+    if (key === ADMIN_COOKIE_NAME) return decodeURIComponent(value.join("=")).trim();
+  }
+  return "";
 }

@@ -1,5 +1,6 @@
 import { and, count, desc, eq, gte } from "drizzle-orm";
 import { getChatGPTUser } from "../../../chatgpt-auth";
+import { ADMIN_COOKIE_NAME, isAdminCredential } from "../../../device-identity";
 import { getDb } from "../../../../db";
 import { lifePhotos } from "../../../../db/schema";
 
@@ -13,7 +14,6 @@ const ALLOWED_CATEGORIES = new Set(["访客影像", "日常", "旅行", "朋友"
 const MAX_VISITOR_PHOTOS = 50;
 const MAX_UPLOADS_PER_HOUR = 16;
 const MAX_TOTAL_PHOTOS = 300;
-const ADMIN_KEY_COOKIE = "serkon_admin_key";
 
 function isAdminEmail(email: string, env: CloudflareEnv) {
   return Boolean(env.ADMIN_EMAIL && email.toLowerCase() === String(env.ADMIN_EMAIL).toLowerCase());
@@ -31,29 +31,14 @@ function adminKeySupplied(request: Request): string {
   const cookie = request.headers.get("Cookie") ?? "";
   for (const pair of cookie.split(";")) {
     const [key, ...value] = pair.trim().split("=");
-    if (key === ADMIN_KEY_COOKIE) return decodeURIComponent(value.join("=")).trim();
+    if (key === ADMIN_COOKIE_NAME) return decodeURIComponent(value.join("=")).trim();
   }
   return "";
 }
 
-async function digest(value: string) {
-  const bytes = new TextEncoder().encode(value);
-  const hash = await crypto.subtle.digest("SHA-256", bytes);
-  return Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
-async function equalSecret(first: string, second: string) {
-  const [left, right] = await Promise.all([digest(first), digest(second)]);
-  let mismatch = left.length ^ right.length;
-  for (let index = 0; index < Math.min(left.length, right.length); index += 1) mismatch |= left.charCodeAt(index) ^ right.charCodeAt(index);
-  return mismatch === 0;
-}
-
 async function isAdminRequest(request: Request, env: CloudflareEnv) {
-  const supplied = adminKeySupplied(request);
-  const secret = (env.ADMIN_KEY || env.ADMIN_TOKEN || "").trim();
-  if (!supplied || !secret) return false;
-  return equalSecret(supplied, secret);
+  // header 里可放密钥原文；cookie 里只放 HMAC 派生票据，密钥不进浏览器存储。
+  return isAdminCredential(adminKeySupplied(request), env);
 }
 
 function cleanText(value: FormDataEntryValue | null, fallback: string, max: number) {

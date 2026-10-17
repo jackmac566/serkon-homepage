@@ -37,6 +37,12 @@ async function digest(value: string): Promise<string> {
   return Array.from(hash, (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
+/** 浏览器里存放站长票据的 cookie 名。 */
+export const ADMIN_COOKIE_NAME = "serkon_admin_key";
+
+/** 管理员票据的用途标签，避免与设备签名共用同一摘要。 */
+export const ADMIN_SESSION_LABEL = "serkon-admin-session-v1";
+
 async function signatureFor(id: string, secret: string): Promise<string> {
   const key = await crypto.subtle.importKey(
     "raw",
@@ -75,6 +81,26 @@ export async function parseDeviceId(value: string | null, env: DeviceSecretEnv):
   const signature = value.slice(dot + 1);
   if (!ID_PATTERN.test(id) || !signature) return null;
   return (await safeEqual(signature, await signatureFor(id, secret))) ? id : null;
+}
+
+/**
+ * 校验站长凭据。
+ *
+ * 两种合法形态：
+ *  1. 直接提交密钥原文（`/lobby/manage` 页面走 header，不落盘，优先推荐）；
+ *  2. 浏览器 cookie 里放的是密钥的 HMAC 派生票据 —— 即便 cookie 被泄露，
+ *     暴露的也不是密钥本身。
+ */
+export async function isAdminCredential(supplied: string, env: DeviceSecretEnv): Promise<boolean> {
+  const secret = secretValue(env);
+  if (!secret || !supplied) return false;
+  if (await safeEqual(supplied, secret)) return true;
+  return safeEqual(supplied, await signatureFor(ADMIN_SESSION_LABEL, secret));
+}
+
+/** 生成可写入浏览器 cookie 的管理员票据（不含密钥原文）。 */
+export async function adminSessionTicket(env: DeviceSecretEnv): Promise<string> {
+  return signatureFor(ADMIN_SESSION_LABEL, secretValue(env));
 }
 
 export function isValidDeviceIdShape(value: string | null): boolean {
