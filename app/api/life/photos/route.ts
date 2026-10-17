@@ -5,11 +5,14 @@ import { lifePhotos } from "../../../../db/schema";
 
 export const dynamic = "force-dynamic";
 
-const MAX_FILE_SIZE = 1536 * 1024;
+// 图片以 BLOB 直接存在 D1 里，没有 R2。1MB 是权衡出来的上限：
+// 再大就会明显吃掉 D1 的单库容量与请求体积，而照片墙本来只需要小图。
+const MAX_FILE_SIZE = 1024 * 1024;
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 const ALLOWED_CATEGORIES = new Set(["访客影像", "日常", "旅行", "朋友", "人物", "随手拍"]);
 const MAX_VISITOR_PHOTOS = 50;
 const MAX_UPLOADS_PER_HOUR = 16;
+const MAX_TOTAL_PHOTOS = 300;
 const ADMIN_KEY_COOKIE = "serkon_admin_key";
 
 function isAdminEmail(email: string, env: CloudflareEnv) {
@@ -109,9 +112,15 @@ export async function POST(request: Request) {
     if (!(file instanceof File)) return Response.json({ error: "请选择照片" }, { status: 400 });
     if (!ALLOWED_TYPES.has(file.type)) return Response.json({ error: "仅支持 JPG、PNG、WEBP 或 GIF" }, { status: 415 });
     if (!file.size) return Response.json({ error: "照片文件为空" }, { status: 400 });
-    if (file.size > MAX_FILE_SIZE) return Response.json({ error: "国内版单张照片不能超过 1.5MB，请压缩后重试" }, { status: 413 });
+    if (file.size > MAX_FILE_SIZE) return Response.json({ error: "单张照片不能超过 1MB，请压缩后重试" }, { status: 413 });
 
     const db = getDb(env.DB);
+    // 影像墙是公开写入的，总量必须设顶，否则数据库会被慢慢塞满。
+    const [overall] = await db.select({ value: count() }).from(lifePhotos);
+    if ((overall?.value ?? 0) >= MAX_TOTAL_PHOTOS) {
+      return Response.json({ error: "共享影像空间已满，请等站长清理后再来" }, { status: 507 });
+    }
+
     if (!isAdminEmail(user.email, env) && !await isAdminRequest(request, env)) {
       const [total] = await db.select({ value: count() }).from(lifePhotos).where(eq(lifePhotos.ownerEmail, user.email));
       if ((total?.value ?? 0) >= MAX_VISITOR_PHOTOS) {

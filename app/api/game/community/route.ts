@@ -1,6 +1,7 @@
 import { and, count, eq } from "drizzle-orm";
 import { ensureCommunityTables, getDb } from "../../../../db";
 import { communityVotes, planetContributions } from "../../../../db/schema";
+import { scopedVisitorId } from "../../../device-identity";
 
 export const dynamic = "force-dynamic";
 
@@ -8,8 +9,15 @@ const ROUND_KEY = "archive-001";
 const OPTION_KEYS = new Set(["qq-archive", "music-game", "city-map"]);
 const MOODS = new Set(["spark", "memory", "courage", "calm"]);
 
-function cleanVisitorId(value: unknown) {
-  return typeof value === "string" && /^[a-zA-Z0-9-]{12,80}$/.test(value) ? value : null;
+/**
+ * 投票与情绪星球同样不采信客户端提交的 visitorId，
+ * 身份由签名校验过的设备 ID 派生，防止顶替别人的投票记录。
+ */
+async function arcadeVisitorId(request: Request): Promise<string | null> {
+  const email = request.headers.get("oai-authenticated-user-email")?.trim().toLowerCase();
+  const suffix = "@device.serkon.local";
+  const deviceId = email?.endsWith(suffix) ? email.slice(0, -suffix.length) : null;
+  return scopedVisitorId("arcade", deviceId);
 }
 
 function sameOrigin(request: Request) {
@@ -53,7 +61,7 @@ async function communitySnapshot(db: ReturnType<typeof getDb>, visitorId: string
 
 export async function GET(request: Request) {
   try {
-    const visitorId = cleanVisitorId(new URL(request.url).searchParams.get("visitorId"));
+    const visitorId = await arcadeVisitorId(request);
     const { env } = await import("cloudflare:workers");
     await ensureCommunityTables(env.DB);
     return Response.json(await communitySnapshot(getDb(env.DB), visitorId), { headers: { "Cache-Control": "no-store" } });
@@ -66,7 +74,7 @@ export async function POST(request: Request) {
   try {
     if (!sameOrigin(request)) return Response.json({ error: "请求来源无效" }, { status: 403 });
     const body = await request.json() as { action?: unknown; visitorId?: unknown; optionKey?: unknown; mood?: unknown };
-    const visitorId = cleanVisitorId(body.visitorId);
+    const visitorId = await arcadeVisitorId(request);
     if (!visitorId) return Response.json({ error: "访客标识无效" }, { status: 400 });
     const { env } = await import("cloudflare:workers");
     await ensureCommunityTables(env.DB);

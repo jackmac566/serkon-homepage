@@ -1,10 +1,14 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { DEVICE_COOKIE, signDeviceId, parseDeviceId } from "../app/device-identity";
 
 interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
+  DEVICE_SECRET?: string;
+  ADMIN_KEY?: string;
+  ADMIN_TOKEN?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -19,7 +23,6 @@ interface ExecutionContext {
   passThroughOnException(): void;
 }
 
-const DEVICE_COOKIE = "serkon_domestic_device_v1";
 const DEVICE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 const GOOGLE_VERIFICATION_BODY = "google-site-verification: google0145912d521186e0.html";
 const GOOGLE_VERIFICATION_PATHS = new Set([
@@ -36,10 +39,11 @@ function cookieValue(request: Request, name: string) {
   return null;
 }
 
-function domesticIdentity(request: Request) {
-  const current = cookieValue(request, DEVICE_COOKIE);
-  const isNew = !current || !/^[a-f0-9-]{20,80}$/i.test(current);
-  const id = isNew ? crypto.randomUUID() : current;
+async function domesticIdentity(request: Request, env: Env) {
+  // 裸 UUID 时代任何人都能改 cookie 冒充他人；现在必须过签名这道关。
+  const verified = await parseDeviceId(cookieValue(request, DEVICE_COOKIE), env);
+  const isNew = !verified;
+  const id = verified ?? crypto.randomUUID();
   return { id, isNew };
 }
 
@@ -93,7 +97,7 @@ const worker = {
       }, allowedWidths);
     }
 
-    const identity = domesticIdentity(request);
+    const identity = await domesticIdentity(request, env);
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("oai-authenticated-user-email", `${identity.id}@device.serkon.local`);
     requestHeaders.set("oai-authenticated-user-full-name", encodeURIComponent("本设备访客"));
@@ -109,7 +113,8 @@ const worker = {
     headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
     headers.set("Cross-Origin-Opener-Policy", "same-origin");
     if (identity.isNew) {
-      headers.append("Set-Cookie", `${DEVICE_COOKIE}=${encodeURIComponent(identity.id)}; Path=/; Max-Age=${DEVICE_COOKIE_MAX_AGE}; HttpOnly; Secure; SameSite=Lax`);
+      const signed = await signDeviceId(identity.id, env);
+      headers.append("Set-Cookie", `${DEVICE_COOKIE}=${encodeURIComponent(signed)}; Path=/; Max-Age=${DEVICE_COOKIE_MAX_AGE}; HttpOnly; Secure; SameSite=Lax`);
     }
     return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
   },

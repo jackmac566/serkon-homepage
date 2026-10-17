@@ -1,8 +1,9 @@
 import { and, count, eq, gt, lt } from "drizzle-orm";
 import { ensureLobbyTables, getDb } from "../../../db";
 import { lobbyRateEvents } from "../../../db/schema";
+import { LOBBY_COOKIE, parseDeviceId, signDeviceId } from "../../device-identity";
 
-export const LOBBY_COOKIE = "serkon_lobby_v1";
+export { LOBBY_COOKIE };
 export const LOBBY_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 export const OWNER_EMAIL = "shikanghou4@gmail.com";
 
@@ -10,6 +11,7 @@ export type LobbyEnv = {
   DB: D1Database;
   ADMIN_KEY?: string;
   ADMIN_TOKEN?: string;
+  DEVICE_SECRET?: string;
 };
 
 /**
@@ -50,10 +52,6 @@ function cookieValue(request: Request, name: string) {
   return null;
 }
 
-function validDeviceId(value: string | null) {
-  return Boolean(value && /^[a-f0-9-]{20,80}$/i.test(value));
-}
-
 async function digest(value: string) {
   const bytes = new TextEncoder().encode(value);
   const hash = await crypto.subtle.digest("SHA-256", bytes);
@@ -61,9 +59,12 @@ async function digest(value: string) {
 }
 
 export async function lobbyIdentity(request: Request) {
-  const current = cookieValue(request, LOBBY_COOKIE);
-  const isNew = !validDeviceId(current);
-  const deviceId = isNew ? crypto.randomUUID() : current!;
+  const { env } = await import("cloudflare:workers");
+  const typedEnv = env as unknown as LobbyEnv;
+  // 大厅留言、投票、举报都靠这个 ID 判定归属，裸 UUID 会被冒用，必须验签。
+  const verified = await parseDeviceId(cookieValue(request, LOBBY_COOKIE), typedEnv);
+  const isNew = !verified;
+  const deviceId = verified ?? crypto.randomUUID();
   const deviceKey = await digest(`serkon-lobby-device:${deviceId}`);
   const visitorCode = `CN-${deviceKey.slice(0, 6).toUpperCase()}`;
   const ip = (request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For")?.split(",")[0] || "unknown").trim();
@@ -73,10 +74,12 @@ export async function lobbyIdentity(request: Request) {
   return { deviceId, deviceKey, visitorCode, networkKey, reporterKey, isNew };
 }
 
-export function withLobbyCookie(response: Response, identity: Awaited<ReturnType<typeof lobbyIdentity>>) {
+export async function withLobbyCookie(response: Response, identity: Awaited<ReturnType<typeof lobbyIdentity>>) {
   if (!identity.isNew) return response;
+  const { env } = await import("cloudflare:workers");
+  const signed = await signDeviceId(identity.deviceId, env as unknown as LobbyEnv);
   const headers = new Headers(response.headers);
-  headers.append("Set-Cookie", `${LOBBY_COOKIE}=${encodeURIComponent(identity.deviceId)}; Path=/; Max-Age=${LOBBY_COOKIE_MAX_AGE}; HttpOnly; Secure; SameSite=Lax`);
+  headers.append("Set-Cookie", `${LOBBY_COOKIE}=${encodeURIComponent(signed)}; Path=/; Max-Age=${LOBBY_COOKIE_MAX_AGE}; HttpOnly; Secure; SameSite=Lax`);
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 

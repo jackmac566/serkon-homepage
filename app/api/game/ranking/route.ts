@@ -1,6 +1,7 @@
-import { desc, eq, lt } from "drizzle-orm";
+import { and, count, desc, eq, gt, lt } from "drizzle-orm";
 import { getDb } from "../../../../db";
 import { inspirationChallenges, inspirationScores } from "../../../../db/schema";
+import { scopedVisitorId } from "../../../device-identity";
 
 export const dynamic = "force-dynamic";
 
@@ -10,14 +11,28 @@ const MAX_SUBMIT_MS = 45_000;
 const MAX_REASONABLE_SCORE = 80;
 const START_COOLDOWN_MS = 1_500;
 const CHALLENGE_RETENTION_MS = 24 * 60 * 60 * 1000;
+const MAX_ROUNDS_PER_HOUR = 60;
 
-function cleanVisitorId(value: unknown) {
-  return typeof value === "string" && /^[a-zA-Z0-9-]{12,80}$/.test(value) ? value : null;
-}
+const RESERVED_NAME_PATTERN = /(serkon|侯世康|站长|管理员|管理員|官方|系统|系統|客服)/iu;
 
 function cleanName(value: unknown) {
+  const fallback = "一位路过的朋友";
   const name = typeof value === "string" ? value.trim().replace(/\s+/g, " ") : "";
-  return (name || "一位路过的朋友").slice(0, 12);
+  const safe = name.slice(0, 12);
+  // 排行榜是公开页面，昵称里出现站长 / 官方等字样会被误认成站点人员。
+  if (!safe || RESERVED_NAME_PATTERN.test(safe)) return fallback;
+  return safe;
+}
+
+/**
+ * 排行榜不再采信客户端提交的 visitorId：它存在 localStorage 里，
+ * 谁都能改成别人的值来顶替成绩。身份统一由签名校验过的设备 ID 派生。
+ */
+async function arcadeVisitorId(request: Request): Promise<string | null> {
+  const email = request.headers.get("oai-authenticated-user-email")?.trim().toLowerCase();
+  const suffix = "@device.serkon.local";
+  const deviceId = email?.endsWith(suffix) ? email.slice(0, -suffix.length) : null;
+  return scopedVisitorId("arcade", deviceId);
 }
 
 function sameOrigin(request: Request) {
@@ -46,7 +61,7 @@ export async function POST(request: Request) {
     if (!sameOrigin(request)) return Response.json({ error: "请求来源无效" }, { status: 403 });
     const { env } = await import("cloudflare:workers");
     const body = await request.json() as { action?: string; visitorId?: unknown; challengeId?: unknown; name?: unknown; score?: unknown };
-    const visitorId = cleanVisitorId(body.visitorId);
+    const visitorId = await arcadeVisitorId(request);
     if (!visitorId) return Response.json({ error: "访客标识无效" }, { status: 400 });
     const db = getDb(env.DB);
 
@@ -57,6 +72,15 @@ export async function POST(request: Request) {
         .orderBy(desc(inspirationChallenges.startedAt)).limit(1);
       if (latest && now - latest.startedAt < START_COOLDOWN_MS) {
         return Response.json({ error: "操作太快，请稍后再开始" }, { status: 429 });
+      }
+      // 每开一局都会落一行记录，不限次数的话这张表会被脚本刷成垃圾堆。
+      const [hourStarts] = await db.select({ value: count() }).from(inspirationChallenges)
+        .where(and(
+          eq(inspirationChallenges.visitorId, visitorId),
+          gt(inspirationChallenges.startedAt, now - 60 * 60 * 1000),
+        ));
+      if ((hourStarts?.value ?? 0) >= MAX_ROUNDS_PER_HOUR) {
+        return Response.json({ error: "本小时开局次数已达上限，请稍后再来" }, { status: 429 });
       }
       await db.delete(inspirationChallenges).where(lt(inspirationChallenges.startedAt, now - CHALLENGE_RETENTION_MS));
       const challengeId = crypto.randomUUID();
