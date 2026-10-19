@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { awardArchiveStamp } from "./archive-client";
 
 type Tool = "create" | "match" | "visit" | "progress";
@@ -119,8 +120,9 @@ function downloadVisitLetter(nickname: string, lines: string[]) {
   const link = document.createElement("a"); link.download = "serkon-visit-letter.png"; link.href = canvas.toDataURL("image/png"); link.click();
 }
 
-export default function CreatorDock() {
+export default function CreatorDock({ embedded = false }: { embedded?: boolean } = {}) {
   const [open, setOpen] = useState(false);
+  const visible = embedded || open;
   const [tool, setTool] = useState<Tool>("create");
   const [template, setTemplate] = useState<Template>("怀旧文案");
   const [topic, setTopic] = useState("");
@@ -138,19 +140,25 @@ export default function CreatorDock() {
   const [progress, setProgress] = useState({ generations: 0, match: false, game: false });
 
   useEffect(() => {
+    const timer = window.setTimeout(() => {
+      try {
+        if (window.sessionStorage.getItem("serkon_visited_works_v1") === "true") setVisitedWorks(true);
+      } catch { /* Current-page detection still works when session storage is blocked. */ }
+      if (window.location.pathname === "/play" || window.location.pathname === "/play/") setVisitedPlay(true);
+    }, 0);
     const onScroll = () => {
       const works = document.getElementById("works"); const play = document.getElementById("play");
       if (works && works.getBoundingClientRect().top < window.innerHeight * 0.8) setVisitedWorks(true);
       if (play && play.getBoundingClientRect().top < window.innerHeight * 0.8) setVisitedPlay(true);
     };
     onScroll(); window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => { window.clearTimeout(timer); window.removeEventListener("scroll", onScroll); };
   }, []);
 
   useEffect(() => {
     const openFromHash = () => {
-      if (window.location.hash === "#ai-station") {
-        const params = new URLSearchParams(window.location.search);
+      const params = new URLSearchParams(window.location.search);
+      if (window.location.hash === "#ai-station" || (embedded && params.has("ai"))) {
         const sharedMatch = params.get("match");
         if (sharedMatch && /^[0-2]{10}$/.test(sharedMatch)) {
           setPeerAnswers(sharedMatch.split("").map(Number));
@@ -177,16 +185,16 @@ export default function CreatorDock() {
     }, 0);
     window.addEventListener("hashchange", openFromHash);
     return () => { window.clearTimeout(timer); window.removeEventListener("hashchange", openFromHash); };
-  }, []);
+  }, [embedded]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || embedded) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open]);
+  }, [open, embedded]);
 
   const saveProgress = (next: { generations: number; match: boolean; game: boolean }) => {
     setProgress(next);
@@ -255,15 +263,15 @@ export default function CreatorDock() {
 
   return (
     <>
-      <nav className="creator-rail" aria-label="个人 AI 站点快捷工具">
-        <button type="button" className={open && tool === "create" ? "active" : ""} aria-pressed={open && tool === "create"} onClick={() => openTool("create")}><span>AI</span><small>创作</small></button>
-        <button type="button" className={open && tool === "match" ? "active" : ""} aria-pressed={open && tool === "match"} onClick={() => openTool("match")}><span>%</span><small>匹配</small></button>
-        <button type="button" className={open && tool === "visit" ? "active" : ""} aria-pressed={open && tool === "visit"} onClick={() => openTool("visit")}><span>✦</span><small>纪念卡</small></button>
-        <button type="button" className={open && tool === "progress" ? "active" : ""} aria-pressed={open && tool === "progress"} onClick={() => openTool("progress")}><span>↟</span><small>成长</small></button>
+      <nav className="creator-rail" aria-label="个人 AI 站点快捷工具" style={embedded ? { position: "static", transform: "none", display: "flex", flexWrap: "wrap", width: "fit-content", marginBottom: 18 } : undefined}>
+        <button type="button" className={visible && tool === "create" ? "active" : ""} aria-pressed={visible && tool === "create"} onClick={() => openTool("create")}><span>AI</span><small>创作</small></button>
+        <button type="button" className={visible && tool === "match" ? "active" : ""} aria-pressed={visible && tool === "match"} onClick={() => openTool("match")}><span>%</span><small>匹配</small></button>
+        <button type="button" className={visible && tool === "visit" ? "active" : ""} aria-pressed={visible && tool === "visit"} onClick={() => openTool("visit")}><span>✦</span><small>纪念卡</small></button>
+        <button type="button" className={visible && tool === "progress" ? "active" : ""} aria-pressed={visible && tool === "progress"} onClick={() => openTool("progress")}><span>↟</span><small>成长</small></button>
       </nav>
 
-      <div className={`creator-dock ${open ? "open" : ""}`} aria-hidden={!open} inert={!open}>
-        <header><div><small>SERKON PERSONAL AI STATION</small><strong>{tool === "create" ? "快捷创作工坊" : tool === "match" ? "站长匹配测试" : tool === "visit" ? "到访纪念信笺" : "访客成长手册"}</strong></div><button type="button" onClick={() => setOpen(false)} aria-label="关闭工具栏">×</button></header>
+      <div className={`creator-dock ${visible ? "open" : ""}`} aria-hidden={!visible} inert={!visible} style={embedded ? { position: "static", width: "100%", transform: "none", opacity: 1, pointerEvents: "auto" } : undefined}>
+        <header><div><small>SERKON PERSONAL AI STATION</small><strong>{tool === "create" ? "快捷创作工坊" : tool === "match" ? "站长匹配测试" : tool === "visit" ? "到访纪念信笺" : "访客成长手册"}</strong></div>{!embedded && <button type="button" onClick={() => setOpen(false)} aria-label="关闭工具栏">×</button>}</header>
 
         {tool === "create" && <div className="dock-content">
           <p className="dock-notice">当前使用站内模板引擎，输入内容不会发送给外部模型。适合快速起草，重要内容请自行核对。</p>
@@ -285,7 +293,7 @@ export default function CreatorDock() {
         </div>}
 
         {tool === "visit" && <div className="dock-content visit-maker">
-          <p>输入昵称，网站会根据本次浏览行为生成一张专属纪念卡。标头会记录这是当前浏览器生成的第几张，以 NO. 0001 的形式呈现；它不是全站访客总数。</p>
+          <p>输入昵称，网站会根据本次会话浏览行为生成一张专属纪念卡。标头会记录这是当前浏览器生成的第几张，以 NO. 0001 的形式呈现；它不是全站访客总数。</p>
           <label>你的昵称<input value={nickname} onChange={(event) => setNickname(event.target.value)} placeholder="例如：一位路过的朋友" /></label>
           <ul>{visitLines.map((line) => <li key={line}>{line}</li>)}</ul>
           <button className="dock-primary" type="button" disabled={!nickname.trim()} onClick={() => downloadVisitLetter(nickname.trim(), visitLines)}>生成并下载怀旧信笺</button>
@@ -299,11 +307,11 @@ export default function CreatorDock() {
             <article className={progress.match ? "done" : ""}><span>{progress.match ? "✓" : "03"}</span><div><strong>完成 10 道站长匹配题</strong><small>获得：同频访客徽章</small></div></article>
             <article className={progress.game ? "done" : ""}><span>{progress.game ? "✓" : "04"}</span><div><strong>完成一局捕捉灵感</strong><small>获得：灵感捕手徽章</small></div></article>
           </div>
-          <button className="archive-jump" type="button" onClick={() => { setOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>回到顶部查看个人档案局 →</button>
+          {embedded ? <Link className="archive-jump" href="/">← 返回个人主页</Link> : <button className="archive-jump" type="button" onClick={() => { setOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>回到顶部查看个人档案局 →</button>}
           <a className="notes-link" href="/notes">阅读站长随笔 →</a>
         </div>}
       </div>
-      {open && <button className="dock-backdrop" type="button" aria-label="关闭工具栏" onClick={() => setOpen(false)} />}
+      {open && !embedded && <button className="dock-backdrop" type="button" aria-label="关闭工具栏" onClick={() => setOpen(false)} />}
     </>
   );
 }

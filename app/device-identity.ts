@@ -22,8 +22,12 @@ export type DeviceSecretEnv = {
   ADMIN_TOKEN?: string;
 };
 
-function secretValue(env: DeviceSecretEnv): string {
+function deviceSecretValue(env: DeviceSecretEnv): string {
   return (env.DEVICE_SECRET || env.ADMIN_KEY || env.ADMIN_TOKEN || "").trim();
+}
+
+function adminSecretValue(env: DeviceSecretEnv): string {
+  return (env.ADMIN_KEY || env.ADMIN_TOKEN || "").trim();
 }
 
 function hexOrBase64Url(bytes: Uint8Array): string {
@@ -64,7 +68,7 @@ async function safeEqual(left: string, right: string): Promise<boolean> {
 
 /** 把 UUID 变成「UUID.签名」，同时保留无密钥环境下的原始形态。 */
 export async function signDeviceId(id: string, env: DeviceSecretEnv): Promise<string> {
-  const secret = secretValue(env);
+  const secret = deviceSecretValue(env);
   if (!secret) return id;
   return `${id}.${await signatureFor(id, secret)}`;
 }
@@ -72,7 +76,7 @@ export async function signDeviceId(id: string, env: DeviceSecretEnv): Promise<st
 /** 校验 cookie；失败一律返回 null，由调用方当作新访客处理。 */
 export async function parseDeviceId(value: string | null, env: DeviceSecretEnv): Promise<string | null> {
   if (!value) return null;
-  const secret = secretValue(env);
+  const secret = deviceSecretValue(env);
   if (!secret) return ID_PATTERN.test(value) ? value : null;
 
   const dot = value.lastIndexOf(".");
@@ -92,7 +96,7 @@ export async function parseDeviceId(value: string | null, env: DeviceSecretEnv):
  *     暴露的也不是密钥本身。
  */
 export async function isAdminCredential(supplied: string, env: DeviceSecretEnv): Promise<boolean> {
-  const secret = secretValue(env);
+  const secret = adminSecretValue(env);
   if (!secret || !supplied) return false;
   if (await safeEqual(supplied, secret)) return true;
   return safeEqual(supplied, await signatureFor(ADMIN_SESSION_LABEL, secret));
@@ -100,7 +104,7 @@ export async function isAdminCredential(supplied: string, env: DeviceSecretEnv):
 
 /** 生成可写入浏览器 cookie 的管理员票据（不含密钥原文）。 */
 export async function adminSessionTicket(env: DeviceSecretEnv): Promise<string> {
-  return signatureFor(ADMIN_SESSION_LABEL, secretValue(env));
+  return signatureFor(ADMIN_SESSION_LABEL, adminSecretValue(env));
 }
 
 export function isValidDeviceIdShape(value: string | null): boolean {

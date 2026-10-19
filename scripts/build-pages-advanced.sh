@@ -7,7 +7,7 @@
 #   npm run build                              # 先产出 dist/client 与 dist/server
 #   bash scripts/build-pages-advanced.sh       # 生成 dist/pages-advanced
 #   wrangler pages deploy dist/pages-advanced \
-#     --project-name=serkon-homepage-cn --branch=main
+#     --project-name=serkon-homepage-cn --branch=main --no-bundle=false
 #
 set -euo pipefail
 
@@ -68,7 +68,7 @@ esac
 echo "已生成 ${out}"
 echo
 echo "部署（Pages 项目需已启用 nodejs_compat）："
-echo "  wrangler pages deploy ${out} --project-name=serkon-homepage-cn --branch=main"
+echo "  wrangler pages deploy ${out} --project-name=serkon-homepage-cn --branch=main --no-bundle=false"
 echo
 echo "部署后请运行自检："
 echo "  bash scripts/verify-deployment.sh"

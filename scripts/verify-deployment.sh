@@ -6,12 +6,34 @@
 #
 # 用法：
 #   bash scripts/verify-deployment.sh
-#   bash scripts/verify-deployment.sh https://某个预览分支.serkon-homepage-cn.pages.dev
+#   bash scripts/verify-deployment.sh --preview https://某个预览分支.serkon-homepage-cn.pages.dev
 #
 set -uo pipefail
 
-BASE="${1:-https://serkon-homepage-cn.pages.dev}"
+BASE=""
+PREVIEW=false
+for argument in "$@"; do
+  case "$argument" in
+    --preview) PREVIEW=true ;;
+    http://*|https://*)
+      if [[ -n "$BASE" ]]; then
+        printf '只能指定一个验收网址。\n' >&2
+        exit 64
+      fi
+      BASE="$argument"
+      ;;
+    *)
+      printf '用法：bash scripts/verify-deployment.sh [--preview] [https://验收网址]\n' >&2
+      exit 64
+      ;;
+  esac
+done
+BASE="${BASE:-https://serkon-homepage-cn.pages.dev}"
 BASE="${BASE%/}"
+if [[ "$PREVIEW" == true && ( "$BASE" == "https://serkon-homepage-cn.pages.dev" || "$BASE" == "http://serkon-homepage-cn.pages.dev" ) ]]; then
+  printf '正式域名不能跳过 D1 验收；--preview 必须指定预览网址。\n' >&2
+  exit 64
+fi
 
 pass=0
 fail=0
@@ -90,11 +112,11 @@ sc="$(curl -s -o /dev/null -w '%{http_code}' -H 'Range: bytes=99999999-' "${BASE
 [[ "$sc" == "416" ]] && ok "越界 Range → 416" || bad "越界 Range → ${sc}（应为 416）"
 
 note "6. 后端接口与 D1 数据"
-r="$(probe "${BASE}/api/lobby")"
+r="$(probe "${BASE}/api/lobby?presence=0")"
 if [[ "$(code_of "$r")" == "200" && "$(type_of "$r")" == application/json* ]]; then
   ok "/api/lobby 200 application/json"
-elif [[ "$(code_of "$r")" == "503" ]]; then
-  printf '  \033[33m!\033[0m /api/lobby 503 —— 预览环境没有绑定 D1 时属正常；如果在正式域名上出现，说明 D1 出问题了\n'
+elif [[ "$(code_of "$r")" == "503" && "$PREVIEW" == true ]]; then
+  printf '  \033[33m!\033[0m /api/lobby 503 —— 显式预览模式：允许未绑定 D1，未验收数据库可用性\n'
 else
   bad "/api/lobby → $(code_of "$r") $(type_of "$r")"
 fi
@@ -114,5 +136,9 @@ if (( fail > 0 )); then
   printf '  3) 音频问题必须用 WebKit 验证，Chromium 复现不出来\n'
   exit 1
 fi
-printf '\n全部通过。\n'
+if [[ "$PREVIEW" == true ]]; then
+  printf '\n预览检查通过；数据库可用性须在正式环境另行验收。\n'
+else
+  printf '\n全部通过。\n'
+fi
 printf '提示：音频类改动请额外用 WebKit（真机 iPhone 或 Playwright WebKit）点一次播放按钮确认。\n'

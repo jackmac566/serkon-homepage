@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const releasesPath = path.join(projectRoot, "data", "releases.json");
-const trackedRoots = ["app/", "worker/", "drizzle/", "public/", "build/", "scripts/", "data/"];
+const trackedRoots = ["app/", "worker/", "drizzle/", "public/", "build/", "scripts/", "data/", "homepage/"];
 const trackedSingles = new Set([
   "package.json",
   "package-lock.json",
@@ -14,6 +14,7 @@ const trackedSingles = new Set([
   "tsconfig.json",
   "next-env.d.ts",
   "eslint.config.mjs",
+  "serkon-home.html",
 ]);
 const generatedFiles = new Set([
   "data/content-provenance.json",

@@ -7,6 +7,13 @@
     <language>zh-cn</language>
     <lastBuildDate>Tue, 28 Jul 2026 16:00:00 GMT</lastBuildDate>
     <item>
+      <title>第 37 版｜作品档案与共存体验整理</title>
+      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-37</link>
+      <guid isPermaLink="false">serkon-site-edition-37</guid>
+      <pubDate>Sun, 18 Oct 2026 16:00:00 GMT</pubDate>
+      <description>保留液态金属首屏，升级作品展览、目录与快捷索引；修复密钥隔离、双语延续、相册键盘操作、创作入口与部署验收。</description>
+    </item>
+    <item>
       <title>第 36 版｜网站持续更新</title>
       <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-36</link>
       <guid isPermaLink="false">serkon-site-edition-36</guid>
@@ -138,13 +145,6 @@
       <guid isPermaLink="false">serkon-site-edition-18</guid>
       <pubDate>Wed, 15 Jul 2026 16:00:00 GMT</pubDate>
       <description>新增版本更新档案与自动记录机制，统一原站与国内版的更新依据。</description>
-    </item>
-    <item>
-      <title>第 17 版｜视觉档案与玩法升级</title>
-      <link>https://personal-homepage.maxc565.chatgpt.site/updates#edition-17</link>
-      <guid isPermaLink="false">serkon-site-edition-17</guid>
-      <pubDate>Wed, 15 Jul 2026 16:00:00 GMT</pubDate>
-      <description>升级编辑档案式画风、真实作品展示与互动游戏群。</description>
     </item>
   </channel>
 </rss>
