@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#181a17">
+  <title>开场交给你 — Serkon 的伦敦实验</title>
+  <meta name="description" content="从 Serkon 的伦敦 AI 影像素材里选三个镜头，亲手调整一个开场，再翻到工作区看它从哪来。">
+  <link rel="stylesheet" href="style.css?v=20261020-2">
+  <script src="app.js?v=20261020-2" defer></script>
+</head>
+<body>
+  <a class="skip" href="#edit">直接开始选镜头</a>
+  <header class="masthead"><a href="/" class="wordmark">serkon<span>侯世康</span></a><span class="edition">一次可以插手的作品介绍 / 交互提案 02</span><button id="about-button" class="small-button">镜头外的我 <span>↗</span></button></header>
+  <main id="edit">
+    <section class="intro" aria-labelledby="title">
+      <div class="intro-title"><p class="eyebrow"><span class="live-dot"></span> 伦敦影像实验 · 现有素材重排</p><h1 id="title">开场，<br><span>交给你。</span><i aria-hidden="true">↘</i></h1><p class="intro-text">我做过一组伦敦 AI 影像。<br>这里先不放介绍，给你五个素材静帧。<br><strong>选三张，排一个你想看的开场。</strong></p><div class="intro-footer"><span>不一定先放大本钟。</span><button id="source-button" class="underlined">看看素材从哪来 <span>↗</span></button></div></div>
+      <div class="viewer-area">
+        <div class="frame-topline"><span id="frame-label">01 / 近一点看</span><span class="frame-tag" id="frame-tag">伦敦 AI 素材</span></div>
+        <div class="main-frame" id="main-frame"><div id="main-image" class="crop"></div><span class="frame-corner top-left"></span><span class="frame-corner top-right"></span><span class="frame-corner bottom-left"></span><span class="frame-corner bottom-right"></span><div class="frame-hover" id="frame-hover"><span>←</span><p>左右拖动，翻素材</p><span>→</span></div><div class="frame-index"><span id="frame-current">01</span><span> / 05</span></div><button id="add-current" class="frame-add">把这张放进开场 <b>＋</b></button></div>
+        <div class="frame-caption"><p id="frame-description"></p><div class="frame-navigation"><button id="previous-frame" aria-label="上一张素材">←</button><button id="next-frame" aria-label="下一张素材">→</button></div></div>
+      </div>
+    </section>
+    <section class="cutting-room" aria-labelledby="material-title">
+      <div class="material-topline"><h2 id="material-title">这五张，随便挑。</h2><p>点一下查看，用「＋」选入开场。<span class="desktop-tip">也可以把素材拖进下方空位。</span></p></div>
+      <div class="material-strip" id="material-strip" role="group" aria-label="五张伦敦素材"></div>
+    </section>
+    <section class="sequence-section" aria-labelledby="sequence-title">
+      <div class="sequence-heading"><div><p class="eyebrow">YOUR OPENING / 你的版本</p><h2 id="sequence-title">顺序变了，<br>开场就变了。</h2></div><div class="sequence-helper"><p>把三张放在这里。<br>电脑可以拖着换位，手机用左右箭头。</p><button id="reset-sequence" class="underlined">清空，重新来 <span>↻</span></button></div></div>
+      <div class="sequence-track" id="sequence-track" aria-label="三镜头编排"></div>
+      <div class="sequence-bottom"><p id="sequence-comment" aria-live="polite">还没决定？可以先从一张你最想看的开始。</p><button class="watch-button" id="watch" disabled>按我的顺序看 <span>↗</span></button></div>
+    </section>
+    <footer class="endnote"><p>上面是从公开工作区截图中截取的 <strong>AI 影像素材静帧</strong>。<br>这里呈现素材静帧，伦敦画面由 AI 生成。</p><div><a href="/life" class="underlined">看完整过程档案 ↗</a><a href="mailto:shikanghou4@gmail.com" class="underlined">有个想法，直接写给我 ↗</a></div><span>serkon / 侯世康<br>有成品，也有过程。</span></footer>
+  </main>
+  <dialog class="source-dialog" id="source-dialog" aria-labelledby="source-title"><div class="dialog-head"><h2 id="source-title">这一堆素材，从这里开始。</h2><button class="close" data-close="source-dialog" aria-label="关闭原始素材">×</button></div><div class="source-tabs" role="group" aria-label="查看过程证据"><button data-source="workspace" aria-pressed="true">01 原工作区</button><button data-source="export" aria-pressed="false">02 导出设置</button></div><figure><img id="source-image" src="../archive/london-ai-workspace.webp" width="1800" height="1105" alt="原站公开的伦敦 AI 素材工作区"><figcaption id="source-caption">五张静帧都来自这张 AI 影像工作区截图，可以放大看细节。</figcaption></figure><a class="underlined" id="source-original" href="../archive/london-ai-workspace.webp" target="_blank" rel="noopener noreferrer">打开原图看细节 ↗</a></dialog>
+  <dialog class="review-dialog" id="review-dialog" aria-labelledby="review-title"><div class="dialog-head"><div><p class="eyebrow">YOUR CUT / 静帧编排预览</p><h2 id="review-title">这是你选的开场。</h2></div><button class="close" data-close="review-dialog" aria-label="关闭编排预览">×</button></div><div class="review-stage"><div id="review-image" class="crop"></div><span id="review-number">01 / 03</span><button id="review-previous" aria-label="上一个已选镜头">←</button><button id="review-next" aria-label="下一个已选镜头">→</button></div><div class="play-progress" aria-hidden="true"><span></span><span></span><span></span></div><div class="review-caption"><h3 id="review-caption"></h3><p id="review-note"></p></div><div id="review-thumbnails" class="review-thumbnails" role="group" aria-label="切换已选镜头"></div><div class="play-controls"><button id="play-review">播放节奏预演 ▷</button><p class="review-disclosure">三张静帧，每张 2.8 秒。<br>随时暂停，或用 ← → 键切换。</p></div><button id="share-sequence" class="underlined">复制我的编排链接 ↗</button><p id="share-result" class="share-result" role="status"></p></dialog>
+  <dialog class="about-dialog" id="about-dialog" aria-labelledby="about-title"><div class="dialog-head"><h2 id="about-title">镜头外，是这个人。</h2><button class="close" data-close="about-dialog" aria-label="关闭个人照片">×</button></div><div class="about-portraits"><img src="../serkon-hero.jpg" alt="原站的灰色西装个人照片" width="800" height="1000"><img src="../archive/polaroid-collage.webp" alt="原站公开的多种表情拍立得拼贴" width="1800" height="1128"></div><p>侯世康，网上叫 Serkon。<br>做产品视觉、试 AI 影像，也写过一首《创世纪》。<br>一本正经和不太正经的照片，都留在这里。</p><div><a href="/serkon" class="underlined">完整个人档案 ↗</a><a href="https://music.163.com/#/song?id=2753362002" target="_blank" rel="noopener noreferrer" class="underlined">听《创世纪》↗</a></div></dialog>
+  <p id="announcement" class="announcement" role="status" aria-live="polite"></p>
+  <noscript><p class="no-js">这个编排实验需要 JavaScript。你也可以<a href="/life">直接看原始过程素材</a>，或打开<a href="/lite">纯文字个人档案</a>。</p></noscript>
+</body>
+</html>

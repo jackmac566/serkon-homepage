@@ -4,6 +4,7 @@
   "exclude": [
     "/assets/*",
     "/archive/*",
+    "/re-cut/*",
     "/*.jpg",
     "/*.jpeg",
     "/*.png",
