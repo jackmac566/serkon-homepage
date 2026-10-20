@@ -42,14 +42,24 @@ function choose(id){
   if(selection.length===3){say('三张已经齐了。先移出一张，或者拖着换顺序。');return;}
   selection.push(id);renderSequence();say('放进第 '+selection.length+' 个位置了。'+(selection.length===3?'现在可以看你的开场。':''));
 }
+function putFrame(id,index){
+  if(selection.includes(id)){moveItem(selection.indexOf(id),Math.min(index,selection.length-1));return;}
+  if(selection.length===3){say('先移出一张，给新镜头留个位置。');return;}
+  selection.splice(Math.min(index,selection.length),0,id);renderSequence();say('镜头放好了。');
+}
 function renderMaterials(){
   const strip=$('#material-strip');
   frames.forEach((frame,index)=>{
-    const article=document.createElement('article');article.className='material';article.dataset.active=String(index===current);article.draggable=true;
-    article.addEventListener('dragstart',event=>{event.dataTransfer.setData('text/plain','frame:'+frame.id);event.dataTransfer.effectAllowed='copy';article.classList.add('dragging');});
-    article.addEventListener('dragend',()=>{article.classList.remove('dragging');$$('.sequence-slot').forEach(slot=>slot.classList.remove('drop-target'));});
+    const article=document.createElement('article');article.className='material';article.dataset.active=String(index===current);
     const preview=document.createElement('button');preview.type='button';preview.className='material-preview';preview.setAttribute('aria-label','查看素材：'+frame.name);
-    const crop=document.createElement('span');crop.className='crop';cropInto(crop,frame);preview.append(crop);preview.addEventListener('click',()=>setCurrent(index));
+    const crop=document.createElement('span');crop.className='crop';cropInto(crop,frame);preview.append(crop);
+    let start=null,ghost=null,suppressClick=false;
+    const clearDrag=()=>{ghost?.remove();ghost=null;start=null;article.classList.remove('dragging');$$('.sequence-slot').forEach(slot=>slot.classList.remove('drop-target'));};
+    preview.addEventListener('pointerdown',event=>{if(event.button!==0||event.pointerType==='touch')return;start={x:event.clientX,y:event.clientY};preview.setPointerCapture(event.pointerId);});
+    preview.addEventListener('pointermove',event=>{if(!start)return;if(!ghost&&Math.hypot(event.clientX-start.x,event.clientY-start.y)>8){ghost=article.cloneNode(true);ghost.setAttribute('aria-hidden','true');ghost.style.cssText='position:fixed;width:180px;z-index:1000;pointer-events:none;transform:rotate(-4deg);opacity:.9;box-shadow:0 20px 40px #0006;';document.body.append(ghost);article.classList.add('dragging');suppressClick=true;}if(!ghost)return;ghost.style.left=event.clientX-90+'px';ghost.style.top=event.clientY-65+'px';const target=document.elementFromPoint(event.clientX,event.clientY)?.closest('.sequence-slot');$$('.sequence-slot').forEach(slot=>slot.classList.toggle('drop-target',slot===target));});
+    preview.addEventListener('pointerup',event=>{if(ghost){const target=document.elementFromPoint(event.clientX,event.clientY)?.closest('.sequence-slot');if(target)putFrame(frame.id,Number(target.dataset.slot));}clearDrag();setTimeout(()=>{suppressClick=false;},0);});
+    preview.addEventListener('pointercancel',clearDrag);
+    preview.addEventListener('click',event=>{if(suppressClick){event.preventDefault();return;}setCurrent(index);});
     const info=document.createElement('div');info.className='material-info';
     const serial=document.createElement('span');serial.textContent=String(index+1).padStart(2,'0');
     const name=document.createElement('strong');name.textContent=frame.name;
