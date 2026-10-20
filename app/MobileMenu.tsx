@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 const links = [
   ["01", "关于我", "/#about"],
-  ["02", "兴趣爱好", "/#interests"],
+  ["02", "兴趣爱好", "/#about"],
   ["03", "作品案例", "/#works"],
   ["04", "互动档案", "/play"],
   ["05", "动态思想档案", "/cosmos"],
@@ -44,7 +44,7 @@ export default function MobileMenu() {
       <nav aria-label="移动端目录">
         <header><small>SERKON / DIRECTORY</small><button type="button" onClick={() => setOpen(false)} aria-label="关闭目录">×</button></header>
         {links.map(([number, label, href]) => (
-          <a key={href} href={href} onClick={() => setOpen(false)}><small>{number}</small><span>{label}</span><b aria-hidden="true">↗</b></a>
+          <a key={number} href={href} onClick={() => setOpen(false)}><small>{number}</small><span>{label}</span><b aria-hidden="true">↗</b></a>
         ))}
       </nav>
     </details>

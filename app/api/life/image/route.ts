@@ -33,7 +33,8 @@ export async function GET(request: Request) {
     const bytes = toBytes(object?.image_data);
     if (!bytes || bytes.byteLength === 0) return new Response("Image not found", { status: 404 });
 
-    const body = new Blob([bytes], { type: photo.contentType });
+    // Copy the view into an owned ArrayBuffer, also valid for SharedArrayBuffer-backed D1 views.
+    const body = new Blob([new Uint8Array(bytes).buffer], { type: photo.contentType });
     return new Response(body, {
       headers: {
         "Content-Type": photo.contentType,

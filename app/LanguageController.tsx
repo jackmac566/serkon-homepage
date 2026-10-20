@@ -694,7 +694,7 @@ const SUBJECT_EN: Record<string, string> = {
 const originals = new WeakMap<Node, string>();
 const originalAttributes = new WeakMap<Element, Record<string, string>>();
 
-function translateValue(value: string) {
+function translateValue(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) return value;
   const exact = EN[trimmed.replace(/\s+/g, " ")];
@@ -824,7 +824,10 @@ export default function LanguageController() {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      try { if (window.localStorage.getItem(STORAGE_KEY) === "en") setLanguage("en"); } catch { /* current session still works */ }
+      try {
+        const saved = window.localStorage.getItem(STORAGE_KEY) ?? window.localStorage.getItem("serkon_experience_language");
+        if (saved === "en") setLanguage("en");
+      } catch { /* current session still works */ }
       setPreferenceLoaded(true);
     }, 0);
     return () => window.clearTimeout(timer);

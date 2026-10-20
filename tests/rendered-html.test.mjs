@@ -48,7 +48,12 @@ test("renders the public profile and commission entry", async () => {
   assert.match(html, /进入完整互动档案/);
   assert.match(html, /六项能力，收进一个清晰入口/);
   assert.match(html, /隐私与公共上传规则/);
-  assert.match(html.replaceAll("<!-- -->", ""), /版本记录：第 \d+ 版/);
+  const releases = JSON.parse(fs.readFileSync(new URL("../data/releases.json", import.meta.url), "utf8"));
+  const latestRelease = releases.at(-1);
+  assert.ok(
+    html.replaceAll("<!-- -->", "").includes(`版本记录：第 ${latestRelease.edition} 版 · ${latestRelease.date.replaceAll("-", ".")}`),
+    "the rendered homepage must show the latest recorded edition and release date",
+  );
   assert.match(html, /公共大厅/);
   assert.match(html, /阅读辅助/);
   assert.match(html, /网站的另一层/);
@@ -226,7 +231,7 @@ test("keeps the current edition, bilingual labels and heading structure coherent
   const profile = JSON.parse(fs.readFileSync(new URL("../data/machine-profile.json", import.meta.url), "utf8"));
   const releases = JSON.parse(fs.readFileSync(new URL("../data/releases.json", import.meta.url), "utf8"));
 
-  assert.equal(releases.at(-1).edition, 35);
+  assert.equal(releases.at(-1).edition, Math.max(...releases.map((release) => release.edition)));
   assert.equal(profile.lastUpdated, "2026-07-29");
   assert.doesNotMatch(profile.person.currentFocus, /第 32 版/);
   assert.doesNotMatch(`${page}\n${creator}`, /CHAOYANG|北京朝阳/);
@@ -333,11 +338,17 @@ test("ships edition 29 as a merged motion and notes archive", () => {
   assert.ok(releases.some((release) => release.edition === 29));
 });
 
-test("records editions 30–35 as a continuous, verifiable roadmap", () => {
+test("preserves editions 30–35 and a continuous roadmap through the latest release", () => {
   const releases = JSON.parse(fs.readFileSync(new URL("../data/releases.json", import.meta.url), "utf8"));
-  assert.deepEqual(releases.slice(-6).map((release) => release.edition), [30, 31, 32, 33, 34, 35]);
-  assert.equal(releases.at(-1).edition, 35);
-  assert.equal(releases.at(-1).date, "2026-07-29");
+  const latestRelease = releases.at(-1);
+  assert.ok(Number.isInteger(latestRelease.edition) && latestRelease.edition >= 35);
+  assert.deepEqual(
+    releases.map((release) => release.edition),
+    Array.from({ length: latestRelease.edition }, (_, index) => index + 1),
+    "release editions must remain continuous, unique and ordered from the first through the latest release",
+  );
+  assert.match(latestRelease.date, /^\d{4}-\d{2}-\d{2}$/);
+  assert.equal(new Date(`${latestRelease.date}T00:00:00Z`).toISOString().slice(0, 10), latestRelease.date);
   assert.match(releases.find((release) => release.edition === 30).title, /基础质量修复/);
   assert.ok(releases.find((release) => release.edition === 30).changes.some((change) => change.includes("安全响应头")));
   const edition31 = releases.find((release) => release.edition === 31);
@@ -353,6 +364,7 @@ test("records editions 30–35 as a continuous, verifiable roadmap", () => {
   assert.match(edition34.title, /Google验证路由修复/);
   assert.ok(edition34.changes.some((change) => change.includes("Cloudflare Pages")));
   const edition35 = releases.find((release) => release.edition === 35);
+  assert.equal(edition35.date, "2026-07-29");
   assert.match(edition35.title, /全站细节与可维护性精修/);
   assert.ok(edition35.changes.some((change) => change.includes("关键链接")));
   assert.equal(

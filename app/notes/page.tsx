@@ -133,7 +133,7 @@ export default function NotesPage() {
     <section className="notes-hero"><small>LONG-TERM MEMORY</small><h1>站长随笔</h1><p>生活碎碎念、开发日志，以及那些不适合塞进个人介绍里的话。</p></section>
     <section className="notes-list">{notes.map((note, index) => <article id={`note-${String(index + 1).padStart(2, "0")}`} key={note.title}>
       <aside><span>{String(index + 1).padStart(2, "0")}</span><small>{note.date}</small></aside>
-      <div><small>{note.tag}</small><h2>{note.title}</h2><p>{note.body}</p><a href={`/?ai=${encodeURIComponent(note.title)}#ai-station`}>用同样的情绪继续写一段 →</a></div>
+      <div><small>{note.tag}</small><h2>{note.title}</h2><p>{note.body}</p><a href={`/play?ai=${encodeURIComponent(note.title)}#ai-station`}>用同样的情绪继续写一段 →</a></div>
     </article>)}</section>
     <footer>下一篇随笔，正在生活里发生。</footer>
   </main>;

@@ -26,11 +26,13 @@
 npm run build                              # 产出 dist/client 与 dist/server
 bash scripts/build-pages-advanced.sh       # 生成 dist/pages-advanced（含 _routes.json）
 wrangler pages deploy dist/pages-advanced \
-  --project-name=serkon-homepage-cn --branch=main --commit-dirty=true
+  --project-name=serkon-homepage-cn --branch=main --commit-dirty=true --no-bundle=false
 ```
 
 首次部署前，Pages 项目需在生产与预览环境都启用 `nodejs_compat` 兼容标志；
 预览环境**不要**绑定 D1（否则预览流量会读写生产数据库，且 `/api/*` 在预览本来就会 503，属正常）。
+
+Vinext 构建会生成 Wrangler 配置重定向，其中 `no_bundle=true` 适用于已经构建的旧应用。共存入口还会引用 `./server/index.js`，因此 Pages 上传必须显式 `--no-bundle=false`。本地共存验收同理使用 `wrangler pages dev dist/pages-advanced --bundle --compatibility-flag nodejs_compat --compatibility-date 2026-07-15`；不要把“旧应用已打包”误认为“共存入口也已打包”。
 
 部署后跑一遍自检：
 
@@ -102,7 +104,7 @@ curl -s --noproxy '*' -D - -o /dev/null -H "Range: bytes=0-1" \
 1. Cloudflare Pages 控制台把某次历史部署重新提升为生产。
 2. 仓库里有 tag：`edition-35`（第 35 版纯净基线）、`edition-36`。
 3. 共存方案本身可移除：删掉 `serkon-home.html` 与 `deploy/` 的引用即回到纯第 35 版；
-   `app/`、`worker/`、`db/`、`drizzle/`、`public/` 从未被改动过。
+   早期共存方案没有修改旧应用；后续版本已有独立功能与鉴权修复，完整回滚应使用已验收的部署或提交，而非只移除首页文件。
 
 > 注意：旧站依赖 D1 与管理员 secret，这些都挂在现有 Pages 项目设置里。
 > **换项目部署会丢配置**，所以永远在同一个项目里做共存，不要新开项目。

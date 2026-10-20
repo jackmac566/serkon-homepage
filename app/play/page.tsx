@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Playground from "../Playground";
+import CreatorDock from "../CreatorDock";
 
 export const metadata: Metadata = {
   title: "互动档案｜Serkon 侯世康",
@@ -20,6 +21,10 @@ export default function PlayPage() {
         <small>NO DOWNLOAD · NO ACCOUNT · LOCAL FIRST</small>
         <h1>互动档案</h1>
         <p>第一次来，任选一项开始。每个玩法都有独立说明；除全站排行榜外，操作主要保存在当前浏览器，不需要下载应用。</p>
+      </section>
+      <section id="ai-station" className="section-pad" aria-labelledby="ai-station-title" style={{ paddingTop: 48, paddingBottom: 48, scrollMarginTop: 24 }}>
+        <h2 id="ai-station-title">快捷创作工坊</h2>
+        <CreatorDock embedded />
       </section>
       <Playground />
     </main>

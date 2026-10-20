@@ -17,6 +17,8 @@ Serkon（侯世康）的双语个人网站源码：个人档案、作品案例�
 
 实现方式见 [`deploy/_worker.js`](deploy/_worker.js)：这是一个 Cloudflare Pages Advanced Mode 入口，只把首页路径交给新版页面，其余请求原样转发给 `dist/server/index.js`（第 35 版 Worker）。
 
+首页的可维护源码在 [`homepage/`](homepage/README.md)：HTML 外壳、CSS、液态金属首屏、散牌档案与组件模块分开维护。`serkon-home.html` 是生成产物，修改源码后运行 `npm run home:build`；`npm run home:check` 检查源码与产物是否一致。`npm run build` 会先生成首页。
+
 新版首页里的「作品页面」等按钮指向 `/serkon`、`/life`、`/lobby` 等同域路径，因此点击后会落到第 35 版对应页面——这正是两部分共存的意义。
 
 打包与部署：
@@ -25,7 +27,7 @@ Serkon（侯世康）的双语个人网站源码：个人档案、作品案例�
 npm run build
 bash scripts/build-pages-advanced.sh
 wrangler pages deploy dist/pages-advanced \
-  --project-name=serkon-homepage-cn --branch=main
+  --project-name=serkon-homepage-cn --branch=main --no-bundle=false
 bash scripts/verify-deployment.sh          # 上线自检
 ```
 
@@ -42,7 +44,9 @@ bash scripts/verify-deployment.sh          # 上线自检
    HTTP Range，而 iOS WebKit 播放 `<audio>` 强制要求 `206`。`deploy/_worker.js` 里已自行
    实现 Range；**音频类改动必须用 WebKit 验证，只跑 Chromium 复现不出来**。
 
-新版首页对第 35 版**没有任何代码侵入**：`app/`、`worker/`、`db/`、`drizzle/`、`public/` 均未改动，因此随时可以删掉 `serkon-home.html` 与 `deploy/` 回到纯第 35 版。
+首页继续独立生成并通过共存入口分发。后续维护也会修复 `app/` 中的页面与鉴权问题；回滚应选择经过验收的历史部署或 Git 提交，不能再假设删除首页文件就能撤销全部改动。数据库结构与生产绑定保持原有配置。
+
+本轮保留液态金属首屏与散牌档案，更新六件作品的展览/目录视图、分类筛选与全站快捷索引（⌘/Ctrl+K），并修复跨页面语言和阅读偏好、相册键盘焦点、随笔创作入口、管理员密钥隔离及部署失败判定。预览环境不绑定生产 D1，留言与上传暂不可用是预期行为。
 
 ## 为什么公开
 

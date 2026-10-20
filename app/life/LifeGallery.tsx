@@ -70,8 +70,10 @@ export default function LifeGallery() {
   const [uploaderName, setUploaderName] = useState("");
   const [category, setCategory] = useState("访客影像");
   const inputRef = useRef<HTMLInputElement>(null);
+  const lightboxRef = useRef<HTMLDialogElement>(null);
+  const lightboxTriggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const lightboxOpen = active !== null;
 
   const refresh = async () => {
     try {
@@ -95,21 +97,19 @@ export default function LifeGallery() {
   }, []);
 
   useEffect(() => {
-    if (!active) return;
-    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const dialog = lightboxRef.current;
+    if (!lightboxOpen || !dialog) return;
+    const previousFocus = lightboxTriggerRef.current || (document.activeElement instanceof HTMLElement ? document.activeElement : null);
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    if (!dialog.open) dialog.showModal();
     closeRef.current?.focus();
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setActive(null);
-    };
-    window.addEventListener("keydown", onKeyDown);
     return () => {
+      if (dialog.open) dialog.close();
       document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", onKeyDown);
-      previousFocusRef.current?.focus();
+      if (previousFocus?.isConnected) previousFocus.focus();
     };
-  }, [active]);
+  }, [lightboxOpen]);
 
   const allPhotos = useMemo(() => [...sharedPhotos, ...sitePhotos], [sharedPhotos]);
   const visible = allPhotos.filter((photo) => {
@@ -192,12 +192,19 @@ export default function LifeGallery() {
       {notice && <p className="upload-notice" role="status">{notice}</p>}
 
       {visible.length ? <div className="photo-wall" aria-busy={loading}>{visible.map((photo, index) => <article className={`photo-shell photo-${index + 1}`} key={photo.id || photo.src}>
-        <button className="photo-item" type="button" onClick={() => setActive(photo)}><img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" decoding="async" /><span><small>{photo.category} · {photo.ownerName || "访客"}</small><strong>{photo.note}</strong></span></button>
+        <button className="photo-item" type="button" onClick={(event) => { lightboxTriggerRef.current = event.currentTarget; setActive(photo); }}><img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" decoding="async" /><span><small>{photo.category} · {photo.ownerName || "访客"}</small><strong>{photo.note}</strong></span></button>
         {photo.canDelete && <button className="delete-photo" type="button" onClick={() => void remove(photo)}>删除这张照片</button>}
       </article>)}</div> : <div className="empty-album"><strong>{loading ? "正在翻开相册…" : "这一册还没有照片"}</strong><p>成为第一个留下生活切片的人。</p></div>}
 
       <aside className="gallery-note"><span>PUBLIC &amp; PERSONAL</span><p>每位上传者的删除权限都由服务器核验，隐藏按钮或修改网页代码也无法删除别人的照片。请不要上传他人隐私、联系方式或未经允许的肖像。</p></aside>
-      {active && <div className="lightbox" role="dialog" aria-modal="true" aria-label={active.alt} onClick={() => setActive(null)}><button ref={closeRef} type="button" onClick={() => setActive(null)} aria-label="关闭大图">×</button><img src={active.src} alt={active.alt} onClick={(event) => event.stopPropagation()} /><p onClick={(event) => event.stopPropagation()}>{active.note}<small>{active.ownerName ? `上传者：${active.ownerName}` : ""}</small></p></div>}
+      {active && <dialog
+        ref={lightboxRef}
+        className="lightbox"
+        aria-label={active.alt}
+        style={{ width: "100%", height: "100%", maxWidth: "none", maxHeight: "none", margin: 0, border: 0, boxSizing: "border-box" }}
+        onCancel={(event) => { event.preventDefault(); setActive(null); }}
+        onClick={(event) => { if (event.target === event.currentTarget) setActive(null); }}
+      ><button ref={closeRef} type="button" onClick={() => setActive(null)} aria-label="关闭大图">×</button><img src={active.src} alt={active.alt} /><p>{active.note}<small>{active.ownerName ? `上传者：${active.ownerName}` : ""}</small></p></dialog>}
     </section>
   );
 }

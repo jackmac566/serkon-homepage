@@ -350,6 +350,117 @@ html.se-experience-mounted:has(.se-site[data-reduced=true]){scroll-behavior:auto
 html[data-a11y-font="1.15"] .se-site p,html[data-a11y-font="1.3"] .se-site p{font-size:calc(14px * var(--a11y-zoom,1))}
 html[data-a11y-font="1.15"] .se-site .se-glass .ghr-desc,html[data-a11y-font="1.3"] .se-site .se-glass .ghr-desc{font-size:clamp(25px,3.5vw,42px)}
 html[data-a11y-font="1.15"] .se-site .se-about-statement>p,html[data-a11y-font="1.3"] .se-site .se-about-statement>p{font-size:clamp(60px,6.2vw,104px)}
+
+/* Work gallery and fast navigation. The liquid headline and archive renderer stay isolated. */
+.se-site .sx-work{padding:90px max(6vw,24px) 85px;background:#f1f1e8;color:#183b33}
+.se-site .sx-section-top{display:flex;justify-content:space-between;gap:20px;align-items:center;border-bottom:1px solid #1c493329;padding-bottom:21px;font-size:9px;letter-spacing:1.6px;max-width:1290px;margin:auto}
+.se-site .sx-section-top>span:last-child{color:#65765e;font-size:9px;letter-spacing:.7px}
+.se-site .sx-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;max-width:1290px;margin:45px auto 0}
+.se-site .sx-heading h2{font-size:clamp(36px,4.6vw,70px);line-height:1.25;font-weight:400;letter-spacing:-2px}
+.se-site .sx-heading>div{max-width:300px;padding-bottom:5px}
+.se-site .sx-heading p{font-size:12px;color:#62705e;line-height:1.9}
+.se-site .sx-view-toggle{display:flex;gap:4px;margin-top:19px}
+.se-site .sx-view-toggle button{font-size:10px;padding:8px 13px;border:1px solid #1c493329;border-radius:3px;min-height:36px}
+.se-site .sx-view-toggle button[aria-pressed=true]{background:#183b33;color:#f1f1e8}
+.se-site .sx-controls{display:flex;justify-content:space-between;gap:20px;align-items:center;border-bottom:1px solid #1c493329;padding-bottom:17px;max-width:1290px;margin:37px auto 25px}
+.se-site .sx-filters{display:flex;gap:7px;flex-wrap:wrap}
+.se-site .sx-filters button{border-radius:25px;padding:9px 16px;min-height:40px;font-size:11px}
+.se-site .sx-filters button[aria-pressed=true]{background:#dce5ce}
+.se-site .sx-count{font-size:9px;letter-spacing:1px;color:#62705e;white-space:nowrap}
+.se-site .sx-grid{display:grid;grid-template-columns:1.15fr 1fr;align-items:start;gap:42px 28px;max-width:1290px;margin:auto}
+.se-site .sx-card{padding:0;text-align:left;min-width:0;display:block;width:100%}
+.se-site .sx-art{display:block;position:relative;overflow:hidden;aspect-ratio:1.28;border-radius:3px;isolation:isolate;transition:box-shadow .3s;color:#183b33;background:#d6ddc9;text-align:left}
+.se-site .sx-card:hover .sx-art{box-shadow:0 10px 30px #16362520}
+.se-site .sx-art-label{position:absolute;left:6%;top:7%;font-size:8px;letter-spacing:1.5px;z-index:2}
+.se-site .sx-swatches{position:absolute;display:flex;gap:7%;height:60%;width:70%;right:-2%;top:15%;transform:rotate(-28deg);transition:transform .6s}
+.se-site .sx-swatches i{background:var(--swatch);height:100%;width:7%;border-radius:100px;box-shadow:inset 5px 0 3px #ffffff55,6px 10px 9px #1b3e3620}
+.se-site .sx-swatches i:nth-child(1){--swatch:#e4c36c}.se-site .sx-swatches i:nth-child(2){--swatch:#bf8052}.se-site .sx-swatches i:nth-child(3){--swatch:#8f513d}.se-site .sx-swatches i:nth-child(4){--swatch:#a4a574}.se-site .sx-swatches i:nth-child(5){--swatch:#628f84}.se-site .sx-swatches i:nth-child(6){--swatch:#7ea6ab}.se-site .sx-swatches i:nth-child(7){--swatch:#304e5c}.se-site .sx-swatches i:nth-child(8){--swatch:#243e3b}.se-site .sx-swatches i:nth-child(9){--swatch:#333a37}
+.se-site .sx-card:hover .sx-swatches{transform:rotate(-20deg) translateY(-5%)}
+.se-site .sx-art-title{position:absolute;left:6%;bottom:15%;font:clamp(40px,5.5vw,90px)/.91 Georgia,'Times New Roman',serif;letter-spacing:-3px}
+.se-site .sx-art-title em{font-weight:400;font-size:.83em;font-style:italic}
+.se-site .sx-art-title>span{display:block;font:11px Arial,sans-serif;letter-spacing:5px;margin-top:10px}
+.se-site .sx-art-note{font-size:7px;letter-spacing:1.3px;position:absolute;left:6%;bottom:6%}
+.se-site .sx-art-arrow{position:absolute;right:5%;bottom:6%;font-size:22px;display:flex;width:38px;height:38px;border:1px solid currentColor;border-radius:50%;align-items:center;justify-content:center;opacity:.6;transition:transform .3s,opacity .3s}
+.se-site .sx-card:hover .sx-art-arrow{transform:rotate(45deg);opacity:1}
+.se-site .sx-art-genesis{background:radial-gradient(ellipse at 65% 30%,#365b50,#102925 70%);color:#dce6c9}
+.se-site .sx-record{position:absolute;inset:17% 9% 16%;transform:rotate(-25deg) scaleY(.7);transition:transform .7s}
+.se-site .sx-record:before,.se-site .sx-record:after,.se-site .sx-record i{content:'';position:absolute;inset:0;border:1px solid #8da28a;border-radius:50%;box-shadow:0 2px 3px #ffffff50}
+.se-site .sx-record:after{inset:8%;border:12px solid;border-color:#a3b9a4 #5b7b66 #436352 #d2e0c1}
+.se-site .sx-record i{inset:20%}
+.se-site .sx-record b{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(25deg) scaleY(1.4);font:85px Georgia,serif;text-shadow:0 0 30px #e2f3c4aa}
+.se-site .sx-card:hover .sx-record{transform:rotate(-15deg) scaleY(.72)}
+.se-site .sx-art-genesis .sx-art-title{font-size:clamp(35px,4.4vw,70px);font-style:italic;bottom:10%;left:7%}
+.se-site .sx-art-yearbook{background:#c0cdb4;color:#234d39}
+.se-site .sx-rings{position:absolute;inset:-10% -10% -40% 25%;transform:rotate(25deg);transition:transform .7s}
+.se-site .sx-rings i{position:absolute;border:1px solid #54724770;border-radius:45% 55% 43% 57%;inset:0}
+.se-site .sx-rings i:nth-child(2){inset:6%;transform:rotate(9deg)}.se-site .sx-rings i:nth-child(3){inset:12%;transform:rotate(18deg)}.se-site .sx-rings i:nth-child(4){inset:18%;transform:rotate(27deg)}.se-site .sx-rings i:nth-child(5){inset:24%;transform:rotate(36deg)}.se-site .sx-rings i:nth-child(6){inset:30%;transform:rotate(45deg)}.se-site .sx-rings i:nth-child(7){inset:36%;transform:rotate(54deg)}
+.se-site .sx-card:hover .sx-rings{transform:rotate(35deg) scale(1.08)}
+.se-site .sx-cn-title{position:absolute;left:7%;bottom:19%;font-size:clamp(24px,3vw,46px);font-weight:400;line-height:1.4;letter-spacing:-1.5px}
+.se-site .sx-art-london{background:#94a297;color:#f6f1dc}
+.se-site .sx-film-frame{position:absolute;inset:18% -9% 20% 35%;padding:8px;background:#e5e4d7;transform:rotate(12deg);box-shadow:5px 15px 20px #132d2720;transition:transform .6s}
+.se-site .sx-film-frame img{width:100%;height:100%;object-fit:cover;object-position:left;filter:saturate(.5)}
+.se-site .sx-card:hover .sx-film-frame{transform:rotate(5deg) scale(1.03)}
+.se-site .sx-art-london .sx-art-title{font-size:clamp(37px,5vw,70px);text-shadow:0 2px 5px #13352515}
+.se-site .sx-art-london .sx-art-label,.se-site .sx-art-london .sx-art-note{color:#173c32}
+.se-site .sx-art-writing{background:#e7d9bd;color:#a45f43}
+.se-site .sx-writing-mark{position:absolute;left:10%;top:38%;font:italic clamp(95px,14vw,180px)/.8 Georgia,serif;letter-spacing:-15px}
+.se-site .sx-writing-mark>span{font:50px Georgia,serif;letter-spacing:0;margin-left:25px;color:#b29c75}
+.se-site .sx-art-website{background:#b9c9ce;color:#244447}
+.se-site .sx-web-window{position:absolute;left:17%;right:9%;top:20%;bottom:10%;background:#eeeee5;border:1px solid #264a4733;border-radius:7px;transform:rotate(-9deg);box-shadow:8px 15px 20px #24444720;padding:10px 17px;transition:transform .6s}
+.se-site .sx-web-window>span{display:block;font-size:6px;color:#8a9d95;letter-spacing:3px;padding-bottom:8px;border-bottom:1px solid #24444720}
+.se-site .sx-web-window>b{display:block;font:clamp(33px,4vw,58px)/1.5 Georgia,serif;letter-spacing:-3px}
+.se-site .sx-web-window>i{display:inline-block;width:43%;height:31%;background:#203d35;margin-right:6%;border-radius:3px}.se-site .sx-web-window>i:last-child{background:#c6d3b5;margin:0}
+.se-site .sx-card:hover .sx-web-window{transform:rotate(-3deg) translateY(-5px)}
+.se-site .sx-meta{display:flex;justify-content:space-between;gap:18px;padding:20px 0 0}
+.se-site .sx-meta>span:first-child{display:flex;flex-direction:column;gap:8px}
+.se-site .sx-meta small{font-size:8px;color:#62705e;letter-spacing:1.3px}
+.se-site .sx-meta strong{font-size:21px;font-weight:400;line-height:1.4}
+.se-site .sx-meta em{font-style:normal;font-size:11px;color:#62705e}
+.se-site .sx-status{align-self:flex-start;font-size:8px;max-width:135px;text-align:right;margin-top:22px;color:#586c4f;line-height:1.8}
+.se-site .sx-cover-note{max-width:1290px;margin:28px auto 0;color:#62705e;font-size:9px;line-height:1.9}
+.se-site .sx-list{display:flex;flex-direction:column;gap:0}
+.se-site .sx-list .sx-card{display:flex;align-items:center;border-bottom:1px solid #1c493329;padding:20px 0;gap:25px}
+.se-site .sx-list .sx-art{width:140px;height:90px;aspect-ratio:auto;flex:none}
+.se-site .sx-list .sx-meta{padding:0;width:100%;align-items:center}
+.se-site .sx-list .sx-status{margin-top:0}
+.se-site .sx-list .sx-art-label,.se-site .sx-list .sx-art-note,.se-site .sx-list .sx-art-arrow{display:none}
+.se-site .sx-list .sx-art-title{font-size:27px;letter-spacing:-1px}
+.se-site .sx-list .sx-cn-title{font-size:16px;letter-spacing:0}
+.se-site .sx-list .sx-art-title>span{font-size:7px;letter-spacing:2px;margin-top:4px}
+.se-site .sx-list .sx-writing-mark{font-size:55px;letter-spacing:-5px;top:30%;left:20%}
+.se-site .sx-list .sx-writing-mark>span{display:none}
+.se-site .sx-list .sx-record b{font-size:30px}
+.se-site .sx-list .sx-record:after{border-width:4px}
+.se-site .sx-list .sx-web-window{padding:4px 7px}
+.se-site .sx-list .sx-web-window>span{font-size:3px;padding-bottom:2px}
+.se-site .sx-list .sx-web-window>b{font-size:18px;letter-spacing:-1px}
+.se-site .sx-index-trigger{font-size:10px;min-height:44px;display:inline-flex;gap:7px;align-items:center}
+.se-site .sx-index-trigger kbd{border:1px solid #b1c3b14d;border-radius:4px;padding:1px 5px;font-size:9px;opacity:.6}
+.se-site .sx-index-dialog{position:fixed;inset:0;margin:auto;width:min(570px,92vw);max-height:80svh;border:0;border-radius:7px;padding:25px;background:#edeee5;color:#183b33;box-shadow:0 25px 100px #0005}
+.se-site .sx-index-dialog::backdrop{background:#0c2428b3;backdrop-filter:blur(9px)}
+.se-site .sx-index-head{display:flex;align-items:center;justify-content:space-between}
+.se-site .sx-index-head h2{font-size:11px;font-weight:400;letter-spacing:1.3px}
+.se-site .sx-index-head button{font-size:25px;min-width:38px;min-height:38px;text-align:center}
+.se-site .sx-index-search{display:flex;align-items:center;gap:13px;background:#dfe5d4;padding:0 16px;margin-top:17px;border-radius:5px}
+.se-site .sx-index-search>span{font-size:25px}
+.se-site .sx-index-search input{border:0;background:none;min-width:0;width:100%;font-size:13px;height:50px;color:#183b33}
+.se-site .sx-index-results{margin-top:18px;max-height:42svh;overflow:auto}
+.se-site .sx-index-results a,.se-site .sx-index-results button{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:14px 12px;border-bottom:1px solid #1c493329;font-size:13px;width:100%;text-align:left;border-radius:4px;min-height:45px}
+.se-site .sx-index-results a:hover,.se-site .sx-index-results button:hover{background:#dae4ce}
+.se-site .sx-index-hint{font-size:9px;color:#62705e;margin-top:20px;line-height:1.9}
+.se-site .sx-empty-results{padding:25px 10px;font-size:12px;color:#62705e}
+.se-site .se-dialog-art .sx-art{width:100%;aspect-ratio:3/4;flex:1;min-height:250px}
+.se-site .se-dialog-art .sx-art-title{font-size:clamp(35px,5vw,68px)}
+.se-site .se-dialog-art .sx-writing-mark{font-size:140px}
+.se-site .se-dialog-art .sx-cn-title{font-size:35px}
+.se-site .sx-original-link{font-size:11px;text-decoration:underline;text-underline-offset:4px;display:inline-flex;gap:8px;align-items:center;margin-top:18px;min-height:40px}
+.se-site[data-reduced=true] .sx-card *,.se-site[data-reduced=true] .sx-index-dialog{transition:none!important;animation:none!important}
+@media(max-width:900px){.se-site .sx-meta strong{font-size:19px}.se-site .sx-status{max-width:100px;font-size:7px}.se-site .se-nav-actions{gap:16px}.se-site .sx-index-trigger{font-size:9px}.se-site .sx-index-trigger kbd{display:none}}
+@media(max-width:680px){.se-site .sx-work{padding:55px 24px 50px}.se-site .sx-section-top{padding-bottom:17px;font-size:7px;letter-spacing:.8px}.se-site .sx-section-top>span:last-child{font-size:7px;letter-spacing:0}.se-site .sx-heading{align-items:flex-start;margin-top:29px;gap:19px}.se-site .sx-heading h2{font-size:34px;letter-spacing:-1.3px}.se-site .sx-heading>div{max-width:155px;padding-top:7px}.se-site .sx-heading p{font-size:9px;line-height:1.9}.se-site .sx-view-toggle{margin-top:14px}.se-site .sx-view-toggle button{font-size:9px;padding:8px 11px;min-height:36px}.se-site .sx-controls{margin-top:24px;margin-bottom:20px;padding-bottom:12px;gap:9px}.se-site .sx-filters{gap:2px}.se-site .sx-filters button{font-size:9px;min-height:38px;padding:8px 10px}.se-site .sx-count{font-size:7px;letter-spacing:.2px}.se-site .sx-grid{grid-template-columns:1fr;gap:32px}.se-site .sx-art{aspect-ratio:1.25}.se-site .sx-art-title{font-size:61px;letter-spacing:-3px}.se-site .sx-art-label{font-size:7px;letter-spacing:1.1px}.se-site .sx-art-note{font-size:6px;letter-spacing:.8px}.se-site .sx-art-arrow{font-size:19px;width:33px;height:33px}.se-site .sx-meta{padding-top:17px;gap:14px}.se-site .sx-meta small{font-size:7px}.se-site .sx-meta strong{font-size:19px}.se-site .sx-meta em{font-size:11px}.se-site .sx-status{font-size:7px;max-width:95px}.se-site .sx-art-genesis .sx-art-title{font-size:55px}.se-site .sx-record b{font-size:70px}.se-site .sx-cn-title{font-size:32px}.se-site .sx-art-london .sx-art-title{font-size:55px}.se-site .sx-writing-mark{font-size:130px;letter-spacing:-10px;top:32%}.se-site .sx-writing-mark>span{font-size:45px;margin-left:20px}.se-site .sx-web-window>b{font-size:43px}.se-site .sx-cover-note{font-size:8px;line-height:1.9;margin-top:25px}.se-site .sx-list{gap:0}.se-site .sx-list .sx-card{gap:15px;padding:18px 0}.se-site .sx-list .sx-art{width:78px;height:68px}.se-site .sx-list .sx-meta strong{font-size:14px}.se-site .sx-list .sx-meta small{font-size:5px;letter-spacing:.3px}.se-site .sx-list .sx-meta em{font-size:9px}.se-site .sx-list .sx-meta{gap:8px}.se-site .sx-list .sx-status{font-size:6px;max-width:75px}.se-site .sx-list .sx-art-title{font-size:19px}.se-site .sx-list .sx-cn-title{font-size:11px}.se-site .sx-list .sx-art-title>span{font-size:5px}.se-site .sx-list .sx-writing-mark{font-size:44px;top:27%}.se-site .sx-list .sx-web-window>b{font-size:13px}.se-site .sx-index-trigger{font-size:8px;gap:4px}.se-site .se-nav-actions{gap:12px}.se-site .sx-index-dialog{padding:21px}.se-site .sx-index-hint{font-size:8px}.se-site .sx-index-head h2{font-size:11px}.se-site .se-dialog-art .sx-art{aspect-ratio:1.7;min-height:180px}.se-site .se-dialog-art .sx-art-title{font-size:45px}.se-site .se-dialog-art .sx-writing-mark{font-size:100px}.se-site .se-dialog-art .sx-cn-title{font-size:28px}}
+@media(prefers-reduced-motion:reduce){.se-site .sx-card *,.se-site .sx-index-dialog{transition:none!important;animation:none!important}}
+@media(forced-colors:active){.se-site .sx-art,.se-site .sx-view-toggle button,.se-site .sx-index-dialog{border:1px solid ButtonText}}
+html[data-a11y-contrast=more] .se-site .sx-work,html[data-a11y-contrast=more] .se-site .sx-index-dialog{background:#fff;color:#000}
+html[data-a11y-contrast=more] .se-site .sx-meta *,html[data-a11y-contrast=more] .se-site .sx-count,html[data-a11y-contrast=more] .se-site .sx-heading p,html[data-a11y-contrast=more] .se-site .sx-cover-note{color:#000}
 </style><link rel="canonical" href="https://serkon-homepage-cn.pages.dev/">
 <meta property="og:type" content="profile">
 <meta property="og:site_name" content="Serkon 侯世康">
@@ -432,7 +543,60 @@ Error generating stack: `+n.message+`
 `).replace(v0,"")}function ig(e,t){return t=lg(t),lg(e)===t}function Us(){}function Ee(e,t,n,i,c,f){switch(n){case"children":typeof i=="string"?t==="body"||t==="textarea"&&i===""||_l(e,i):(typeof i=="number"||typeof i=="bigint")&&t!=="body"&&_l(e,""+i);break;case"className":$a(e,"class",i);break;case"tabIndex":$a(e,"tabindex",i);break;case"dir":case"role":case"viewBox":case"width":case"height":$a(e,n,i);break;case"style":ao(e,i,f);break;case"data":if(t!=="object"){$a(e,"data",i);break}case"src":case"href":if(i===""&&(t!=="a"||n!=="href")){e.removeAttribute(n);break}if(i==null||typeof i=="function"||typeof i=="symbol"||typeof i=="boolean"){e.removeAttribute(n);break}i=Ka(""+i),e.setAttribute(n,i);break;case"action":case"formAction":if(typeof i=="function"){e.setAttribute(n,"javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')");break}else typeof f=="function"&&(n==="formAction"?(t!=="input"&&Ee(e,t,"name",c.name,c,null),Ee(e,t,"formEncType",c.formEncType,c,null),Ee(e,t,"formMethod",c.formMethod,c,null),Ee(e,t,"formTarget",c.formTarget,c,null)):(Ee(e,t,"encType",c.encType,c,null),Ee(e,t,"method",c.method,c,null),Ee(e,t,"target",c.target,c,null)));if(i==null||typeof i=="symbol"||typeof i=="boolean"){e.removeAttribute(n);break}i=Ka(""+i),e.setAttribute(n,i);break;case"onClick":i!=null&&(e.onclick=Us);break;case"onScroll":i!=null&&ge("scroll",e);break;case"onScrollEnd":i!=null&&ge("scrollend",e);break;case"dangerouslySetInnerHTML":if(i!=null){if(typeof i!="object"||!("__html"in i))throw Error(s(61));if(n=i.__html,n!=null){if(c.children!=null)throw Error(s(60));e.innerHTML=n}}break;case"multiple":e.multiple=i&&typeof i!="function"&&typeof i!="symbol";break;case"muted":e.muted=i&&typeof i!="function"&&typeof i!="symbol";break;case"suppressContentEditableWarning":case"suppressHydrationWarning":case"defaultValue":case"defaultChecked":case"innerHTML":case"ref":break;case"autoFocus":break;case"xlinkHref":if(i==null||typeof i=="function"||typeof i=="boolean"||typeof i=="symbol"){e.removeAttribute("xlink:href");break}n=Ka(""+i),e.setAttributeNS("http://www.w3.org/1999/xlink","xlink:href",n);break;case"contentEditable":case"spellCheck":case"draggable":case"value":case"autoReverse":case"externalResourcesRequired":case"focusable":case"preserveAlpha":i!=null&&typeof i!="function"&&typeof i!="symbol"?e.setAttribute(n,""+i):e.removeAttribute(n);break;case"inert":case"allowFullScreen":case"async":case"autoPlay":case"controls":case"default":case"defer":case"disabled":case"disablePictureInPicture":case"disableRemotePlayback":case"formNoValidate":case"hidden":case"loop":case"noModule":case"noValidate":case"open":case"playsInline":case"readOnly":case"required":case"reversed":case"scoped":case"seamless":case"itemScope":i&&typeof i!="function"&&typeof i!="symbol"?e.setAttribute(n,""):e.removeAttribute(n);break;case"capture":case"download":i===!0?e.setAttribute(n,""):i!==!1&&i!=null&&typeof i!="function"&&typeof i!="symbol"?e.setAttribute(n,i):e.removeAttribute(n);break;case"cols":case"rows":case"size":case"span":i!=null&&typeof i!="function"&&typeof i!="symbol"&&!isNaN(i)&&1<=i?e.setAttribute(n,i):e.removeAttribute(n);break;case"rowSpan":case"start":i==null||typeof i=="function"||typeof i=="symbol"||isNaN(i)?e.removeAttribute(n):e.setAttribute(n,i);break;case"popover":ge("beforetoggle",e),ge("toggle",e),Ha(e,"popover",i);break;case"xlinkActuate":Pt(e,"http://www.w3.org/1999/xlink","xlink:actuate",i);break;case"xlinkArcrole":Pt(e,"http://www.w3.org/1999/xlink","xlink:arcrole",i);break;case"xlinkRole":Pt(e,"http://www.w3.org/1999/xlink","xlink:role",i);break;case"xlinkShow":Pt(e,"http://www.w3.org/1999/xlink","xlink:show",i);break;case"xlinkTitle":Pt(e,"http://www.w3.org/1999/xlink","xlink:title",i);break;case"xlinkType":Pt(e,"http://www.w3.org/1999/xlink","xlink:type",i);break;case"xmlBase":Pt(e,"http://www.w3.org/XML/1998/namespace","xml:base",i);break;case"xmlLang":Pt(e,"http://www.w3.org/XML/1998/namespace","xml:lang",i);break;case"xmlSpace":Pt(e,"http://www.w3.org/XML/1998/namespace","xml:space",i);break;case"is":Ha(e,"is",i);break;case"innerText":case"textContent":break;default:(!(2<n.length)||n[0]!=="o"&&n[0]!=="O"||n[1]!=="n"&&n[1]!=="N")&&(n=Zp.get(n)||n,Ha(e,n,i))}}function Cr(e,t,n,i,c,f){switch(n){case"style":ao(e,i,f);break;case"dangerouslySetInnerHTML":if(i!=null){if(typeof i!="object"||!("__html"in i))throw Error(s(61));if(n=i.__html,n!=null){if(c.children!=null)throw Error(s(60));e.innerHTML=n}}break;case"children":typeof i=="string"?_l(e,i):(typeof i=="number"||typeof i=="bigint")&&_l(e,""+i);break;case"onScroll":i!=null&&ge("scroll",e);break;case"onScrollEnd":i!=null&&ge("scrollend",e);break;case"onClick":i!=null&&(e.onclick=Us);break;case"suppressContentEditableWarning":case"suppressHydrationWarning":case"innerHTML":case"ref":break;case"innerText":case"textContent":break;default:if(!Zf.hasOwnProperty(n))e:{if(n[0]==="o"&&n[1]==="n"&&(c=n.endsWith("Capture"),t=n.slice(2,c?n.length-7:void 0),f=e[rt]||null,f=f!=null?f[n]:null,typeof f=="function"&&e.removeEventListener(t,f,c),typeof i=="function")){typeof f!="function"&&f!==null&&(n in e?e[n]=null:e.hasAttribute(n)&&e.removeAttribute(n)),e.addEventListener(t,i,c);break e}n in e?e[n]=i:i===!0?e.setAttribute(n,""):Ha(e,n,i)}}}function et(e,t,n){switch(t){case"div":case"span":case"svg":case"path":case"a":case"g":case"p":case"li":break;case"img":ge("error",e),ge("load",e);var i=!1,c=!1,f;for(f in n)if(n.hasOwnProperty(f)){var g=n[f];if(g!=null)switch(f){case"src":i=!0;break;case"srcSet":c=!0;break;case"children":case"dangerouslySetInnerHTML":throw Error(s(137,t));default:Ee(e,t,f,g,n,null)}}c&&Ee(e,t,"srcSet",n.srcSet,n,null),i&&Ee(e,t,"src",n.src,n,null);return;case"input":ge("invalid",e);var y=f=g=c=null,v=null,x=null;for(i in n)if(n.hasOwnProperty(i)){var q=n[i];if(q!=null)switch(i){case"name":c=q;break;case"type":g=q;break;case"checked":v=q;break;case"defaultChecked":x=q;break;case"value":f=q;break;case"defaultValue":y=q;break;case"children":case"dangerouslySetInnerHTML":if(q!=null)throw Error(s(137,t));break;default:Ee(e,t,i,q,n,null)}}to(e,f,y,v,x,g,c,!1),Ya(e);return;case"select":ge("invalid",e),i=g=f=null;for(c in n)if(n.hasOwnProperty(c)&&(y=n[c],y!=null))switch(c){case"value":f=y;break;case"defaultValue":g=y;break;case"multiple":i=y;default:Ee(e,t,c,y,n,null)}t=f,n=g,e.multiple=!!i,t!=null?Nl(e,!!i,t,!1):n!=null&&Nl(e,!!i,n,!0);return;case"textarea":ge("invalid",e),f=c=i=null;for(g in n)if(n.hasOwnProperty(g)&&(y=n[g],y!=null))switch(g){case"value":i=y;break;case"defaultValue":c=y;break;case"children":f=y;break;case"dangerouslySetInnerHTML":if(y!=null)throw Error(s(91));break;default:Ee(e,t,g,y,n,null)}lo(e,i,c,f),Ya(e);return;case"option":for(v in n)if(n.hasOwnProperty(v)&&(i=n[v],i!=null))switch(v){case"selected":e.selected=i&&typeof i!="function"&&typeof i!="symbol";break;default:Ee(e,t,v,i,n,null)}return;case"dialog":ge("beforetoggle",e),ge("toggle",e),ge("cancel",e),ge("close",e);break;case"iframe":case"object":ge("load",e);break;case"video":case"audio":for(i=0;i<oa.length;i++)ge(oa[i],e);break;case"image":ge("error",e),ge("load",e);break;case"details":ge("toggle",e);break;case"embed":case"source":case"link":ge("error",e),ge("load",e);case"area":case"base":case"br":case"col":case"hr":case"keygen":case"meta":case"param":case"track":case"wbr":case"menuitem":for(x in n)if(n.hasOwnProperty(x)&&(i=n[x],i!=null))switch(x){case"children":case"dangerouslySetInnerHTML":throw Error(s(137,t));default:Ee(e,t,x,i,n,null)}return;default:if(Xu(t)){for(q in n)n.hasOwnProperty(q)&&(i=n[q],i!==void 0&&Cr(e,t,q,i,n,void 0));return}}for(y in n)n.hasOwnProperty(y)&&(i=n[y],i!=null&&Ee(e,t,y,i,n,null))}function b0(e,t,n,i){switch(t){case"div":case"span":case"svg":case"path":case"a":case"g":case"p":case"li":break;case"input":var c=null,f=null,g=null,y=null,v=null,x=null,q=null;for(R in n){var $=n[R];if(n.hasOwnProperty(R)&&$!=null)switch(R){case"checked":break;case"value":break;case"defaultValue":v=$;default:i.hasOwnProperty(R)||Ee(e,t,R,null,i,$)}}for(var C in i){var R=i[C];if($=n[C],i.hasOwnProperty(C)&&(R!=null||$!=null))switch(C){case"type":f=R;break;case"name":c=R;break;case"checked":x=R;break;case"defaultChecked":q=R;break;case"value":g=R;break;case"defaultValue":y=R;break;case"children":case"dangerouslySetInnerHTML":if(R!=null)throw Error(s(137,t));break;default:R!==$&&Ee(e,t,C,R,i,$)}}Vu(e,g,y,v,x,q,f,c);return;case"select":R=g=y=C=null;for(f in n)if(v=n[f],n.hasOwnProperty(f)&&v!=null)switch(f){case"value":break;case"multiple":R=v;default:i.hasOwnProperty(f)||Ee(e,t,f,null,i,v)}for(c in i)if(f=i[c],v=n[c],i.hasOwnProperty(c)&&(f!=null||v!=null))switch(c){case"value":C=f;break;case"defaultValue":y=f;break;case"multiple":g=f;default:f!==v&&Ee(e,t,c,f,i,v)}t=y,n=g,i=R,C!=null?Nl(e,!!n,C,!1):!!i!=!!n&&(t!=null?Nl(e,!!n,t,!0):Nl(e,!!n,n?[]:"",!1));return;case"textarea":R=C=null;for(y in n)if(c=n[y],n.hasOwnProperty(y)&&c!=null&&!i.hasOwnProperty(y))switch(y){case"value":break;case"children":break;default:Ee(e,t,y,null,i,c)}for(g in i)if(c=i[g],f=n[g],i.hasOwnProperty(g)&&(c!=null||f!=null))switch(g){case"value":C=c;break;case"defaultValue":R=c;break;case"children":break;case"dangerouslySetInnerHTML":if(c!=null)throw Error(s(91));break;default:c!==f&&Ee(e,t,g,c,i,f)}no(e,C,R);return;case"option":for(var ue in n)if(C=n[ue],n.hasOwnProperty(ue)&&C!=null&&!i.hasOwnProperty(ue))switch(ue){case"selected":e.selected=!1;break;default:Ee(e,t,ue,null,i,C)}for(v in i)if(C=i[v],R=n[v],i.hasOwnProperty(v)&&C!==R&&(C!=null||R!=null))switch(v){case"selected":e.selected=C&&typeof C!="function"&&typeof C!="symbol";break;default:Ee(e,t,v,C,i,R)}return;case"img":case"link":case"area":case"base":case"br":case"col":case"embed":case"hr":case"keygen":case"meta":case"param":case"source":case"track":case"wbr":case"menuitem":for(var le in n)C=n[le],n.hasOwnProperty(le)&&C!=null&&!i.hasOwnProperty(le)&&Ee(e,t,le,null,i,C);for(x in i)if(C=i[x],R=n[x],i.hasOwnProperty(x)&&C!==R&&(C!=null||R!=null))switch(x){case"children":case"dangerouslySetInnerHTML":if(C!=null)throw Error(s(137,t));break;default:Ee(e,t,x,C,i,R)}return;default:if(Xu(t)){for(var Ae in n)C=n[Ae],n.hasOwnProperty(Ae)&&C!==void 0&&!i.hasOwnProperty(Ae)&&Cr(e,t,Ae,void 0,i,C);for(q in i)C=i[q],R=n[q],!i.hasOwnProperty(q)||C===R||C===void 0&&R===void 0||Cr(e,t,q,C,i,R);return}}for(var _ in n)C=n[_],n.hasOwnProperty(_)&&C!=null&&!i.hasOwnProperty(_)&&Ee(e,t,_,null,i,C);for($ in i)C=i[$],R=n[$],!i.hasOwnProperty($)||C===R||C==null&&R==null||Ee(e,t,$,C,i,R)}var Rr=null,kr=null;function Bs(e){return e.nodeType===9?e:e.ownerDocument}function ag(e){switch(e){case"http://www.w3.org/2000/svg":return 1;case"http://www.w3.org/1998/Math/MathML":return 2;default:return 0}}function sg(e,t){if(e===0)switch(t){case"svg":return 1;case"math":return 2;default:return 0}return e===1&&t==="foreignObject"?0:e}function Lr(e,t){return e==="textarea"||e==="noscript"||typeof t.children=="string"||typeof t.children=="number"||typeof t.children=="bigint"||typeof t.dangerouslySetInnerHTML=="object"&&t.dangerouslySetInnerHTML!==null&&t.dangerouslySetInnerHTML.__html!=null}var zr=null;function S0(){var e=window.event;return e&&e.type==="popstate"?e===zr?!1:(zr=e,!0):(zr=null,!1)}var ug=typeof setTimeout=="function"?setTimeout:void 0,T0=typeof clearTimeout=="function"?clearTimeout:void 0,cg=typeof Promise=="function"?Promise:void 0,w0=typeof queueMicrotask=="function"?queueMicrotask:typeof cg<"u"?function(e){return cg.resolve(null).then(e).catch(E0)}:ug;function E0(e){setTimeout(function(){throw e})}function Bn(e){return e==="head"}function rg(e,t){var n=t,i=0,c=0;do{var f=n.nextSibling;if(e.removeChild(n),f&&f.nodeType===8)if(n=f.data,n==="/$"){if(0<i&&8>i){n=i;var g=e.ownerDocument;if(n&1&&da(g.documentElement),n&2&&da(g.body),n&4)for(n=g.head,da(n),g=n.firstChild;g;){var y=g.nextSibling,v=g.nodeName;g[Mi]||v==="SCRIPT"||v==="STYLE"||v==="LINK"&&g.rel.toLowerCase()==="stylesheet"||n.removeChild(g),g=y}}if(c===0){e.removeChild(f),Ta(t);return}c--}else n==="$"||n==="$?"||n==="$!"?c++:i=n.charCodeAt(0)-48;else i=0;n=f}while(n);Ta(t)}function Ur(e){var t=e.firstChild;for(t&&t.nodeType===10&&(t=t.nextSibling);t;){var n=t;switch(t=t.nextSibling,n.nodeName){case"HTML":case"HEAD":case"BODY":Ur(n),$u(n);continue;case"SCRIPT":case"STYLE":continue;case"LINK":if(n.rel.toLowerCase()==="stylesheet")continue}e.removeChild(n)}}function A0(e,t,n,i){for(;e.nodeType===1;){var c=n;if(e.nodeName.toLowerCase()!==t.toLowerCase()){if(!i&&(e.nodeName!=="INPUT"||e.type!=="hidden"))break}else if(i){if(!e[Mi])switch(t){case"meta":if(!e.hasAttribute("itemprop"))break;return e;case"link":if(f=e.getAttribute("rel"),f==="stylesheet"&&e.hasAttribute("data-precedence"))break;if(f!==c.rel||e.getAttribute("href")!==(c.href==null||c.href===""?null:c.href)||e.getAttribute("crossorigin")!==(c.crossOrigin==null?null:c.crossOrigin)||e.getAttribute("title")!==(c.title==null?null:c.title))break;return e;case"style":if(e.hasAttribute("data-precedence"))break;return e;case"script":if(f=e.getAttribute("src"),(f!==(c.src==null?null:c.src)||e.getAttribute("type")!==(c.type==null?null:c.type)||e.getAttribute("crossorigin")!==(c.crossOrigin==null?null:c.crossOrigin))&&f&&e.hasAttribute("async")&&!e.hasAttribute("itemprop"))break;return e;default:return e}}else if(t==="input"&&e.type==="hidden"){var f=c.name==null?null:""+c.name;if(c.type==="hidden"&&e.getAttribute("name")===f)return e}else return e;if(e=Yt(e.nextSibling),e===null)break}return null}function O0(e,t,n){if(t==="")return null;for(;e.nodeType!==3;)if((e.nodeType!==1||e.nodeName!=="INPUT"||e.type!=="hidden")&&!n||(e=Yt(e.nextSibling),e===null))return null;return e}function Br(e){return e.data==="$!"||e.data==="$?"&&e.ownerDocument.readyState==="complete"}function N0(e,t){var n=e.ownerDocument;if(e.data!=="$?"||n.readyState==="complete")t();else{var i=function(){t(),n.removeEventListener("DOMContentLoaded",i)};n.addEventListener("DOMContentLoaded",i),e._reactRetry=i}}function Yt(e){for(;e!=null;e=e.nextSibling){var t=e.nodeType;if(t===1||t===3)break;if(t===8){if(t=e.data,t==="$"||t==="$!"||t==="$?"||t==="F!"||t==="F")break;if(t==="/$")return null}}return e}var qr=null;function fg(e){e=e.previousSibling;for(var t=0;e;){if(e.nodeType===8){var n=e.data;if(n==="$"||n==="$!"||n==="$?"){if(t===0)return e;t--}else n==="/$"&&t++}e=e.previousSibling}return null}function og(e,t,n){switch(t=Bs(n),e){case"html":if(e=t.documentElement,!e)throw Error(s(452));return e;case"head":if(e=t.head,!e)throw Error(s(453));return e;case"body":if(e=t.body,!e)throw Error(s(454));return e;default:throw Error(s(451))}}function da(e){for(var t=e.attributes;t.length;)e.removeAttributeNode(t[0]);$u(e)}var Bt=new Map,hg=new Set;function qs(e){return typeof e.getRootNode=="function"?e.getRootNode():e.nodeType===9?e:e.ownerDocument}var gn=Z.d;Z.d={f:_0,r:M0,D:x0,C:D0,L:C0,m:R0,X:L0,S:k0,M:z0};function _0(){var e=gn.f(),t=xs();return e||t}function M0(e){var t=wl(e);t!==null&&t.tag===5&&t.type==="form"?Rh(t):gn.r(e)}var ni=typeof document>"u"?null:document;function dg(e,t,n){var i=ni;if(i&&typeof t=="string"&&t){var c=Dt(t);c='link[rel="'+e+'"][href="'+c+'"]',typeof n=="string"&&(c+='[crossorigin="'+n+'"]'),hg.has(c)||(hg.add(c),e={rel:e,crossOrigin:n,href:t},i.querySelector(c)===null&&(t=i.createElement("link"),et(t,"link",e),Ze(t),i.head.appendChild(t)))}}function x0(e){gn.D(e),dg("dns-prefetch",e,null)}function D0(e,t){gn.C(e,t),dg("preconnect",e,t)}function C0(e,t,n){gn.L(e,t,n);var i=ni;if(i&&e&&t){var c='link[rel="preload"][as="'+Dt(t)+'"]';t==="image"&&n&&n.imageSrcSet?(c+='[imagesrcset="'+Dt(n.imageSrcSet)+'"]',typeof n.imageSizes=="string"&&(c+='[imagesizes="'+Dt(n.imageSizes)+'"]')):c+='[href="'+Dt(e)+'"]';var f=c;switch(t){case"style":f=li(e);break;case"script":f=ii(e)}Bt.has(f)||(e=b({rel:"preload",href:t==="image"&&n&&n.imageSrcSet?void 0:e,as:t},n),Bt.set(f,e),i.querySelector(c)!==null||t==="style"&&i.querySelector(ga(f))||t==="script"&&i.querySelector(ma(f))||(t=i.createElement("link"),et(t,"link",e),Ze(t),i.head.appendChild(t)))}}function R0(e,t){gn.m(e,t);var n=ni;if(n&&e){var i=t&&typeof t.as=="string"?t.as:"script",c='link[rel="modulepreload"][as="'+Dt(i)+'"][href="'+Dt(e)+'"]',f=c;switch(i){case"audioworklet":case"paintworklet":case"serviceworker":case"sharedworker":case"worker":case"script":f=ii(e)}if(!Bt.has(f)&&(e=b({rel:"modulepreload",href:e},t),Bt.set(f,e),n.querySelector(c)===null)){switch(i){case"audioworklet":case"paintworklet":case"serviceworker":case"sharedworker":case"worker":case"script":if(n.querySelector(ma(f)))return}i=n.createElement("link"),et(i,"link",e),Ze(i),n.head.appendChild(i)}}}function k0(e,t,n){gn.S(e,t,n);var i=ni;if(i&&e){var c=El(i).hoistableStyles,f=li(e);t=t||"default";var g=c.get(f);if(!g){var y={loading:0,preload:null};if(g=i.querySelector(ga(f)))y.loading=5;else{e=b({rel:"stylesheet",href:e,"data-precedence":t},n),(n=Bt.get(f))&&jr(e,n);var v=g=i.createElement("link");Ze(v),et(v,"link",e),v._p=new Promise(function(x,q){v.onload=x,v.onerror=q}),v.addEventListener("load",function(){y.loading|=1}),v.addEventListener("error",function(){y.loading|=2}),y.loading|=4,js(g,t,i)}g={type:"stylesheet",instance:g,count:1,state:y},c.set(f,g)}}}function L0(e,t){gn.X(e,t);var n=ni;if(n&&e){var i=El(n).hoistableScripts,c=ii(e),f=i.get(c);f||(f=n.querySelector(ma(c)),f||(e=b({src:e,async:!0},t),(t=Bt.get(c))&&Hr(e,t),f=n.createElement("script"),Ze(f),et(f,"link",e),n.head.appendChild(f)),f={type:"script",instance:f,count:1,state:null},i.set(c,f))}}function z0(e,t){gn.M(e,t);var n=ni;if(n&&e){var i=El(n).hoistableScripts,c=ii(e),f=i.get(c);f||(f=n.querySelector(ma(c)),f||(e=b({src:e,async:!0,type:"module"},t),(t=Bt.get(c))&&Hr(e,t),f=n.createElement("script"),Ze(f),et(f,"link",e),n.head.appendChild(f)),f={type:"script",instance:f,count:1,state:null},i.set(c,f))}}function gg(e,t,n,i){var c=(c=ce.current)?qs(c):null;if(!c)throw Error(s(446));switch(e){case"meta":case"title":return null;case"style":return typeof n.precedence=="string"&&typeof n.href=="string"?(t=li(n.href),n=El(c).hoistableStyles,i=n.get(t),i||(i={type:"style",instance:null,count:0,state:null},n.set(t,i)),i):{type:"void",instance:null,count:0,state:null};case"link":if(n.rel==="stylesheet"&&typeof n.href=="string"&&typeof n.precedence=="string"){e=li(n.href);var f=El(c).hoistableStyles,g=f.get(e);if(g||(c=c.ownerDocument||c,g={type:"stylesheet",instance:null,count:0,state:{loading:0,preload:null}},f.set(e,g),(f=c.querySelector(ga(e)))&&!f._p&&(g.instance=f,g.state.loading=5),Bt.has(e)||(n={rel:"preload",as:"style",href:n.href,crossOrigin:n.crossOrigin,integrity:n.integrity,media:n.media,hrefLang:n.hrefLang,referrerPolicy:n.referrerPolicy},Bt.set(e,n),f||U0(c,e,n,g.state))),t&&i===null)throw Error(s(528,""));return g}if(t&&i!==null)throw Error(s(529,""));return null;case"script":return t=n.async,n=n.src,typeof n=="string"&&t&&typeof t!="function"&&typeof t!="symbol"?(t=ii(n),n=El(c).hoistableScripts,i=n.get(t),i||(i={type:"script",instance:null,count:0,state:null},n.set(t,i)),i):{type:"void",instance:null,count:0,state:null};default:throw Error(s(444,e))}}function li(e){return'href="'+Dt(e)+'"'}function ga(e){return'link[rel="stylesheet"]['+e+"]"}function mg(e){return b({},e,{"data-precedence":e.precedence,precedence:null})}function U0(e,t,n,i){e.querySelector('link[rel="preload"][as="style"]['+t+"]")?i.loading=1:(t=e.createElement("link"),i.preload=t,t.addEventListener("load",function(){return i.loading|=1}),t.addEventListener("error",function(){return i.loading|=2}),et(t,"link",n),Ze(t),e.head.appendChild(t))}function ii(e){return'[src="'+Dt(e)+'"]'}function ma(e){return"script[async]"+e}function pg(e,t,n){if(t.count++,t.instance===null)switch(t.type){case"style":var i=e.querySelector('style[data-href~="'+Dt(n.href)+'"]');if(i)return t.instance=i,Ze(i),i;var c=b({},n,{"data-href":n.href,"data-precedence":n.precedence,href:null,precedence:null});return i=(e.ownerDocument||e).createElement("style"),Ze(i),et(i,"style",c),js(i,n.precedence,e),t.instance=i;case"stylesheet":c=li(n.href);var f=e.querySelector(ga(c));if(f)return t.state.loading|=4,t.instance=f,Ze(f),f;i=mg(n),(c=Bt.get(c))&&jr(i,c),f=(e.ownerDocument||e).createElement("link"),Ze(f);var g=f;return g._p=new Promise(function(y,v){g.onload=y,g.onerror=v}),et(f,"link",i),t.state.loading|=4,js(f,n.precedence,e),t.instance=f;case"script":return f=ii(n.src),(c=e.querySelector(ma(f)))?(t.instance=c,Ze(c),c):(i=n,(c=Bt.get(f))&&(i=b({},n),Hr(i,c)),e=e.ownerDocument||e,c=e.createElement("script"),Ze(c),et(c,"link",i),e.head.appendChild(c),t.instance=c);case"void":return null;default:throw Error(s(443,t.type))}else t.type==="stylesheet"&&(t.state.loading&4)===0&&(i=t.instance,t.state.loading|=4,js(i,n.precedence,e));return t.instance}function js(e,t,n){for(var i=n.querySelectorAll('link[rel="stylesheet"][data-precedence],style[data-precedence]'),c=i.length?i[i.length-1]:null,f=c,g=0;g<i.length;g++){var y=i[g];if(y.dataset.precedence===t)f=y;else if(f!==c)break}f?f.parentNode.insertBefore(e,f.nextSibling):(t=n.nodeType===9?n.head:n,t.insertBefore(e,t.firstChild))}function jr(e,t){e.crossOrigin==null&&(e.crossOrigin=t.crossOrigin),e.referrerPolicy==null&&(e.referrerPolicy=t.referrerPolicy),e.title==null&&(e.title=t.title)}function Hr(e,t){e.crossOrigin==null&&(e.crossOrigin=t.crossOrigin),e.referrerPolicy==null&&(e.referrerPolicy=t.referrerPolicy),e.integrity==null&&(e.integrity=t.integrity)}var Hs=null;function yg(e,t,n){if(Hs===null){var i=new Map,c=Hs=new Map;c.set(n,i)}else c=Hs,i=c.get(n),i||(i=new Map,c.set(n,i));if(i.has(e))return i;for(i.set(e,null),n=n.getElementsByTagName(e),c=0;c<n.length;c++){var f=n[c];if(!(f[Mi]||f[nt]||e==="link"&&f.getAttribute("rel")==="stylesheet")&&f.namespaceURI!=="http://www.w3.org/2000/svg"){var g=f.getAttribute(t)||"";g=e+g;var y=i.get(g);y?y.push(f):i.set(g,[f])}}return i}function vg(e,t,n){e=e.ownerDocument||e,e.head.insertBefore(n,t==="title"?e.querySelector("head > title"):null)}function B0(e,t,n){if(n===1||t.itemProp!=null)return!1;switch(e){case"meta":case"title":return!0;case"style":if(typeof t.precedence!="string"||typeof t.href!="string"||t.href==="")break;return!0;case"link":if(typeof t.rel!="string"||typeof t.href!="string"||t.href===""||t.onLoad||t.onError)break;switch(t.rel){case"stylesheet":return e=t.disabled,typeof t.precedence=="string"&&e==null;default:return!0}case"script":if(t.async&&typeof t.async!="function"&&typeof t.async!="symbol"&&!t.onLoad&&!t.onError&&t.src&&typeof t.src=="string")return!0}return!1}function bg(e){return!(e.type==="stylesheet"&&(e.state.loading&3)===0)}var pa=null;function q0(){}function j0(e,t,n){if(pa===null)throw Error(s(475));var i=pa;if(t.type==="stylesheet"&&(typeof n.media!="string"||matchMedia(n.media).matches!==!1)&&(t.state.loading&4)===0){if(t.instance===null){var c=li(n.href),f=e.querySelector(ga(c));if(f){e=f._p,e!==null&&typeof e=="object"&&typeof e.then=="function"&&(i.count++,i=$s.bind(i),e.then(i,i)),t.state.loading|=4,t.instance=f,Ze(f);return}f=e.ownerDocument||e,n=mg(n),(c=Bt.get(c))&&jr(n,c),f=f.createElement("link"),Ze(f);var g=f;g._p=new Promise(function(y,v){g.onload=y,g.onerror=v}),et(f,"link",n),t.instance=f}i.stylesheets===null&&(i.stylesheets=new Map),i.stylesheets.set(t,e),(e=t.state.preload)&&(t.state.loading&3)===0&&(i.count++,t=$s.bind(i),e.addEventListener("load",t),e.addEventListener("error",t))}}function H0(){if(pa===null)throw Error(s(475));var e=pa;return e.stylesheets&&e.count===0&&$r(e,e.stylesheets),0<e.count?function(t){var n=setTimeout(function(){if(e.stylesheets&&$r(e,e.stylesheets),e.unsuspend){var i=e.unsuspend;e.unsuspend=null,i()}},6e4);return e.unsuspend=t,function(){e.unsuspend=null,clearTimeout(n)}}:null}function $s(){if(this.count--,this.count===0){if(this.stylesheets)$r(this,this.stylesheets);else if(this.unsuspend){var e=this.unsuspend;this.unsuspend=null,e()}}}var Ys=null;function $r(e,t){e.stylesheets=null,e.unsuspend!==null&&(e.count++,Ys=new Map,t.forEach($0,e),Ys=null,$s.call(e))}function $0(e,t){if(!(t.state.loading&4)){var n=Ys.get(e);if(n)var i=n.get(null);else{n=new Map,Ys.set(e,n);for(var c=e.querySelectorAll("link[data-precedence],style[data-precedence]"),f=0;f<c.length;f++){var g=c[f];(g.nodeName==="LINK"||g.getAttribute("media")!=="not all")&&(n.set(g.dataset.precedence,g),i=g)}i&&n.set(null,i)}c=t.instance,g=c.getAttribute("data-precedence"),f=n.get(g)||i,f===i&&n.set(null,c),n.set(g,c),this.count++,i=$s.bind(this),c.addEventListener("load",i),c.addEventListener("error",i),f?f.parentNode.insertBefore(c,f.nextSibling):(e=e.nodeType===9?e.head:e,e.insertBefore(c,e.firstChild)),t.state.loading|=4}}var ya={$$typeof:H,Provider:null,Consumer:null,_currentValue:ae,_currentValue2:ae,_threadCount:0};function Y0(e,t,n,i,c,f,g,y){this.tag=1,this.containerInfo=e,this.pingCache=this.current=this.pendingChildren=null,this.timeoutHandle=-1,this.callbackNode=this.next=this.pendingContext=this.context=this.cancelPendingCommit=null,this.callbackPriority=0,this.expirationTimes=Bu(-1),this.entangledLanes=this.shellSuspendCounter=this.errorRecoveryDisabledLanes=this.expiredLanes=this.warmLanes=this.pingedLanes=this.suspendedLanes=this.pendingLanes=0,this.entanglements=Bu(0),this.hiddenUpdates=Bu(null),this.identifierPrefix=i,this.onUncaughtError=c,this.onCaughtError=f,this.onRecoverableError=g,this.pooledCache=null,this.pooledCacheLanes=0,this.formState=y,this.incompleteTransitions=new Map}function Sg(e,t,n,i,c,f,g,y,v,x,q,$){return e=new Y0(e,t,n,g,y,v,x,$),t=1,f===!0&&(t|=24),f=Tt(3,null,null,t),e.current=f,f.stateNode=e,t=wc(),t.refCount++,e.pooledCache=t,t.refCount++,f.memoizedState={element:i,isDehydrated:n,cache:t},Nc(f),e}function Tg(e){return e?(e=zl,e):zl}function wg(e,t,n,i,c,f){c=Tg(c),i.context===null?i.context=c:i.pendingContext=c,i=An(t),i.payload={element:n},f=f===void 0?null:f,f!==null&&(i.callback=f),n=On(e,i,t),n!==null&&(Nt(n,e,t),Xi(n,e,t))}function Eg(e,t){if(e=e.memoizedState,e!==null&&e.dehydrated!==null){var n=e.retryLane;e.retryLane=n!==0&&n<t?n:t}}function Yr(e,t){Eg(e,t),(e=e.alternate)&&Eg(e,t)}function Ag(e){if(e.tag===13){var t=Ll(e,67108864);t!==null&&Nt(t,e,67108864),Yr(e,67108864)}}var Gs=!0;function G0(e,t,n,i){var c=B.T;B.T=null;var f=Z.p;try{Z.p=2,Gr(e,t,n,i)}finally{Z.p=f,B.T=c}}function K0(e,t,n,i){var c=B.T;B.T=null;var f=Z.p;try{Z.p=8,Gr(e,t,n,i)}finally{Z.p=f,B.T=c}}function Gr(e,t,n,i){if(Gs){var c=Kr(i);if(c===null)Dr(e,t,i,Ks,n),Ng(e,i);else if(Q0(c,e,t,n,i))i.stopPropagation();else if(Ng(e,i),t&4&&-1<V0.indexOf(e)){for(;c!==null;){var f=wl(c);if(f!==null)switch(f.tag){case 3:if(f=f.stateNode,f.current.memoizedState.isDehydrated){var g=Xn(f.pendingLanes);if(g!==0){var y=f;for(y.pendingLanes|=2,y.entangledLanes|=2;g;){var v=1<<31-bt(g);y.entanglements[1]|=v,g&=~v}Wt(f),(Se&6)===0&&(_s=Vt()+500,fa(0))}}break;case 13:y=Ll(f,2),y!==null&&Nt(y,f,2),xs(),Yr(f,2)}if(f=Kr(i),f===null&&Dr(e,t,i,Ks,n),f===c)break;c=f}c!==null&&i.stopPropagation()}else Dr(e,t,i,null,n)}}function Kr(e){return e=Ju(e),Vr(e)}var Ks=null;function Vr(e){if(Ks=null,e=Tl(e),e!==null){var t=o(e);if(t===null)e=null;else{var n=t.tag;if(n===13){if(e=h(t),e!==null)return e;e=null}else if(n===3){if(t.stateNode.current.memoizedState.isDehydrated)return t.tag===3?t.stateNode.containerInfo:null;e=null}else t!==e&&(e=null)}}return Ks=e,null}function Og(e){switch(e){case"beforetoggle":case"cancel":case"click":case"close":case"contextmenu":case"copy":case"cut":case"auxclick":case"dblclick":case"dragend":case"dragstart":case"drop":case"focusin":case"focusout":case"input":case"invalid":case"keydown":case"keypress":case"keyup":case"mousedown":case"mouseup":case"paste":case"pause":case"play":case"pointercancel":case"pointerdown":case"pointerup":case"ratechange":case"reset":case"resize":case"seeked":case"submit":case"toggle":case"touchcancel":case"touchend":case"touchstart":case"volumechange":case"change":case"selectionchange":case"textInput":case"compositionstart":case"compositionend":case"compositionupdate":case"beforeblur":case"afterblur":case"beforeinput":case"blur":case"fullscreenchange":case"focus":case"hashchange":case"popstate":case"select":case"selectstart":return 2;case"drag":case"dragenter":case"dragexit":case"dragleave":case"dragover":case"mousemove":case"mouseout":case"mouseover":case"pointermove":case"pointerout":case"pointerover":case"scroll":case"touchmove":case"wheel":case"mouseenter":case"mouseleave":case"pointerenter":case"pointerleave":return 8;case"message":switch(Dp()){case qf:return 2;case jf:return 8;case Ua:case Cp:return 32;case Hf:return 268435456;default:return 32}default:return 32}}var Qr=!1,qn=null,jn=null,Hn=null,va=new Map,ba=new Map,$n=[],V0="mousedown mouseup touchcancel touchend touchstart auxclick dblclick pointercancel pointerdown pointerup dragend dragstart drop compositionend compositionstart keydown keypress keyup input textInput copy cut paste click change contextmenu reset".split(" ");function Ng(e,t){switch(e){case"focusin":case"focusout":qn=null;break;case"dragenter":case"dragleave":jn=null;break;case"mouseover":case"mouseout":Hn=null;break;case"pointerover":case"pointerout":va.delete(t.pointerId);break;case"gotpointercapture":case"lostpointercapture":ba.delete(t.pointerId)}}function Sa(e,t,n,i,c,f){return e===null||e.nativeEvent!==f?(e={blockedOn:t,domEventName:n,eventSystemFlags:i,nativeEvent:f,targetContainers:[c]},t!==null&&(t=wl(t),t!==null&&Ag(t)),e):(e.eventSystemFlags|=i,t=e.targetContainers,c!==null&&t.indexOf(c)===-1&&t.push(c),e)}function Q0(e,t,n,i,c){switch(t){case"focusin":return qn=Sa(qn,e,t,n,i,c),!0;case"dragenter":return jn=Sa(jn,e,t,n,i,c),!0;case"mouseover":return Hn=Sa(Hn,e,t,n,i,c),!0;case"pointerover":var f=c.pointerId;return va.set(f,Sa(va.get(f)||null,e,t,n,i,c)),!0;case"gotpointercapture":return f=c.pointerId,ba.set(f,Sa(ba.get(f)||null,e,t,n,i,c)),!0}return!1}function _g(e){var t=Tl(e.target);if(t!==null){var n=o(t);if(n!==null){if(t=n.tag,t===13){if(t=h(n),t!==null){e.blockedOn=t,jp(e.priority,function(){if(n.tag===13){var i=Ot();i=qu(i);var c=Ll(n,i);c!==null&&Nt(c,n,i),Yr(n,i)}});return}}else if(t===3&&n.stateNode.current.memoizedState.isDehydrated){e.blockedOn=n.tag===3?n.stateNode.containerInfo:null;return}}}e.blockedOn=null}function Vs(e){if(e.blockedOn!==null)return!1;for(var t=e.targetContainers;0<t.length;){var n=Kr(e.nativeEvent);if(n===null){n=e.nativeEvent;var i=new n.constructor(n.type,n);Zu=i,n.target.dispatchEvent(i),Zu=null}else return t=wl(n),t!==null&&Ag(t),e.blockedOn=n,!1;t.shift()}return!0}function Mg(e,t,n){Vs(e)&&n.delete(t)}function X0(){Qr=!1,qn!==null&&Vs(qn)&&(qn=null),jn!==null&&Vs(jn)&&(jn=null),Hn!==null&&Vs(Hn)&&(Hn=null),va.forEach(Mg),ba.forEach(Mg)}function Qs(e,t){e.blockedOn===t&&(e.blockedOn=null,Qr||(Qr=!0,u.unstable_scheduleCallback(u.unstable_NormalPriority,X0)))}var Xs=null;function xg(e){Xs!==e&&(Xs=e,u.unstable_scheduleCallback(u.unstable_NormalPriority,function(){Xs===e&&(Xs=null);for(var t=0;t<e.length;t+=3){var n=e[t],i=e[t+1],c=e[t+2];if(typeof i!="function"){if(Vr(i||n)===null)continue;break}var f=wl(n);f!==null&&(e.splice(t,3),t-=3,Vc(f,{pending:!0,data:c,method:n.method,action:i},i,c))}}))}function Ta(e){function t(v){return Qs(v,e)}qn!==null&&Qs(qn,e),jn!==null&&Qs(jn,e),Hn!==null&&Qs(Hn,e),va.forEach(t),ba.forEach(t);for(var n=0;n<$n.length;n++){var i=$n[n];i.blockedOn===e&&(i.blockedOn=null)}for(;0<$n.length&&(n=$n[0],n.blockedOn===null);)_g(n),n.blockedOn===null&&$n.shift();if(n=(e.ownerDocument||e).$$reactFormReplay,n!=null)for(i=0;i<n.length;i+=3){var c=n[i],f=n[i+1],g=c[rt]||null;if(typeof f=="function")g||xg(n);else if(g){var y=null;if(f&&f.hasAttribute("formAction")){if(c=f,g=f[rt]||null)y=g.formAction;else if(Vr(c)!==null)continue}else y=g.action;typeof y=="function"?n[i+1]=y:(n.splice(i,3),i-=3),xg(n)}}}function Xr(e){this._internalRoot=e}Zs.prototype.render=Xr.prototype.render=function(e){var t=this._internalRoot;if(t===null)throw Error(s(409));var n=t.current,i=Ot();wg(n,i,e,t,null,null)},Zs.prototype.unmount=Xr.prototype.unmount=function(){var e=this._internalRoot;if(e!==null){this._internalRoot=null;var t=e.containerInfo;wg(e.current,2,null,e,null,null),xs(),t[Sl]=null}};function Zs(e){this._internalRoot=e}Zs.prototype.unstable_scheduleHydration=function(e){if(e){var t=Vf();e={blockedOn:null,target:e,priority:t};for(var n=0;n<$n.length&&t!==0&&t<$n[n].priority;n++);$n.splice(n,0,e),n===0&&_g(e)}};var Dg=l.version;if(Dg!=="19.1.1")throw Error(s(527,Dg,"19.1.1"));Z.findDOMNode=function(e){var t=e._reactInternals;if(t===void 0)throw typeof e.render=="function"?Error(s(188)):(e=Object.keys(e).join(","),Error(s(268,e)));return e=m(t),e=e!==null?p(e):null,e=e===null?null:e.stateNode,e};var Z0={bundleType:0,version:"19.1.1",rendererPackageName:"react-dom",currentDispatcherRef:B,reconcilerVersion:"19.1.1"};if(typeof __REACT_DEVTOOLS_GLOBAL_HOOK__<"u"){var Js=__REACT_DEVTOOLS_GLOBAL_HOOK__;if(!Js.isDisabled&&Js.supportsFiber)try{Oi=Js.inject(Z0),vt=Js}catch{}}return Ea.createRoot=function(e,t){if(!r(e))throw Error(s(299));var n=!1,i="",c=Qh,f=Xh,g=Zh,y=null;return t!=null&&(t.unstable_strictMode===!0&&(n=!0),t.identifierPrefix!==void 0&&(i=t.identifierPrefix),t.onUncaughtError!==void 0&&(c=t.onUncaughtError),t.onCaughtError!==void 0&&(f=t.onCaughtError),t.onRecoverableError!==void 0&&(g=t.onRecoverableError),t.unstable_transitionCallbacks!==void 0&&(y=t.unstable_transitionCallbacks)),t=Sg(e,1,!1,null,null,n,i,c,f,g,y,null),e[Sl]=t.current,xr(e),new Xr(t)},Ea.hydrateRoot=function(e,t,n){if(!r(e))throw Error(s(299));var i=!1,c="",f=Qh,g=Xh,y=Zh,v=null,x=null;return n!=null&&(n.unstable_strictMode===!0&&(i=!0),n.identifierPrefix!==void 0&&(c=n.identifierPrefix),n.onUncaughtError!==void 0&&(f=n.onUncaughtError),n.onCaughtError!==void 0&&(g=n.onCaughtError),n.onRecoverableError!==void 0&&(y=n.onRecoverableError),n.unstable_transitionCallbacks!==void 0&&(v=n.unstable_transitionCallbacks),n.formState!==void 0&&(x=n.formState)),t=Sg(e,1,!0,t,n??null,i,c,f,g,y,v,x),t.context=Tg(null),n=t.current,i=Ot(),i=qu(i),c=An(i),c.callback=null,On(n,c,i),n=i,t.current.lanes=n,_i(t,n),Wt(t),e[Sl]=t.current,xr(e),new Zs(t)},Ea.version="19.1.1",Ea}var Yg;function h1(){if(Yg)return Wr.exports;Yg=1;function u(){if(!(typeof __REACT_DEVTOOLS_GLOBAL_HOOK__>"u"||typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.checkDCE!="function"))try{__REACT_DEVTOOLS_GLOBAL_HOOK__.checkDCE(u)}catch(l){console.error(l)}}return u(),Wr.exports=o1(),Wr.exports}
 window.React=Tf();window.ReactDOM=h1();
 })();
-</script><script>(function(){'use strict';const modules={"components/serkon-homepage":function(module,exports,require){
+</script><script>(function(){'use strict';const modules={"components/quick-index":function(module,exports,require){"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = QuickIndex;
+const React = require('react');
+const { projects } = require('../data/serkon-experience');
+const text = (zh, en) => ({ zh, en });
+function QuickIndex({ lang, onOpenProject, onClose, preview = false }) {
+    const [search, setSearch] = React.useState('');
+    const ref = React.useRef(null);
+    const input = React.useRef(null);
+    const t = (zh, en) => lang === 'zh' ? zh : en;
+    const destinations = [
+        { title: text('作品索引', 'Work index'), terms: '作品 work projects 项目', href: '#works' },
+        { title: text('个人档案', 'Personal file'), terms: '关于 about 侯世康 serkon', href: '#about' },
+        { title: text('生活影像', 'Life in frames'), terms: '相册 照片 photo gallery 影像 life', href: '/life' },
+        { title: text('公共大厅', 'Public lobby'), terms: '留言 聊天 chat lobby 大厅', href: '/lobby' },
+        { title: text('互动档案', 'Playable archive'), terms: '游戏 play cards 扑克', href: '/play' },
+        { title: text('思想漫游', 'Motion archive'), terms: 'cosmos 思想 动态 motion', href: '/cosmos' },
+        { title: text('站长随笔', 'Notes'), terms: '笔记 文章 随笔 notes writing', href: '/notes' },
+        { title: text('版本记录', 'Release ledger'), terms: '版本 更新 history updates', href: '/updates' },
+        { title: text('保持联系', 'Get in touch'), terms: '联系 contact 邮箱 email', href: '#contact' },
+        ...projects.map((project, index) => ({ title: project.title, terms: Object.values(project.title).join(' ') + ' ' + project.label, projectIndex: index })),
+    ];
+    React.useEffect(() => {
+        const before = document.activeElement;
+        const dialog = ref.current;
+        dialog?.showModal();
+        input.current?.focus();
+        return () => { dialog?.close(); if (before instanceof HTMLElement && before.isConnected)
+            before.focus({ preventScroll: true }); };
+    }, []);
+    const matches = destinations.filter(item => (item.title.zh + ' ' + item.title.en + ' ' + item.terms).toLowerCase().includes(search.trim().toLowerCase()));
+    return React.createElement("dialog", { ref: ref, className: "sx-index-dialog", "aria-labelledby": "sx-index-title", onCancel: onClose, onClick: (event) => { if (event.target === event.currentTarget) {
+            const rect = event.currentTarget.getBoundingClientRect();
+            if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)
+                onClose();
+        } } },
+        React.createElement("div", { className: "sx-index-head" },
+            React.createElement("h2", { id: "sx-index-title" }, t('去哪里逛逛？', 'WHERE TO NEXT?')),
+            React.createElement("button", { type: "button", onClick: onClose, "aria-label": t('关闭全站索引', 'Close site index') }, "\u00D7")),
+        React.createElement("label", { className: "sx-index-search" },
+            React.createElement("span", { "aria-hidden": "true" }, "\u2315"),
+            React.createElement("input", { ref: input, type: "search", value: search, onChange: (event) => setSearch(event.target.value), placeholder: t('搜索作品、相册、随笔…', 'Search work, photos, notes…'), "aria-label": t('搜索网站入口', 'Search site destinations'), autoComplete: "off" })),
+        React.createElement("div", { className: "sx-index-results" },
+            matches.map((item, index) => item.projectIndex !== undefined ? React.createElement("button", { type: "button", key: index, onClick: () => { onClose(); onOpenProject(item.projectIndex); } },
+                React.createElement("span", null, item.title[lang]),
+                React.createElement("span", { "aria-hidden": "true" }, "\u2197")) : React.createElement("a", { key: index, href: preview && item.href?.startsWith('/') ? 'https://serkon-homepage-cn.pages.dev' + item.href : item.href, onClick: onClose },
+                React.createElement("span", null, item.title[lang]),
+                React.createElement("span", { "aria-hidden": "true" }, item.href?.startsWith('#') ? '↓' : '↗'))),
+            !matches.length && React.createElement("p", { className: "sx-empty-results" }, t('没有找到，试试“音乐”或“相册”。', 'No results. Try “music” or “photos”.'))),
+        React.createElement("p", { className: "sx-index-hint" }, t('输入关键词筛选 · Tab 选择 · Enter 打开 · Esc 关闭', 'TYPE TO FILTER · TAB TO SELECT · ENTER TO OPEN · ESC TO CLOSE')));
+}
+},
+"components/serkon-homepage":function(module,exports,require){
 "use strict";
 'use client';
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -479,6 +643,8 @@ const stack_spread_1 = __importDefault(require("./ui/stack-spread"));
 const icons_1 = require("./ui/icons");
 const serkon_experience_1 = require("../data/serkon-experience");
 const covers_1 = require("../data/covers");
+const WorkGallery = require("./work-gallery").default;
+const QuickIndex = require("./quick-index").default;
 function safeGet(key) { try {
     return localStorage.getItem(key);
 }
@@ -497,8 +663,23 @@ function usePreferences() {
     React.useEffect(() => {
         const root = document.documentElement;
         root.classList.add('se-experience-mounted');
-        const saved = safeGet('serkon_experience_language');
-        setLang(root.dataset.language === 'en' || (!root.dataset.language && saved === 'en') ? 'en' : 'zh');
+        const saved = safeGet('serkon_language_v1') ?? safeGet('serkon_experience_language');
+        const initialLanguage = root.dataset.language === 'en' || (!root.dataset.language && saved === 'en') ? 'en' : 'zh';
+        setLang(initialLanguage);
+        safeSet('serkon_language_v1', initialLanguage);
+        root.lang = initialLanguage === 'zh' ? 'zh-CN' : 'en';
+        root.dataset.language = initialLanguage;
+        try {
+            const savedAccess = JSON.parse(safeGet('serkon_accessibility_v1') || 'null');
+            if (savedAccess && [1, 1.15, 1.3].includes(savedAccess.scale)
+                && ['contrast', 'reducedMotion', 'underlineLinks'].every(key => typeof savedAccess[key] === 'boolean')) {
+                root.style.setProperty('--a11y-zoom', String(savedAccess.scale));
+                root.dataset.a11yFont = String(savedAccess.scale);
+                root.dataset.a11yContrast = savedAccess.contrast ? 'more' : 'normal';
+                root.dataset.a11yMotion = savedAccess.reducedMotion ? 'reduce' : 'normal';
+                root.dataset.a11yLinks = savedAccess.underlineLinks ? 'underline' : 'normal';
+            }
+        } catch { /* Ignore malformed or unavailable stored preferences. */ }
         setUserStatic(safeGet('serkon_experience_static') === 'true');
         const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
         const read = () => setSystemStatic(mq.matches);
@@ -514,7 +695,7 @@ function usePreferences() {
     const changeLanguage = () => {
         const next = lang === 'zh' ? 'en' : 'zh';
         setLang(next);
-        safeSet('serkon_experience_language', next);
+        safeSet('serkon_language_v1', next);
         const hostButtons = document.querySelectorAll('.language-control button');
         if (hostButtons.length === 2)
             hostButtons[next === 'zh' ? 0 : 1].click();
@@ -593,6 +774,7 @@ function DetailDialog({ value, lang, preview, onClose, onNavigate }) {
                 React.createElement("a", { className: "se-button se-button-dark", href: (0, serkon_experience_1.resolveHref)(item.href, preview), ...(0, serkon_experience_1.externalProps)((0, serkon_experience_1.resolveHref)(item.href, preview)) },
                     lang === 'zh' ? '打开真实项目 / 档案' : 'Open the real project / archive',
                     React.createElement(icons_1.Icon, { name: "northeast", size: 18 })),
+                sourceImage && React.createElement("a", { className: "sx-original-link", href: (0, serkon_experience_1.resolveHref)(sourceImage, preview), target: "_blank", rel: "noopener noreferrer" }, lang === 'zh' ? '打开原始素材 ↗' : 'Open original material ↗'),
                 React.createElement("small", { className: "se-dialog-note" }, lang === 'zh' ? '内容取自原站公开档案；外部作品在新标签页打开。' : 'Content is based on the original public archive. External work opens in a new tab.'),
                 value.kind === 'archive' && React.createElement("div", { className: "se-dialog-pagination" },
                     React.createElement("button", { type: "button", onClick: () => onNavigate((value.index - 1 + serkon_experience_1.archiveItems.length) % serkon_experience_1.archiveItems.length), "aria-label": lang === 'zh' ? '上一张档案' : 'Previous archive' },
@@ -622,7 +804,8 @@ function MobileNavigation({ lang, onClose, preview }) {
 }
 function SerkonHomepage({ preview = false, sourceEdition = 35 }) {
     const { lang, changeLanguage, reduced, toggleStatic, forcedStatic } = usePreferences();
-    const [dialog, setDialog] = React.useState(null), [filter, setFilter] = React.useState('all'), [mobileMenu, setMobileMenu] = React.useState(false), [toast, setToast] = React.useState(''), [playing, setPlaying] = React.useState(false), [scrolled, setScrolled] = React.useState(false);
+    const [quickOpen, setQuickOpen] = React.useState(false);
+    const [dialog, setDialog] = React.useState(null), [mobileMenu, setMobileMenu] = React.useState(false), [toast, setToast] = React.useState(''), [playing, setPlaying] = React.useState(false), [scrolled, setScrolled] = React.useState(false);
     const audioRef = React.useRef(null), toastTimer = React.useRef(null);
     const t = (zh, en) => lang === 'zh' ? zh : en;
     const href = (url) => (0, serkon_experience_1.resolveHref)(url, preview);
@@ -653,7 +836,15 @@ function SerkonHomepage({ preview = false, sourceEdition = 35 }) {
         setPlaying(false);
         notify(t('音乐未能加载；可在作品详情打开网易云音乐。', 'Audio could not load. Open the NetEase link in the music project.'));
     } }
-    const displayed = serkon_experience_1.projects.filter(p => filter === 'all' || p.category === filter);
+    React.useEffect(() => {
+        const keydown = event => {
+            if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k' && !dialog && !mobileMenu) {
+                event.preventDefault(); setQuickOpen(value => !value);
+            }
+        };
+        document.addEventListener('keydown', keydown);
+        return () => document.removeEventListener('keydown', keydown);
+    }, [dialog, mobileMenu]);
     return React.createElement("div", { className: "se-site", "data-no-translate": true, "data-reduced": reduced ? 'true' : 'false', lang: lang === 'zh' ? 'zh-CN' : 'en' },
         React.createElement("a", { className: "se-skip", href: "#se-main" }, t('跳到主要内容', 'Skip to content')),
         React.createElement("header", { className: "se-navigation", "data-scrolled": scrolled ? 'true' : 'false' },
@@ -667,13 +858,15 @@ function SerkonHomepage({ preview = false, sourceEdition = 35 }) {
             React.createElement("nav", { className: "se-desktop-nav", "aria-label": t('主导航', 'Main navigation') },
                 React.createElement("a", { href: "#works" },
                     t('作品', 'Work'),
-                    React.createElement("span", null, "04")),
+                    React.createElement("span", null, String(serkon_experience_1.projects.length).padStart(2, '0'))),
                 React.createElement("a", { href: "#archive" }, t('档案', 'Archive')),
                 React.createElement("a", { href: "#about" }, t('关于', 'About')),
                 React.createElement("a", { href: "#spaces" },
                     t('探索', 'Explore'),
                     React.createElement("span", null, "\u2197"))),
             React.createElement("div", { className: "se-nav-actions" },
+                React.createElement("button", { type: "button", className: "sx-index-trigger", onClick: () => setQuickOpen(true), "aria-label": t('打开全站索引', 'Open site index'), "aria-keyshortcuts": "Meta+K Control+K" },
+                    React.createElement("span", { "aria-hidden": "true" }, '⌘'), t('索引', 'Index'), React.createElement("kbd", null, 'K')),
                 React.createElement("button", { className: "se-text-button se-language", type: "button", onClick: changeLanguage, "aria-label": t('切换到英语', 'Switch to Chinese') },
                     React.createElement(icons_1.Icon, { name: "globe", size: 15 }),
                     t('EN', '中文')),
@@ -718,51 +911,7 @@ function SerkonHomepage({ preview = false, sourceEdition = 35 }) {
                 React.createElement(icons_1.Icon, { name: "spark", size: 17 }),
                 React.createElement("span", null, "REAL PROJECTS")),
             React.createElement(stack_spread_1.default, { cards: serkon_experience_1.archiveItems, lang: lang, reducedMotion: reduced, onOpen: index => setDialog({ kind: 'archive', index }) }),
-            React.createElement("section", { className: "se-work-section se-section-pad", id: "works" },
-                React.createElement(SectionHeading, { index: "03", eyebrow: "SELECTED WORK / REAL OUTCOMES", title: React.createElement(React.Fragment, null,
-                        t('把想法，', 'Ideas,'),
-                        React.createElement("br", null),
-                        React.createElement("em", null, t('做成看得见的作品。', 'made tangible.'))), description: t('四条创作方向。每一个项目，都能打开它的过程与真实成果。', 'Four creative directions. Open each project to see its process and real outcome.') }),
-                React.createElement("div", { className: "se-work-toolbar" },
-                    React.createElement("div", { className: "se-filters", role: "group", "aria-label": t('筛选作品', 'Filter work') }, [['all', '全部', 'All'], ['product', '产品', 'Product'], ['film', '影像', 'Film'], ['music', '音乐', 'Music'], ['web', '网站', 'Web']].map(([key, zh, en]) => React.createElement("button", { type: "button", key: key, onClick: () => setFilter(key), "aria-pressed": filter === key },
-                        t(zh, en),
-                        key === 'all' && React.createElement("sup", null, "04")))),
-                    React.createElement("span", { className: "se-work-count", "aria-live": "polite" },
-                        String(displayed.length).padStart(2, '0'),
-                        " / 04 ",
-                        t('个项目', 'PROJECTS'))),
-                React.createElement("div", { className: "se-work-grid" }, displayed.map(project => React.createElement("button", { type: "button", key: project.id, className: 'se-work-card se-tone-' + project.tone, onClick: () => setDialog({ kind: 'project', index: serkon_experience_1.projects.findIndex(p => p.id === project.id) }) },
-                    React.createElement("div", { className: "se-work-art" },
-                        React.createElement("img", { src: (0, covers_1.coverUri)(project.tone), width: "600", height: "800", alt: "", loading: "lazy" }),
-                        React.createElement("span", { className: "se-work-serial" },
-                            "PROJECT / ",
-                            project.number),
-                        React.createElement("span", { className: "se-work-art-title" }, project.id === 'color' ? React.createElement(React.Fragment, null,
-                            "126",
-                            React.createElement("span", null, "COLOURS. ONE SYSTEM.")) : project.id === 'london' ? React.createElement(React.Fragment, null,
-                            "London",
-                            React.createElement("span", null, "FROM IMAGE TO STORY")) : project.id === 'genesis' ? React.createElement(React.Fragment, null,
-                            "Genesis",
-                            React.createElement("span", null, "THE SOUND OF CREATION")) : React.createElement(React.Fragment, null,
-                            "Serkon",
-                            React.createElement("span", null, "ALWAYS IN PROGRESS"))),
-                        React.createElement("span", { className: "se-work-open" },
-                            React.createElement(icons_1.Icon, { name: "northeast", size: 27 }))),
-                    React.createElement("div", { className: "se-work-description" },
-                        React.createElement("span", { className: "se-kicker" }, project.status[lang]),
-                        React.createElement("h3", null,
-                            project.title[lang],
-                            React.createElement(icons_1.Icon, { name: "arrow", size: 23 })),
-                        React.createElement("p", null, project.short[lang]),
-                        React.createElement("div", { className: "se-tags" }, project.tags.map(tag => React.createElement("span", { key: tag.en }, tag[lang]))))))),
-                React.createElement("div", { className: "se-more-work" },
-                    React.createElement("span", null, t('还有，已经可以使用的工具。', 'More tools, already out in the world.')),
-                    React.createElement("a", { href: "https://miaobi-appl-serkon.pages.dev/", target: "_blank", rel: "noopener noreferrer" },
-                        t('妙笔 AI', 'Miaobi AI'),
-                        React.createElement(icons_1.Icon, { name: "northeast", size: 17 })),
-                    React.createElement("a", { href: "https://github.com/jackmac566/wechat-yearbook", target: "_blank", rel: "noopener noreferrer" },
-                        t('微信年轮', 'WeChat Yearbook'),
-                        React.createElement(icons_1.Icon, { name: "northeast", size: 17 })))),
+            React.createElement(WorkGallery, { lang, onOpen: index => setDialog({ kind: 'project', index }) }),
             React.createElement("section", { className: "se-about se-section-pad", id: "about" },
                 React.createElement(SectionHeading, { index: "04", eyebrow: "A LITTLE ABOUT ME", title: t('先做出第一版，', 'Make a first version.'), description: t('然后，在实践里继续认识世界，也认识自己。', 'Then keep discovering the world, and yourself, through the work.') }),
                 React.createElement("div", { className: "se-about-grid" },
@@ -903,6 +1052,7 @@ function SerkonHomepage({ preview = false, sourceEdition = 35 }) {
             toast,
             React.createElement("button", { type: "button", onClick: () => setToast(''), "aria-label": t('关闭提示', 'Dismiss message') },
                 React.createElement(icons_1.Icon, { name: "close", size: 16 }))),
+        quickOpen && React.createElement(QuickIndex, {lang, preview, onClose: () => setQuickOpen(false), onOpenProject: index => setDialog({ kind: 'project', index })}),
         dialog && React.createElement(DetailDialog, { value: dialog, lang: lang, preview: preview, onClose: () => setDialog(null), onNavigate: index => setDialog({ kind: 'archive', index }) }),
         mobileMenu && React.createElement(MobileNavigation, { lang: lang, preview: preview, onClose: () => setMobileMenu(false) }));
 }
@@ -2004,6 +2154,112 @@ function StackSpread({ cards, lang, reducedMotion, onOpen }) {
 }
 
 },
+"components/work-gallery":function(module,exports,require){"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProjectArtwork = ProjectArtwork;
+exports.default = WorkGallery;
+/* Static, pre-optimised public assets; this standalone bundle has no Next image proxy. */
+/* eslint-disable @next/next/no-img-element */
+const React = require('react');
+const { projects } = require('../data/serkon-experience');
+function ProjectArtwork({ project }) {
+    const tone = project.tone;
+    return React.createElement("span", { className: 'sx-art sx-art-' + tone, "aria-hidden": "true" },
+        React.createElement("span", { className: "sx-art-label" },
+            project.number,
+            " / ",
+            tone === 'color' ? 'VISUAL SYSTEM' : tone === 'genesis' ? 'ORIGINAL SOUND' : tone === 'yearbook' ? 'LOCAL DATA TOOL' : tone === 'london' ? 'AI FILM EXPERIMENT' : tone === 'writing' ? 'AI WRITING WORKSPACE' : 'PERSONAL WEBSITE'),
+        tone === 'color' && React.createElement(React.Fragment, null,
+            React.createElement("span", { className: "sx-swatches" }, Array.from({ length: 9 }, (_, index) => React.createElement("i", { key: index }))),
+            React.createElement("span", { className: "sx-art-title" },
+                "Colour,",
+                React.createElement("br", null),
+                React.createElement("em", null, "in order.")),
+            React.createElement("span", { className: "sx-art-note" }, "126 COLOURS. ONE VISUAL LANGUAGE.")),
+        tone === 'genesis' && React.createElement(React.Fragment, null,
+            React.createElement("span", { className: "sx-record" },
+                React.createElement("i", null),
+                React.createElement("b", null, "\u2726")),
+            React.createElement("span", { className: "sx-art-title" },
+                "Genesis",
+                React.createElement("span", null, "\u521B\u4E16\u7EAA"))),
+        tone === 'yearbook' && React.createElement(React.Fragment, null,
+            React.createElement("span", { className: "sx-rings" }, Array.from({ length: 7 }, (_, index) => React.createElement("i", { key: index }))),
+            React.createElement("span", { className: "sx-cn-title" },
+                "\u6BCF\u6BB5\u5BF9\u8BDD\uFF0C",
+                React.createElement("br", null),
+                "\u90FD\u6709\u5E74\u8F6E\u3002"),
+            React.createElement("span", { className: "sx-art-note" }, "STORIES, NOT JUST DATA.")),
+        tone === 'london' && React.createElement(React.Fragment, null,
+            React.createElement("span", { className: "sx-film-frame" },
+                React.createElement("img", { src: "/archive/london-ai-workspace.webp", width: "1260", height: "717", alt: "", loading: "lazy" })),
+            React.createElement("span", { className: "sx-art-title" },
+                "London,",
+                React.createElement("br", null),
+                React.createElement("em", null, "in frames.")),
+            React.createElement("span", { className: "sx-art-note" }, "AN EXPERIMENT IN VISUAL STORYTELLING")),
+        tone === 'writing' && React.createElement(React.Fragment, null,
+            React.createElement("span", { className: "sx-writing-mark" },
+                "Aa",
+                React.createElement("span", null, "\u2192")),
+            React.createElement("span", { className: "sx-art-note" }, "IDEAS, FINDING THEIR WORDS.")),
+        tone === 'website' && React.createElement(React.Fragment, null,
+            React.createElement("span", { className: "sx-web-window" },
+                React.createElement("span", null, "\u25CF \u25CF \u25CF"),
+                React.createElement("b", null, "Serkon."),
+                React.createElement("i", null),
+                React.createElement("i", null)),
+            React.createElement("span", { className: "sx-art-note" }, "ALWAYS IN PROGRESS.")),
+        React.createElement("span", { className: "sx-art-arrow" }, "\u2197"));
+}
+function WorkGallery({ lang, onOpen }) {
+    const [filter, setFilter] = React.useState('all');
+    const [list, setList] = React.useState(false);
+    const t = (zh, en) => lang === 'zh' ? zh : en;
+    const openProject = (index) => {
+        try {
+            window.sessionStorage.setItem('serkon_visited_works_v1', 'true');
+        }
+        catch { /* Opening a project also works when storage is blocked. */ }
+        onOpen(index);
+    };
+    const visible = projects.filter(project => filter === 'all' || (filter === 'creative' ? ['music', 'film'].includes(project.category) : !['music', 'film'].includes(project.category)));
+    return React.createElement("section", { className: "sx-work", id: "works", "aria-labelledby": "sx-work-title" },
+        React.createElement("div", { className: "sx-section-top" },
+            React.createElement("span", null, "03 \u2014 SELECTED WORK"),
+            React.createElement("span", null, t('从好奇出发，以作品回答。', 'CURIOSITY, ANSWERED IN WORK.'))),
+        React.createElement("div", { className: "sx-heading" },
+            React.createElement("h2", { id: "sx-work-title" },
+                t('做过的，', 'Made.'),
+                React.createElement("br", null),
+                t('还在做的。', 'Still making.')),
+            React.createElement("div", null,
+                React.createElement("p", null,
+                    t('不同媒介，同一种好奇心。', 'Different media. The same curiosity.'),
+                    React.createElement("br", null),
+                    t('打开一件作品，看看想法如何成为现实。', 'Open a project to see how an idea took shape.')),
+                React.createElement("div", { className: "sx-view-toggle", role: "group", "aria-label": t('作品展示方式', 'Work display mode') },
+                    React.createElement("button", { type: "button", onClick: () => setList(false), "aria-pressed": !list }, t('▦ 展览', '▦ Gallery')),
+                    React.createElement("button", { type: "button", onClick: () => setList(true), "aria-pressed": list }, t('☷ 目录', '☷ Index'))))),
+        React.createElement("div", { className: "sx-controls" },
+            React.createElement("div", { className: "sx-filters", role: "group", "aria-label": t('筛选作品', 'Filter projects') }, [['all', '全部', 'All'], ['product', '产品与代码', 'Product & code'], ['creative', '影像与声音', 'Image & sound']].map(([key, zh, en]) => React.createElement("button", { type: "button", key: key, onClick: () => setFilter(key), "aria-pressed": filter === key }, t(zh, en)))),
+            React.createElement("span", { className: "sx-count", "aria-live": "polite" },
+                String(visible.length).padStart(2, '0'),
+                " / ",
+                String(projects.length).padStart(2, '0'),
+                " ",
+                t('个项目', 'PROJECTS'))),
+        React.createElement("div", { className: 'sx-grid' + (list ? ' sx-list' : '') }, visible.map(project => React.createElement("button", { type: "button", key: project.id, className: "sx-card", onClick: () => openProject(projects.findIndex((item) => item.id === project.id)), "aria-label": t('查看作品：', 'View project: ') + project.title[lang] },
+            React.createElement(ProjectArtwork, { project: project }),
+            React.createElement("span", { className: "sx-meta" },
+                React.createElement("span", null,
+                    React.createElement("small", null, project.category === 'music' ? 'MUSIC / PERSONAL EXPRESSION' : project.category === 'film' ? 'AI / VISUAL STORYTELLING' : project.tone === 'yearbook' ? 'CODE / PERSONAL HISTORY' : project.tone === 'writing' ? 'PRODUCT / AI WRITING' : 'PRODUCT / VISUAL DESIGN'),
+                    React.createElement("strong", null, project.title[lang]),
+                    React.createElement("em", null, project.short[lang])),
+                React.createElement("span", { className: "sx-status" }, project.status[lang]))))),
+        React.createElement("p", { className: "sx-cover-note" }, t('封面为作品的视觉索引，并非项目截图。详情中可查看原始素材与真实项目。', 'Covers are editorial artwork, not project screenshots. Open a project for original materials and real work.')));
+}
+},
 "data/covers":function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2079,6 +2335,24 @@ exports.projects = [
         tags: [(0, exports.text)('产品设计', 'Product design'), (0, exports.text)('网页工程', 'Web engineering'), (0, exports.text)('持续迭代', 'Iteration')], status: (0, exports.text)('持续更新 · 个人产品', 'ONGOING · PERSONAL PRODUCT'),
         href: '/updates', image: '/archive/serkon-first-build.webp', tone: 'website' },
 ];
+exports.projects.push(
+    { id: 'yearbook', number: '05', category: 'product', label: 'LOCAL DATA & PERSONAL HISTORY',
+        title: text('微信年轮', 'WeChat Yearbook'), short: text('让个人历史，留在自己的手里。', 'Keeping personal history in your hands.'),
+        copy: text('面向完整聊天记录的本地分析工具，持续完善双系统使用体验。', 'A local analysis tool for complete chat histories, with evolving cross-platform usability.'),
+        brief: text('整理个人记录，同时把本地数据安全放在功能数量之前。', 'Organise personal records while putting local data safety ahead of feature count.'),
+        process: [text('本地记录分析', 'Analyse records locally'), text('持续完善双系统体验', 'Improve cross-platform usability'), text('公开源码协作', 'Collaborate through public source')],
+        result: text('持续完善中；可查看公开仓库、使用说明与当前进展。', 'In progress. Explore the public repository, usage notes and current development.'),
+        tags: [text('本地工具', 'Local tool'), text('个人历史', 'Personal history')], status: text('持续完善', 'IN PROGRESS'),
+        href: 'https://github.com/jackmac566/wechat-yearbook', tone: 'yearbook' },
+    { id: 'writing', number: '06', category: 'product', label: 'AI WRITING WORKSPACE',
+        title: text('妙笔 AI', 'Miaobi AI'), short: text('从一个念头，到一段表达。', 'From a thought to an expression.'),
+        copy: text('让想法找到文字，打开独立的 AI 文案工作台。', 'Help ideas find their words in a dedicated AI writing workspace.'),
+        brief: text('把创作从图像延伸到文字表达。', 'Extend creative work from images into written expression.'),
+        process: [text('现有网站公开链接的独立产品', 'An independent product linked by the existing site'), text('直接进入工作台体验', 'Open the workspace to explore')],
+        result: text('已上线；具体能力与使用条件以产品当前页面为准。', 'Live. Features and usage conditions are described on the product itself.'),
+        tags: [text('文案工作台', 'Writing workspace'), text('AI 工具', 'AI tool')], status: text('已上线', 'LIVE'),
+        href: 'https://miaobi-appl-serkon.pages.dev/', tone: 'writing' }
+);
 exports.archiveItems = [
     { id: 'profile', title: (0, exports.text)('认真生活，保持好奇。', 'Stay curious. Live attentively.'), eyebrow: '01 / PERSONAL FILE', description: (0, exports.text)('Serkon 侯世康，大一在读。正在探索 AI 与创作的更多可能，记录成长，也把想法变成作品。', 'Serkon / Hou Shikang is a first-year university student exploring AI and creativity, documenting growth and turning ideas into work.'), cover: 'profile', href: '/serkon', sourceImage: '/serkon-hero.jpg' },
     { id: 'color', title: exports.projects[0].title, eyebrow: '02 / COLOUR SYSTEM', description: exports.projects[0].copy, cover: 'color', href: exports.projects[0].href, sourceImage: exports.projects[0].image },
