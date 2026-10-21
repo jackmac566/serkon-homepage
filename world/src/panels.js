@@ -63,7 +63,7 @@ export function createPanels({ onClose = () => {}, onVisit = () => {}, onTravel 
   let disposed = false;
 
   const isOpen = () => panel.open || directory.open;
-  const safeFocus = element => { const visible=element?.isConnected&&!element.closest('dialog:not([open]),[hidden],[inert]')&&element.getClientRects().length;const target=visible?element:document.querySelector('#world[data-ready="true"]')||document.querySelector('#directory');target?.focus({preventScroll:true}); };
+  const safeFocus = element => { const visible=target=>target?.isConnected&&!target.closest('dialog:not([open]),[hidden],[inert]')&&target.getClientRects().length;const target=[element,document.querySelector('#serkon-desktop .sd-app'),document.querySelector('#world[data-ready="true"]'),document.querySelector('#enter-computer'),document.querySelector('#directory')].find(visible);target?.focus({preventScroll:true}); };
   const finishClose = () => {
     if (isOpen() || disposed) return;
     safeFocus(opener);
@@ -71,6 +71,9 @@ export function createPanels({ onClose = () => {}, onVisit = () => {}, onTravel 
   };
   const hideDialog = dialog => { if (dialog.open) dialog.close(); };
   const showDialog = dialog => {
+    const place=document.body.dataset.mode==='desktop'?'桌面':document.body.dataset.mode==='desk'?'房间':'后院';
+    dialog.querySelector('.wp-close').setAttribute('aria-label',`关闭${dialog===directory?'导览':'内容'}，回到${place}`);
+    const returnButton=dialog.querySelector('.wp-return');if(returnButton)returnButton.innerHTML=`<span aria-hidden="true">↶</span> 回到${place}`;
     dialog.showModal();
     dialog.querySelector('.wp-close').focus({ preventScroll: true });
     dialog.scrollTop = 0;

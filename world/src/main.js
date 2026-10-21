@@ -6,20 +6,62 @@ import { createCar } from './car.js';
 import { createDriver } from './driving.js';
 import { stations } from './content.js';
 import { createPanels } from './panels.js';
+import { createDeskScene } from './desk-scene.js';
+import { createDesktop } from './desktop.js';
 import './style.css';
 
 const $=selector=>document.querySelector(selector);
 let musicPlaying=false,reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
-let driver,controls,renderer,scene,camera,environment,car,activeStation=null,nearStation=null,overview=true,ready=false,contextLost=false;
+let driver,controls,renderer,scene,camera,environment,car,activeStation=null,nearStation=null,overview=true,ready=false,contextLost=false,entryDesk,desktop,experience='desk',enteredWorld=false;
 const keys=new Set(),touch={throttle:0,steer:0,brake:false},visited=new Set();
 const pins=new Map(),dock=new Map(),mapMarkers=new Map();
 let noticeTimer,lastFrame=0,uiTime=0,cameraFlight=null;
 const panels=createPanels({
   onClose:()=>{clearInput();if(driver)driver.state.speed=0;},
   onVisit:id=>{visited.add(id);activeStation=id;refreshVisited();clearInput();if(driver){driver.cancelTravel();driver.state.speed=0;}},
-  onTravel:id=>travelTo(id),
-  onMusic:playing=>{musicPlaying=playing;$('#music-status').classList.toggle('playing',playing);$('#music-status span').textContent=playing?'《创世纪》播放中':'唱片未播放';}
+  onTravel:id=>{if(showWorld())travelTo(id);else openStation(id);},
+  onMusic:playing=>{musicPlaying=playing;desktop?.setMusic(playing);$('#music-status').classList.toggle('playing',playing);$('#music-status span').textContent=playing?'《创世纪》播放中':'唱片未播放';}
 });
+desktop=createDesktop({
+  onWorld:()=>showWorld(),
+  onOpenStation:(id,opener)=>openStation(id,opener),
+  onBackToDesk:()=>showComputerRoom(),
+  onToggleMusic:()=>panels.toggleMusic(),
+});
+const worldUI='.world-header,.welcome,.world-pins,.world-map,.view-controls,.arrival,.travel-status,.place-dock,.touch-controls,.world-footer';
+function setMode(mode){
+  experience=mode;document.body.dataset.mode=mode;clearInput();
+  for(const element of document.querySelectorAll(worldUI)){
+    const hidden=mode!=='world'||(element.id==='welcome'&&element.classList.contains('hidden'));
+    element.inert=hidden;if(hidden)element.setAttribute('aria-hidden','true');else element.removeAttribute('aria-hidden');
+  }
+  const intro=$('#desk-entry');intro.hidden=mode!=='desk';intro.inert=mode!=='desk';
+  const canvas=$('#world');canvas.inert=mode==='desktop';canvas.setAttribute('aria-label',mode==='desk'?'Serkon的3D电脑房间，点击屏幕或进入电脑按钮打开个人桌面。':'Serkon的3D创作后院。使用方向键或WASD驾驶，或点击地点前往。');
+  if(mode==='desktop')canvas.setAttribute('aria-hidden','true');else canvas.removeAttribute('aria-hidden');
+}
+function showDesktop(){
+  driver?.cancelTravel();if(driver)driver.state.speed=0;cameraFlight=null;
+  setMode('desktop');desktop.show();desktop.setMusic(musicPlaying);
+}
+function showComputerRoom(){
+  desktop.hide();entryDesk?.reset();setMode('desk');$('#enter-computer').disabled=false;$('#enter-computer').firstChild.textContent='进入电脑 ';$('#enter-computer').focus({preventScroll:true});
+}
+function enterComputer(){
+  if(experience!=='desk')return;
+  if(!entryDesk||reducedMotion){showDesktop();return;}
+  $('#enter-computer').disabled=true;$('#enter-computer').firstChild.textContent='正在进入 ';entryDesk.startZoom();
+}
+function showWorld(){
+  if(!ready||contextLost){showDesktop();notify('3D场景暂时不可用，可以从桌面浏览全部内容。');return false;}
+  desktop.hide();setMode('world');if(ready){setOverview(overview);$('#world').focus({preventScroll:true});}
+  if(!enteredWorld){enteredWorld=true;setOverview(false);}
+  return true;
+}
+$('#enter-computer').addEventListener('click',enterComputer);
+$('#skip-computer').addEventListener('click',showDesktop);
+$('#skip-to-world').addEventListener('click',showWorld);
+$('#back-desktop').addEventListener('click',showDesktop);
+setMode('desk');
 function notify(text){clearTimeout(noticeTimer);$('#world-notice').textContent=text;$('#world-notice').classList.add('visible');noticeTimer=setTimeout(()=>$('#world-notice').classList.remove('visible'),3300);}
 function clearInput(){keys.clear();touch.throttle=0;touch.steer=0;touch.brake=false;$('#joystick-thumb').style.transform='';}
 function refreshVisited(){for(const station of stations){const has=visited.has(station.id);pins.get(station.id)?.classList.toggle('visited',has);dock.get(station.id)?.classList.toggle('visited',has);dock.get(station.id)?.classList.toggle('active',station.id===activeStation);mapMarkers.get(station.id)?.classList.toggle('visited',has);}}
@@ -46,8 +88,8 @@ $('#help-button').addEventListener('click',()=>{clearInput();if(driver)driver.st
 $('.help-close').addEventListener('click',()=>help.close());help.addEventListener('close',()=>{clearInput();$('#help-button').focus({preventScroll:true});});
 $('#help-directory').addEventListener('click',()=>{help.close();panels.showDirectory();});
 $('#reduced-motion').checked=reducedMotion;$('#reduced-motion').addEventListener('change',event=>{reducedMotion=event.target.checked;if(reducedMotion){cameraFlight=null;driver?.cancelTravel();$('#travel-status').hidden=true;}notify(reducedMotion?'已减少镜头与场景动态。':'已恢复场景动态。');});
-function setOverview(value){overview=value;$('#view-mode').setAttribute('aria-label',value?'切换到跟随视角':'切换到全景视角');if(!camera||!controls)return;const target=value?new THREE.Vector3(0,0,-3):new THREE.Vector3(driver.state.x,0,driver.state.z);const width=innerWidth,ratio=innerWidth/innerHeight;const offset=value?new THREE.Vector3(37,44,48).normalize().multiplyScalar(Math.max(80,42/(Math.tan(camera.fov*Math.PI/360)*ratio))*1.1):new THREE.Vector3(15,19,23).multiplyScalar(width<760?1.17:1);cameraFlight={start:performance.now(),from:camera.position.clone(),fromTarget:controls.target.clone(),to:target.clone().add(offset),target};if(reducedMotion){camera.position.copy(cameraFlight.to);controls.target.copy(target);cameraFlight=null;controls.update();}}
-window.addEventListener('keydown',event=>{if(panels.isOpen()||help.open||event.target.closest('input,textarea,select,button,a'))return;const key=event.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(key))event.preventDefault();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(key)){keys.add(key);hideWelcome();if(overview)setOverview(false);}if(key==='r'&&!event.repeat)resetCar();if(key==='e'&&nearStation&&!event.repeat)openStation(nearStation.id);if(/^[1-5]$/.test(key)&&!event.repeat)travelTo(stations[Number(key)-1].id);});
+function setOverview(value){overview=value;$('#view-mode').setAttribute('aria-label',value?'切换到跟随视角':'切换到全景视角');if(!camera||!controls)return;const target=value?new THREE.Vector3(0,0,-3):new THREE.Vector3(driver.state.x,0,driver.state.z);const width=innerWidth,ratio=innerWidth/innerHeight;const offset=value?new THREE.Vector3(37,44,48).normalize().multiplyScalar(Math.max(80,42/(Math.tan(camera.fov*Math.PI/360)*ratio))*1.1):new THREE.Vector3(9,11,14).multiplyScalar(width<760?1.17:1);cameraFlight={start:performance.now(),from:camera.position.clone(),fromTarget:controls.target.clone(),to:target.clone().add(offset),target};if(reducedMotion){camera.position.copy(cameraFlight.to);controls.target.copy(target);cameraFlight=null;controls.update();}}
+window.addEventListener('keydown',event=>{if(experience==='desk'&&event.key==='Enter'&&event.target===$('#world')){event.preventDefault();enterComputer();return;}if(experience!=='world')return;if(panels.isOpen()||help.open||event.target.closest('input,textarea,select,button,a'))return;const key=event.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(key))event.preventDefault();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(key)){keys.add(key);hideWelcome();if(overview)setOverview(false);}if(key==='r'&&!event.repeat)resetCar();if(key==='e'&&nearStation&&!event.repeat)openStation(nearStation.id);if(/^[1-5]$/.test(key)&&!event.repeat)travelTo(stations[Number(key)-1].id);});
 window.addEventListener('keyup',event=>keys.delete(event.key.toLowerCase()));window.addEventListener('blur',clearInput);document.addEventListener('visibilitychange',()=>{if(document.hidden)clearInput();});
 const joystick=$('#joystick');let joyStart=null;
 joystick.addEventListener('pointerdown',event=>{joyStart={x:event.clientX,y:event.clientY,id:event.pointerId};joystick.setPointerCapture(event.pointerId);hideWelcome();if(overview)setOverview(false);});
@@ -57,29 +99,32 @@ $('#touch-brake').addEventListener('pointerdown',event=>{touch.brake=true;event.
 
 function launch(){
   const canvas=$('#world');
-  try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});}catch(error){$('#loading').classList.add('done');$('#loading').setAttribute('aria-hidden','true');$('#loading').inert=true;$('#welcome').classList.add('hidden');$('#drive-status').textContent='直接浏览模式';$('#world-pins').hidden=true;notify('这台设备暂时无法显示3D场景，可以直接浏览全部内容。');panels.showDirectory();return;}
+  try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});}catch(error){$('#loading').classList.add('done');$('#loading').setAttribute('aria-hidden','true');$('#loading').inert=true;$('#welcome').classList.add('hidden');$('#drive-status').textContent='直接浏览模式';$('#world-pins').hidden=true;notify('这台设备暂时无法显示3D场景，可以从桌面直接浏览内容。');showDesktop();return;}
   renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<760?1.35:1.7));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
   scene=new THREE.Scene();scene.background=new THREE.Color('#e9e3d5');scene.fog=new THREE.Fog('#e9e3d5',240,480);
   camera=new THREE.PerspectiveCamera(innerWidth<760?48:40,innerWidth/innerHeight,.2,500);camera.position.set(37,44,48);
-  controls=new OrbitControls(camera,canvas);controls.target.set(0,0,-3);controls.enableDamping=true;controls.dampingFactor=.07;controls.enablePan=false;controls.minDistance=16;controls.maxDistance=300;controls.minPolarAngle=.27;controls.maxPolarAngle=1.25;controls.update();
-  scene.add(new THREE.HemisphereLight('#fff7de','#b3ad91',2.3));const sun=new THREE.DirectionalLight('#fff2cf',2.8);sun.position.set(-25,43,25);sun.castShadow=true;const shadowSize=innerWidth<760?1024:2048;sun.shadow.mapSize.set(shadowSize,shadowSize);sun.shadow.camera.left=-40;sun.shadow.camera.right=40;sun.shadow.camera.top=40;sun.shadow.camera.bottom=-40;sun.shadow.camera.far=110;sun.shadow.bias=-.0006;sun.shadow.normalBias=.04;scene.add(sun);
+  controls=new OrbitControls(camera,canvas);controls.target.set(0,0,-3);controls.enableDamping=true;controls.dampingFactor=.07;controls.enablePan=false;controls.minDistance=5.5;controls.maxDistance=300;controls.minPolarAngle=.27;controls.maxPolarAngle=1.25;controls.update();
+  scene.add(new THREE.HemisphereLight('#fff7de','#b3ad91',1.75));const sun=new THREE.DirectionalLight('#fff2cf',2.6);sun.position.set(-25,43,25);sun.castShadow=true;const shadowSize=innerWidth<760?1024:2048;sun.shadow.mapSize.set(shadowSize,shadowSize);sun.shadow.camera.left=-40;sun.shadow.camera.right=40;sun.shadow.camera.top=40;sun.shadow.camera.bottom=-40;sun.shadow.camera.far=110;sun.shadow.bias=-.0006;sun.shadow.normalBias=.04;scene.add(sun);
   const pmrem=new THREE.PMREMGenerator(renderer);const room=new RoomEnvironment();const envTarget=pmrem.fromScene(room,.04);scene.environment=envTarget.texture;scene.environmentIntensity=.28;room.dispose();pmrem.dispose();
   const floor=new THREE.Mesh(new THREE.PlaneGeometry(300,300),new THREE.MeshStandardMaterial({color:'#e2dbc9',roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-1.85;floor.receiveShadow=true;scene.add(floor);
+  entryDesk=createDeskScene(THREE,{environmentMap:envTarget.texture});entryDesk.resize(innerWidth,innerHeight);
   environment=createEnvironment(THREE,scene);driver=createDriver({colliders:environment.colliders,bounds:26.3});car=createCar(scene);
   const routeMaterial=new THREE.LineDashedMaterial({color:'#dc6941',dashSize:.48,gapSize:.38,transparent:true,opacity:.65,depthWrite:false});const route=new THREE.Line(new THREE.BufferGeometry(),routeMaterial);route.position.y=.065;scene.add(route);let lastPath='';
   const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2(),projected=new THREE.Vector3();let down=null;
   canvas.addEventListener('pointerdown',event=>{down={x:event.clientX,y:event.clientY,time:performance.now()};});
-  canvas.addEventListener('pointerup',event=>{if(!down||Math.hypot(event.clientX-down.x,event.clientY-down.y)>7||performance.now()-down.time>600||panels.isOpen()||help.open){down=null;return;}down=null;pointer.set(event.clientX/innerWidth*2-1,-event.clientY/innerHeight*2+1);raycaster.setFromCamera(pointer,camera);const hit=raycaster.intersectObjects(environment.interactables.map(item=>item.object),true)[0];if(hit){let object=hit.object;while(object&&!object.userData.stationId)object=object.parent;const id=object?.userData.stationId;if(id){const station=stations.find(item=>item.id===id);if(Math.hypot(driver.state.x-station.stopX,driver.state.z-station.stopZ)<5)openStation(id);else travelTo(id);}}});
-  canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();contextLost=true;clearInput();notify('3D画面暂时断开，全部内容仍可直接浏览。');panels.showDirectory();});
-  function resize(){camera.fov=innerWidth<760?48:40;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<760?1.35:1.7));renderer.setSize(innerWidth,innerHeight);if(overview)setOverview(true);}window.addEventListener('resize',resize);
+  canvas.addEventListener('pointerup',event=>{if(!down||Math.hypot(event.clientX-down.x,event.clientY-down.y)>7||performance.now()-down.time>600||panels.isOpen()||help.open){down=null;return;}down=null;pointer.set(event.clientX/innerWidth*2-1,-event.clientY/innerHeight*2+1);if(experience==='desk'){raycaster.setFromCamera(pointer,entryDesk.camera);if(raycaster.intersectObject(entryDesk.screenTarget,true).length)enterComputer();return;}if(experience!=='world')return;raycaster.setFromCamera(pointer,camera);const hit=raycaster.intersectObjects(environment.interactables.map(item=>item.object),true)[0];if(hit){let object=hit.object;while(object&&!object.userData.stationId)object=object.parent;const id=object?.userData.stationId;if(id){const station=stations.find(item=>item.id===id);if(Math.hypot(driver.state.x-station.stopX,driver.state.z-station.stopZ)<5)openStation(id);else travelTo(id);}}});
+  canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();contextLost=true;clearInput();showDesktop();notify('3D画面暂时断开，仍可从桌面浏览作品与照片。');});
+  function resize(){entryDesk?.resize(innerWidth,innerHeight);camera.fov=innerWidth<760?48:40;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<760?1.35:1.7));renderer.setSize(innerWidth,innerHeight);if(overview)setOverview(true);}window.addEventListener('resize',resize);
   ready=true;canvas.dataset.ready='true';setOverview(true);$('#loading').classList.add('done');$('#loading').setAttribute('aria-hidden','true');$('#loading').inert=true;
-  function frame(now){requestAnimationFrame(frame);if(contextLost||document.hidden){lastFrame=now;return;}const dt=Math.min(.05,(now-lastFrame)/1000||1/60);lastFrame=now;const paused=panels.isOpen()||help.open;controls.enabled=!paused;
+  function frame(now){requestAnimationFrame(frame);if(contextLost||document.hidden){lastFrame=now;return;}const dt=Math.min(.05,(now-lastFrame)/1000||1/60);lastFrame=now;const paused=panels.isOpen()||help.open;controls.enabled=experience==='world'&&!paused;
+    if(experience==='desk'){const result=paused?{}:entryDesk.update(dt,now/1000,{reducedMotion});renderer.render(entryDesk.scene,entryDesk.camera);if(result?.complete)showDesktop();return;}
+    if(experience==='desktop')return;
     const input={throttle:(keys.has('w')||keys.has('arrowup')?1:0)-(keys.has('s')||keys.has('arrowdown')?1:0)+touch.throttle,steer:(keys.has('a')||keys.has('arrowleft')?1:0)-(keys.has('d')||keys.has('arrowright')?1:0)+touch.steer,brake:keys.has(' ')||touch.brake};
-    const before=new THREE.Vector3(driver.state.x,0,driver.state.z);const result=driver.update(dt,input,!paused);car.update(dt,driver.state);environment.update(dt,now/1000,{musicPlaying,reducedMotion,activeId:activeStation});
+    const result=driver.update(dt,input,!paused);car.update(dt,driver.state);environment.update(dt,now/1000,{musicPlaying,reducedMotion,activeId:activeStation});
     if(result?.arrived){$('#travel-status').hidden=true;openStation(result.arrived);}
     if(!driver.state.travelId)$('#travel-status').hidden=true;
     if(cameraFlight){const amount=reducedMotion?1:Math.min(1,(now-cameraFlight.start)/1100),ease=1-Math.pow(1-amount,3);camera.position.lerpVectors(cameraFlight.from,cameraFlight.to,ease);controls.target.lerpVectors(cameraFlight.fromTarget,cameraFlight.target,ease);if(amount===1)cameraFlight=null;}
-    else if(!overview&&!paused){const target=new THREE.Vector3(driver.state.x,0,driver.state.z);const delta=target.clone().sub(controls.target).multiplyScalar(1-Math.exp(-dt*5));controls.target.add(delta);camera.position.add(delta);}
+    else if(!overview&&!paused){const inspecting=nearStation&&!driver.state.travelId&&Math.abs(driver.state.speed)<.3;const target=inspecting?new THREE.Vector3((driver.state.x+nearStation.x)*.5,.7,(driver.state.z+nearStation.z)*.5):new THREE.Vector3(driver.state.x,0,driver.state.z);const delta=target.clone().sub(controls.target).multiplyScalar(1-Math.exp(-dt*5));controls.target.add(delta);camera.position.add(delta);}
     controls.update();
     const path=driver.path||[],pathKey=driver.state.travelId+':'+path.length;if(pathKey!==lastPath){lastPath=pathKey;route.geometry.dispose();route.geometry=new THREE.BufferGeometry().setFromPoints(path.map(point=>new THREE.Vector3(point.x,.04,point.z)));route.computeLineDistances();}route.visible=Boolean(driver.state.travelId)&&path.length>1;
     for(const station of stations){projected.set(station.x,4.7,station.z).project(camera);const pin=pins.get(station.id);const visible=projected.z>-1&&projected.z<1&&Math.abs(projected.x)<1.12&&Math.abs(projected.y)<1.12;pin.style.display=visible?'flex':'none';if(visible){pin.style.left=(projected.x*.5+.5)*innerWidth+'px';pin.style.top=(-projected.y*.5+.5)*innerHeight+'px';}}
@@ -88,4 +133,4 @@ function launch(){
   }
   requestAnimationFrame(frame);
 }
-try{launch();}catch(error){console.error(error);$('#loading').classList.add('done');$('#loading').setAttribute('aria-hidden','true');$('#loading').inert=true;notify('场景没有完整打开，先从导览查看作品与照片。');panels.showDirectory();}
+try{launch();}catch(error){console.error(error);$('#loading').classList.add('done');$('#loading').setAttribute('aria-hidden','true');$('#loading').inert=true;ready=false;showDesktop();notify('场景没有完整打开，可以从桌面查看作品与照片。');}

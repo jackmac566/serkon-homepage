@@ -3,16 +3,21 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow"><link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <meta name="theme-color" content="#e9e3d5"><meta name="description" content="开一辆小车，到侯世康的作品展馆、影像棚、唱片亭和生活照片墙转转。">
-  <title>Serkon 的创作后院</title>
+  <meta name="theme-color" content="#e9e3d5"><meta name="description" content="从一台3D电脑进入侯世康的桌面，再打开可以自由驾驶的创作后院。">
+  <title>Serkon — 电脑里的创作世界</title>
 </head>
-<body>
+<body data-mode="desk">
   <a class="skip-world" href="#directory">跳过漫游，直接浏览内容</a>
   <canvas id="world" aria-label="Serkon 的3D创作后院。可用方向键或WASD驾驶，也可用地点导航直接前往。" tabindex="0"></canvas>
   <div id="loading" role="status"><span class="loading-mark">s.</span><p>正在打开后院<span>照片、作品，还有一张唱片。</span></p><a class="loading-fallback" href="https://serkon-homepage-cn.pages.dev/">加载较慢？先看原来的个人网站 ↗</a></div>
+  <section id="desk-entry" class="desk-entry" aria-labelledby="desk-entry-title">
+    <div class="desk-entry-brand"><strong>serkon</strong><span>侯世康 / 个人创作空间</span></div>
+    <div class="desk-entry-copy"><p>从一台电脑开始</p><h1 id="desk-entry-title">开机，进来坐坐。</h1><p>桌面里有作品、照片和唱片，<br>还有一个可以开车逛的后院。</p><div><button id="enter-computer">进入电脑 <span>↗</span></button><button id="skip-computer">直接到桌面</button></div><button id="skip-to-world">直接进后院 →</button></div>
+    <p class="desk-entry-hint">点击电脑屏幕，也可以进入。</p>
+  </section>
   <header class="world-header">
     <a class="world-logo" href="https://serkon-homepage-cn.pages.dev/" target="_blank" rel="noopener noreferrer">serkon<span>侯世康的创作后院</span></a>
-    <div class="header-actions"><button id="directory" class="pill-button">直接浏览 <span>↗</span></button><button id="help-button" class="icon-button" aria-label="操作说明">?</button></div>
+    <div class="header-actions"><button id="back-desktop" class="pill-button">回到桌面 <span>↖</span></button><button id="directory" class="pill-button">直接浏览 <span>↗</span></button><button id="help-button" class="icon-button" aria-label="操作说明">?</button></div>
   </header>
   <section class="welcome" id="welcome" aria-label="开始探索">
     <p class="world-edition">一个人的作品、照片与声音</p><h1>欢迎来<br>我的后院。</h1>
