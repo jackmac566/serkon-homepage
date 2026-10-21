@@ -7,11 +7,11 @@ export function createCar(scene) {
   const body = new THREE.Group(); root.add(body);
   const geometries = new Set(), materials = new Set(), textures = new Set();
   const surface = (options, physical = false) => { const result = physical ? new THREE.MeshPhysicalMaterial(options) : new THREE.MeshStandardMaterial(options); materials.add(result); return result; };
-  const paint = surface({ color: '#dd633f', roughness: .32, metalness: .24, clearcoat: .7, clearcoatRoughness: .18 }, true);
-  const cream = surface({ color: '#fff3d5', roughness: .55, metalness: .08 });
+  const paint = surface({ color: '#52615a', roughness: .32, metalness: .24, clearcoat: .7, clearcoatRoughness: .18 }, true);
+  const cream = surface({ color: '#aeb5af', roughness: .55, metalness: .08 });
   const dark = surface({ color: '#243c36', roughness: .61 });
   const chrome = surface({ color: '#ccd2bb', roughness: .21, metalness: .8 });
-  const glass = surface({ color: '#365a5d', roughness: .12, metalness: .45, clearcoat: 1 }, true);
+  const glass = surface({ color: '#172a30', roughness: .12, metalness: .45, clearcoat: 1 }, true);
   const light = surface({ color: '#fff5d8', emissive: '#ffd294', emissiveIntensity: .6, roughness: .22 });
   const red = surface({ color: '#7d2925', emissive: '#a93522', emissiveIntensity: .12, roughness: .28 });
   const ownTexture = (width, height, draw) => { const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height; draw(canvas.getContext('2d'), width, height); const tex = new THREE.CanvasTexture(canvas); textures.add(tex); return tex; };
@@ -98,7 +98,7 @@ export function createCar(scene) {
   const spokeGeometry = new THREE.BoxGeometry(.018, .045, .21); geometries.add(spokeGeometry);
   const wheels = [];
   for (const x of [-.92, .92]) for (const z of [-.87, .89]) {
-    const pivot = new THREE.Group(); pivot.position.set(x, .40, z); root.add(pivot);
+    const pivot = new THREE.Group(); pivot.position.set(x, .40, z*1.35); root.add(pivot);
     const spin = new THREE.Group(); pivot.add(spin);
     const tire = add(wheelGeometry, rubber, 0, 0, 0, spin); tire.rotation.z = Math.PI / 2;
     const hub = add(hubGeometry, dark, 0, 0, 0, spin); hub.rotation.z = Math.PI / 2;
@@ -110,6 +110,8 @@ export function createCar(scene) {
     const bolt = cylinder(.058, .33, chrome, 0, 0, 0, spin, 12); bolt.rotation.z = Math.PI / 2;
     wheels.push({ pivot, spin, front: z < 0 });
   }
+  // A compact SUV wheelbase, keeping circular tires at their physical radius.
+  body.scale.z=1.35;
   let wheelAngle = 0;
   return {
     root,

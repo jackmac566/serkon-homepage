@@ -1,6 +1,6 @@
 /** Small deterministic, browser-independent driving and route controller. */
-export function createDriver({ colliders = [], bounds = 26.3 } = {}) {
-  const radius = .9, clearance = .08, step = 2;
+export function createDriver({ colliders = [], bounds = 26.3, vehicleRadius = .9 } = {}) {
+  const radius = Math.max(.2,Number.isFinite(vehicleRadius)?vehicleRadius:.9), clearance = .08, step = 2;
   const obstacles = colliders.filter(item => Number.isFinite(item.x) && Number.isFinite(item.z) && item.r > 0);
   const state = { x: 0, z: 9, y: 0, yaw: 0, speed: 0, steer: 0, travelId: null };
   let route = [], routeIndex = 0;
@@ -50,10 +50,53 @@ export function createDriver({ colliders = [], bounds = 26.3 } = {}) {
     return null;
   }
   function cancelTravel() { state.travelId = null; route = []; routeIndex = 0; }
+  function followPath(id, found) {
+    route = found; routeIndex = route.length > 1 ? 1 : 0; state.travelId = id; state.speed = 0; return true;
+  }
   function travel(id, x, z) {
     if (!id || !Number.isFinite(x) || !Number.isFinite(z)) return false;
     const found = findPath(x, z); if (!found) { cancelTravel(); return false; }
-    route = found; routeIndex = route.length > 1 ? 1 : 0; state.travelId = id; state.speed = 0; return true;
+    return followPath(id, found);
+  }
+  /** Drive to bare ground. An occupied click stops at a safe point beside it. */
+  function travelToPoint(x, z) {
+    if (!Number.isFinite(x) || !Number.isFinite(z)) return false;
+    const target = { x: clamp(x, -bounds, bounds), z: clamp(z, -bounds, bounds) };
+    if (free(target.x, target.z, clearance)) {
+      const found = findPath(target.x, target.z);
+      if (found) return followPath('ground', found);
+      cancelTravel(); return false;
+    }
+    // Keep precise parking positions around circular obstacles, then use the
+    // same dynamically sized grid as route search when nearby circles overlap.
+    const candidates = [];
+    for (const item of obstacles) {
+      const parkingRadius = item.r + radius + clearance + .005;
+      if (Math.hypot(target.x - item.x, target.z - item.z) > parkingRadius + 4) continue;
+      const vx = target.x - item.x, vz = target.z - item.z;
+      const base = Math.hypot(vx, vz) > .0001 ? Math.atan2(vz, vx) : Math.atan2(state.z - item.z, state.x - item.x);
+      for (let i = 0; i < 32; i++) {
+        const a = base + i * Math.PI / 16;
+        const point = { x: item.x + Math.cos(a) * parkingRadius, z: item.z + Math.sin(a) * parkingRadius };
+        if (free(point.x, point.z, clearance)) candidates.push(point);
+      }
+    }
+    const limit = Math.floor(bounds / step);
+    for (let iz = -limit; iz <= limit; iz++) for (let ix = -limit; ix <= limit; ix++) {
+      const point = { x: ix * step, z: iz * step };
+      if (free(point.x, point.z, clearance)) candidates.push(point);
+    }
+    candidates.sort((a, b) => {
+      const distance = Math.hypot(a.x - target.x, a.z - target.z) - Math.hypot(b.x - target.x, b.z - target.z);
+      return Math.abs(distance) > .00001 ? distance : Math.hypot(a.x - state.x, a.z - state.z) - Math.hypot(b.x - state.x, b.z - state.z);
+    });
+    // A sealed or otherwise unreachable region fails without creating a route.
+    // Bound expensive path attempts rather than searching every parking point.
+    for (const point of candidates.slice(0, 16)) {
+      const found = findPath(point.x, point.z);
+      if (found) return followPath('ground', found);
+    }
+    cancelTravel(); return false;
   }
   function reset() { cancelTravel(); Object.assign(state, { x: 0, z: 9, y: 0, yaw: 0, speed: 0, steer: 0 }); }
   function move(dx, dz) {
@@ -105,5 +148,5 @@ export function createDriver({ colliders = [], bounds = 26.3 } = {}) {
     }
     return { ...(arrived ? { arrived } : {}), ...(collision ? { collision: true } : {}) };
   }
-  return { state, update, travel, cancelTravel, reset, get path() { return route.slice(routeIndex > 0 ? routeIndex - 1 : 0); } };
+  return { state, update, travel, travelToPoint, cancelTravel, reset, get path() { return route.slice(routeIndex > 0 ? routeIndex - 1 : 0); } };
 }

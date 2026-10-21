@@ -21,3 +21,16 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+Additional environment assets
+-----------------------------
+PBR surface scans, outdoor HDR lighting and boulder_01 geometry/textures:
+Poly Haven, CC0 1.0 (public domain).
+https://polyhaven.com/license
+See materials/provenance.json and models/boulder/provenance.json for asset pages,
+original download URLs and verified hashes. Assets are self-hosted; this website
+makes no runtime request to the Poly Haven API.
+
+Interaction references (no author code or models copied):
+Henry Heffernan: https://github.com/henryjeff/portfolio-website
+Bruno Simon: https://github.com/brunosimon/folio-2025

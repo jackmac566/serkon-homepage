@@ -34,3 +34,9 @@ npm test
 ## 素材与署名
 
 Three.js 等依赖保留各自许可证。代码许可不覆盖侯世康 / Serkon 的照片、音乐、个人资料、品牌或项目素材；素材来自已有公开个人站，仅用于本次获授权的个人网站体验，不代表可被第三方自由复用或商用。伦敦图片是原站 AI 影像过程材料，不是真实旅行摄影。
+
+## 环境与后续分期
+
+当前优先完成黑底终端启动、木质桌面的极简电脑房间、真实尺度建筑和连续大场景。完整总目标和后续角色/背包/文字 NPC 的范围见 `ROADMAP.md`；这些游戏系统尚未实施。
+
+环境使用 Poly Haven 的 CC0 实物采集表面、户外 HDR 环境光和少量扫描岩石。静态文件全部自托管，资产来源、原始 URL 与哈希记录于 `public/materials/provenance.json`、`public/models/boulder/provenance.json`。代码启动与探索交互参考 Henry Heffernan 和 Bruno Simon 的公开实现；未直接复制作者的个人内容或模型。

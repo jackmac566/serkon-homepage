@@ -1,709 +1,261 @@
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
-/**
- * Serkon's backyard. All architecture and props are original procedural meshes.
- * The only image textures are the owner's existing public project material.
- * Ground is y=0; the driveway remains flat for the root driving controller.
- */
-export function createEnvironment(THREE, scene, { assetBase = './assets/' } = {}) {
-  const root = new THREE.Group();
-  root.name = 'Serkon creative backyard';
-  scene.add(root);
-  const colliders = [];
-  const interactables = [];
-  const geometries = new Map();
-  const materials = new Set();
-  const textures = new Set();
-  const loader = new THREE.TextureLoader();
-  const moving = {};
-  const palette = {
-    sand: '#d7c6a3', edge: '#bb9c78', road: '#f0e5cc', cream: '#fff4db',
-    orange: '#d95c3d', blue: '#427d94', green: '#315f4e', ink: '#26392f',
-    gold: '#e6b44d', paleBlue: '#a9c3be', terracotta: '#b76449', white: '#fff8e9',
-  };
-  const material = (color, opts = {}) => {
-    const result = new THREE.MeshStandardMaterial({ color, roughness: 0.88, metalness: 0, ...opts });
-    materials.add(result);
-    return result;
-  };
-  const mat = Object.fromEntries(Object.entries(palette).map(([key, color]) => [key, material(color)]));
-  mat.chrome = material('#b8c1bb', { metalness: 0.72, roughness: 0.25 });
-  mat.leaf = material('#66845a');
-  mat.darkLeaf = material('#476d4d');
-  mat.wood = material('#9b7150');
-  mat.black = material('#242d2c');
-  mat.glass = new THREE.MeshPhysicalMaterial({ color: '#305e62', roughness: .12, metalness: .42, clearcoat: 1, clearcoatRoughness: .08 });
-  materials.add(mat.glass);
-  mat.light = material('#fff3d4', { emissive: '#ffc27b', emissiveIntensity: .65, roughness: .3 });
-  mat.brass = material('#b6995d', { metalness: .72, roughness: .33 });
-  mat.fabric = material('#6f8276', { roughness: .95 });
-  const geometry = (key, make) => {
-    if (!geometries.has(key)) geometries.set(key, make());
-    return geometries.get(key);
-  };
-  const unitBox = geometry('box', () => new THREE.BoxGeometry(1, 1, 1));
-  const cylinderGeometry = (sides = 24) => geometry(`cylinder${sides}`, () => new THREE.CylinderGeometry(1, 1, 1, sides));
-  const sphereGeometry = geometry('icosahedron', () => new THREE.IcosahedronGeometry(1, 2));
-  function mesh(geo, surface, parent = root, { shadow = false, receive = true } = {}) {
-    const object = new THREE.Mesh(geo, surface);
-    object.castShadow = shadow;
-    object.receiveShadow = receive;
-    parent.add(object);
-    return object;
-  }
-  function box(parent, width, height, depth, x, y, z, surface, shadow = false) {
-    const radius = Math.min(.085, Math.min(width, height, depth) * .2);
-    const rounded = radius > .022;
-    const geo = rounded ? geometry(`rounded:${width}:${height}:${depth}`, () => new RoundedBoxGeometry(width, height, depth, 2, radius)) : unitBox;
-    const object = mesh(geo, surface, parent, { shadow });
-    if (!rounded) object.scale.set(width, height, depth);
-    object.position.set(x, y, z);
-    return object;
-  }
-  function cylinder(parent, radius, height, x, y, z, surface, shadow = false, sides = 24) {
-    const object = mesh(cylinderGeometry(sides), surface, parent, { shadow });
-    object.scale.set(radius, height, radius);
-    object.position.set(x, y, z);
-    return object;
-  }
-  function sphere(parent, radius, x, y, z, surface, shadow = false) {
-    const object = mesh(sphereGeometry, surface, parent, { shadow });
-    object.scale.setScalar(radius);
-    object.position.set(x, y, z);
-    return object;
-  }
-  function beam(parent, a, b, thickness, surface) {
-    const start = new THREE.Vector3(...a), end = new THREE.Vector3(...b);
-    const object = mesh(cylinderGeometry(12), surface, parent);
-    object.position.copy(start).add(end).multiplyScalar(0.5);
-    object.scale.set(thickness, start.distanceTo(end), thickness);
-    object.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), end.sub(start).normalize());
-    return object;
-  }
-  function canvasTexture(width, height, draw) {
-    const canvas = document.createElement('canvas');
-    canvas.width = width; canvas.height = height;
-    draw(canvas.getContext('2d'), width, height);
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.anisotropy = 4;
-    textures.add(texture);
-    return texture;
-  }
-  // Small, deterministic surface maps. They are original generated material data,
-  // not photographs, downloaded models, or a screen-sized visual overlay.
+export const WORLD_BOUNDS = 44;
+
+/** A metre-based landscape: level driving campus, real-scale architecture and furnishings. */
+export function createEnvironment(THREE, scene, { assetBase = './assets/', surfaceMaps = {} } = {}) {
+  const root = new THREE.Group(); root.name = 'Serkon landscape studios'; scene.add(root);
+  const colliders = [], interactables = [], architecture = [];
+  const geometries = new Map(), materials = new Set(), textures = new Set();
+  const moving = {}, loader = new THREE.TextureLoader(), imageTextures = new Map();
   let seed = 578421;
-  const random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
-  function surfaceTexture(kind, grey = false) {
-    const tex = canvasTexture(512, 512, (ctx, width, height) => {
-      ctx.fillStyle = grey ? '#c8c8c8' : kind === 'wood' ? '#a47b53' : kind === 'stone' ? '#c8c2af' : '#cbc4af';
-      ctx.fillRect(0, 0, width, height);
-      for (let i = 0; i < 6500; i++) {
-        const light = random() > .5;
-        ctx.fillStyle = light ? `rgba(255,255,255,${random() * .10})` : `rgba(35,34,27,${random() * .08})`;
-        ctx.fillRect(Math.floor(random() * width), Math.floor(random() * height), 1 + random() * 2, 1 + random() * 2);
-      }
-      if (kind === 'wood') {
-        for (let i = 0; i < 120; i++) {
-          const y = i * 4.4 + random() * 3;
-          ctx.beginPath(); ctx.moveTo(-10, y); ctx.bezierCurveTo(130, y + Math.sin(i) * 8, 320, y - Math.cos(i) * 11, 522, y + Math.sin(i * .8) * 5);
-          ctx.strokeStyle = grey ? 'rgba(70,70,70,.18)' : `rgba(66,41,25,${.07 + random() * .10})`;
-          ctx.lineWidth = .5 + random() * 1.6; ctx.stroke();
-        }
-        for (let y = 0; y < height; y += 128) { ctx.fillStyle = grey ? '#939393' : '#685337'; ctx.fillRect(0, y, width, 1.4); }
-      } else if (kind === 'stone') {
-        for (let row = 0; row < 8; row++) for (let col = -1; col < 9; col++) {
-          const x = col * 64 + (row % 2 ? 32 : 0), y = row * 64;
-          const value = 183 + Math.floor(random() * 22);
-          ctx.fillStyle = grey ? `rgb(${value},${value},${value})` : `rgb(${value+13},${value+8},${value-8})`;
-          ctx.fillRect(x + 2, y + 2, 60, 60);
-          ctx.strokeStyle = grey ? '#777' : 'rgba(117,111,94,.55)'; ctx.lineWidth = 1;
-          ctx.strokeRect(x + 1.5, y + 1.5, 61, 61);
-          ctx.fillStyle = 'rgba(255,255,255,.11)'; ctx.fillRect(x + 3, y + 3, 57, 1);
-        }
-      }
-    });
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    if (grey) tex.colorSpace = THREE.NoColorSpace;
-    return tex;
-  }
-  const woodColour = surfaceTexture('wood'), woodBump = surfaceTexture('wood', true);
-  mat.wood.color.set('#ffffff'); mat.wood.map = woodColour; mat.wood.bumpMap = woodBump; mat.wood.bumpScale = .028; mat.wood.roughnessMap = woodBump; mat.wood.roughness = .68;
-  const stoneColour = surfaceTexture('stone'), stoneBump = surfaceTexture('stone', true);
-  const earth = surfaceTexture('earth'); earth.repeat.set(.12, .12);
-  const grainBump = surfaceTexture('earth', true); grainBump.repeat.set(.12,.12);
-  mat.sand.map = earth; mat.sand.color.set('#e1dcc7'); mat.sand.bumpMap = grainBump; mat.sand.roughnessMap = grainBump; mat.sand.bumpScale = .045;
-  for (const surface of [mat.cream, mat.orange, mat.blue, mat.green]) { surface.bumpMap = grainBump; surface.roughnessMap = grainBump; surface.bumpScale = .018; }
-  mat.fabric.bumpMap = grainBump; mat.fabric.bumpScale = .022;
-  const aoTexture = canvasTexture(128, 128, (ctx, width, height) => {
-    const gradient = ctx.createRadialGradient(width/2, height/2, 2, width/2, height/2, width/2);
-    gradient.addColorStop(0, 'rgba(31,37,27,.38)'); gradient.addColorStop(.35, 'rgba(31,37,27,.22)'); gradient.addColorStop(1, 'rgba(31,37,27,0)');
-    ctx.fillStyle = gradient; ctx.fillRect(0,0,width,height);
+  const random = () => { seed = (Math.imul(seed,1664525)+1013904223)>>>0; return seed/4294967296; };
+  const geo = (key,make) => { if(!geometries.has(key))geometries.set(key,make()); return geometries.get(key); };
+  const material = (color,options={}) => { const m=new THREE.MeshStandardMaterial({color,roughness:.85,...options});materials.add(m);return m; };
+  const canvasTexture = (w,h,draw) => { const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;draw(canvas.getContext('2d'),w,h);const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;textures.add(tex);return tex; };
+  const fallbackNoise = (base,wood=false) => canvasTexture(512,512,(ctx,w,h)=>{
+    ctx.fillStyle=base;ctx.fillRect(0,0,w,h);
+    for(let i=0;i<10000;i++){const grey=Math.floor(70+random()*170);ctx.fillStyle=`rgba(${grey},${grey},${grey},${.035+random()*.1})`;ctx.fillRect(random()*w,random()*h,1+random()*2,1+random()*2);}
+    if(wood)for(let i=0;i<180;i++){const y=i*3;ctx.beginPath();ctx.moveTo(0,y);ctx.bezierCurveTo(150,y+Math.sin(i)*3,350,y-Math.cos(i)*4,512,y);ctx.strokeStyle='rgba(43,35,26,.19)';ctx.lineWidth=.3+random();ctx.stroke();}
   });
-  const aoMaterial = new THREE.MeshBasicMaterial({ map: aoTexture, transparent: true, depthWrite: false, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -1 });
-  materials.add(aoMaterial);
-  function contactShadow(parent, width, depth, x = 0, z = 0, y = .10) {
-    const plane = mesh(geometry('ao-plane', () => new THREE.PlaneGeometry(1, 1)), aoMaterial, parent, { receive: false });
-    plane.rotation.x = -Math.PI/2; plane.position.set(x,y,z); plane.scale.set(width,depth,1); return plane;
+  const fallback={ground:fallbackNoise('#777a5e'),stone:fallbackNoise('#c8c6bc'),wood:fallbackNoise('#918477',true),asphalt:fallbackNoise('#555953')};
+  function surface(key,colour,options={}){
+    const supplied=surfaceMaps[key], result=material(supplied?.map?'#ffffff':colour,options);
+    result.userData.tileSize=supplied?.tileSize||({ground:4,stone:2,wood:1.6,asphalt:4}[key]);
+    for(const property of ['map','normalMap','roughnessMap']){
+      const source=supplied?.[property]||(property==='map'?fallback[key]:null);
+      if(source){const tex=source.clone();tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(1,1);tex.colorSpace=property==='map'?THREE.SRGBColorSpace:THREE.NoColorSpace;tex.anisotropy=4;textures.add(tex);result[property]=tex;}
+    }
+    if(!result.normalMap){const bump=fallback[key].clone();bump.colorSpace=THREE.NoColorSpace;bump.wrapS=bump.wrapT=THREE.RepeatWrapping;textures.add(bump);result.bumpMap=bump;result.bumpScale=key==='ground'?.025:.008;}
+    return result;
   }
-  function cable(parent, points, radius = .032, surface = mat.black) {
-    const curve = new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(...p)));
-    return mesh(geometry(`cable${geometries.size}`, () => new THREE.TubeGeometry(curve, 28, radius, 6, false)), surface, parent);
+  const mat={ground:surface('ground','#b6baa8'),stone:surface('stone','#e0dfd7'),wood:surface('wood','#c2b6a8'),asphalt:surface('asphalt','#91988f'),
+    plaster:material('#d4d1c5'),concrete:material('#aeb0a6'),dark:material('#303934'),steel:material('#515b58',{metalness:.68,roughness:.36}),
+    aluminium:material('#a4aaa5',{metalness:.78,roughness:.26}),black:material('#1e2422',{roughness:.73}),paper:material('#e6e1d4'),
+    clay:material('#867367'),fabric:material('#6d7469',{roughness:1}),paint:material('#d8d8ca',{roughness:.91}),bark:material('#5f5849',{roughness:1})};
+  mat.light=material('#e7dcc2',{emissive:'#ffdb9d',emissiveIntensity:.22,roughness:.4});
+  mat.glass=new THREE.MeshPhysicalMaterial({color:'#a6b7ad',roughness:.12,metalness:.12,transparent:true,opacity:.29,depthWrite:false,side:THREE.DoubleSide,clearcoat:1});materials.add(mat.glass);
+  mat.optic=new THREE.MeshPhysicalMaterial({color:'#344d4d',roughness:.08,metalness:.5,clearcoat:1});materials.add(mat.optic);
+  const barkTexture=fallbackNoise('#746753',true);barkTexture.wrapS=barkTexture.wrapT=THREE.RepeatWrapping;
+  mat.bark.map=barkTexture;mat.bark.bumpMap=barkTexture;mat.bark.bumpScale=.03;
+  const aoTexture=canvasTexture(128,128,(ctx,w,h)=>{const g=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);g.addColorStop(0,'rgba(20,26,19,.27)');g.addColorStop(.45,'rgba(20,26,19,.10)');g.addColorStop(1,'rgba(20,26,19,0)');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);});
+  const aoMat=new THREE.MeshBasicMaterial({map:aoTexture,transparent:true,depthWrite:false,toneMapped:false,polygonOffset:true,polygonOffsetFactor:-1});materials.add(aoMat);
+  function mesh(g,m,parent=root,shadow=true){const o=new THREE.Mesh(g,m);o.castShadow=shadow&&m!==mat.glass;o.receiveShadow=true;parent.add(o);return o;}
+  function worldBoxUV(g,w,h,d,tile){
+    const p=g.attributes.position,n=g.attributes.normal,uv=g.attributes.uv;
+    for(let i=0;i<uv.count;i++){const nx=Math.abs(n.getX(i)),ny=Math.abs(n.getY(i)),nz=Math.abs(n.getZ(i));if(ny>=nx&&ny>=nz)uv.setXY(i,(p.getX(i)+w/2)/tile,(p.getZ(i)+d/2)/tile);else if(nx>=nz)uv.setXY(i,(p.getZ(i)+d/2)/tile,(p.getY(i)+h/2)/tile);else uv.setXY(i,(p.getX(i)+w/2)/tile,(p.getY(i)+h/2)/tile);}
+    return g;
   }
-  function hardwareRing(parent, radius, thickness, x, y, z, surface, axis = 'x') {
-    const object = mesh(geometry(`ring:${radius}:${thickness}`, () => new THREE.TorusGeometry(radius, thickness, 6, 40)), surface, parent);
-    object.position.set(x,y,z); if (axis === 'x') object.rotation.x = Math.PI/2; if (axis === 'y') object.rotation.y = Math.PI/2; return object;
+  function box(parent,w,h,d,x,y,z,m=mat.plaster,bevel=.006){
+    const tile=m.userData.tileSize||1,r=Math.min(bevel,w/5,h/5,d/5),key=`box:${w}:${h}:${d}:${r}:${tile}`;
+    const geometry=geo(key,()=>worldBoxUV(r>.001?new RoundedBoxGeometry(w,h,d,1,r):new THREE.BoxGeometry(w,h,d),w,h,d,tile));
+    const o=mesh(geometry,m,parent);o.position.set(x,y,z);return o;
   }
-  function instances(parent, geo, surface, transforms, name) {
-    const object = new THREE.InstancedMesh(geo, surface, transforms.length);
-    object.name = name; object.receiveShadow = true;
-    const transform = new THREE.Object3D();
-    transforms.forEach((item, index) => { transform.position.set(...item.p); transform.rotation.set(...(item.r || [0,0,0])); transform.scale.set(...(item.s || [1,1,1])); transform.updateMatrix(); object.setMatrixAt(index, transform.matrix); if (item.color) object.setColorAt(index, new THREE.Color(item.color)); });
-    parent.add(object); return object;
+  function cylinder(parent,r,h,x,y,z,m=mat.steel,sides=16){const o=mesh(geo(`cylinder:${sides}`,()=>new THREE.CylinderGeometry(1,1,1,sides)),m,parent);o.scale.set(r,h,r);o.position.set(x,y,z);return o;}
+  function beam(parent,a,b,r,m=mat.steel){const start=new THREE.Vector3(...a),end=new THREE.Vector3(...b);const o=cylinder(parent,r,start.distanceTo(end),0,0,0,m,10);o.position.copy(start).add(end).multiplyScalar(.5);o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),end.sub(start).normalize());return o;}
+  function ring(parent,r,t,x,y,z,m=mat.aluminium,axis='y'){const o=mesh(geo(`ring:${r}:${t}`,()=>new THREE.TorusGeometry(r,t,5,32)),m,parent);o.position.set(x,y,z);if(axis==='y')o.rotation.x=-Math.PI/2;if(axis==='x')o.rotation.y=Math.PI/2;return o;}
+  function instances(parent,g,m,transforms,name,shadow=false){const o=new THREE.InstancedMesh(g,m,transforms.length);o.name=name;o.castShadow=shadow;o.receiveShadow=true;const dummy=new THREE.Object3D();for(let i=0;i<transforms.length;i++){const a=transforms[i];dummy.position.set(...a.p);dummy.rotation.set(...(a.r||[0,0,0]));dummy.scale.set(...(a.s||[1,1,1]));dummy.updateMatrix();o.setMatrixAt(i,dummy.matrix);if(a.color)o.setColorAt(i,new THREE.Color(a.color));}parent.add(o);return o;}
+  function contact(parent,x,z,w,d,y=.019){const o=mesh(geo('ao-plane',()=>new THREE.PlaneGeometry(1,1)),aoMat,parent,false);o.rotation.x=-Math.PI/2;o.position.set(x,y,z);o.scale.set(w,d,1);return o;}
+  function plate(parent,text,w,h,x,y,z,colour='#ddd9cc',ink='#3b433c'){
+    const tex=canvasTexture(768,Math.max(96,Math.round(768*h/w)),(ctx,cw,ch)=>{ctx.fillStyle=colour;ctx.fillRect(0,0,cw,ch);ctx.font=`500 ${Math.round(ch*.53)}px "PingFang SC",Arial,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=ink;ctx.fillText(text,cw/2,ch*.52,cw*.92);});
+    const m=new THREE.MeshBasicMaterial({map:tex,toneMapped:false});materials.add(m);const o=mesh(geo(`plate:${w}:${h}`,()=>new THREE.PlaneGeometry(w,h)),m,parent,false);o.position.set(x,y,z);return o;
   }
-  function plant(parent, x, z, size = 1, y = .2) {
-    const pot = mesh(geometry('plant-pot', () => new THREE.CylinderGeometry(.44,.32,.68,20)), mat.terracotta, parent, { shadow: true });
-    pot.position.set(x,y+.34*size,z); pot.scale.setScalar(size);
-    cylinder(parent,.39*size,.06*size,x,y+.67*size,z,mat.ink);
-    const leaves = [];
-    for (let i=0;i<9;i++) { const angle=i*2.399963; leaves.push({p:[x+Math.sin(angle)*.22*size,y+(1.0+(i%3)*.15)*size,z+Math.cos(angle)*.22*size],s:[.15*size,.48*size,.08*size],r:[Math.sin(angle)*.55,angle,Math.cos(angle)*.55],color:i%2?'#668568':'#456b52'}); }
-    instances(parent, sphereGeometry, mat.leaf, leaves, 'plant leaves');
-    contactShadow(parent,1.25*size,1.25*size,x,z,y+.012);
+  function image(parent,file,w,h,x,y,z,frame=true){
+    if(frame)box(parent,w+.045,h+.045,.035,x,y,z-.021,mat.wood,.002);
+    let entry=imageTextures.get(file);if(!entry){entry={texture:null,fits:[]};imageTextures.set(file,entry);entry.texture=loader.load(new URL(file,new URL(assetBase,document.baseURI)).href,()=>entry.fits.forEach(fit=>fit()));entry.texture.colorSpace=THREE.SRGBColorSpace;entry.texture.anisotropy=4;textures.add(entry.texture);}
+    const texture=entry.texture;
+    const m=new THREE.MeshBasicMaterial({map:texture,toneMapped:false});materials.add(m);const o=mesh(geo(`image:${w}:${h}`,()=>new THREE.PlaneGeometry(w,h)),m,parent,false);o.position.set(x,y,z);
+    const fit=()=>{if(!texture.image?.width)return;const a=texture.image.width/texture.image.height,b=w/h;o.scale.set(a<b?a/b:1,a>b?b/a:1,1);};entry.fits.push(fit);fit();return o;
+  }
+  function plane(gw,gd,y,m,name){const g=geo(name,()=>{const shape=new THREE.PlaneGeometry(gw,gd);shape.rotateX(-Math.PI/2);const p=shape.attributes.position,uv=shape.attributes.uv,tile=m.userData.tileSize||1;for(let i=0;i<uv.count;i++)uv.setXY(i,p.getX(i)/tile,p.getZ(i)/tile);return shape;});const o=mesh(g,m,root,false);o.position.y=y;return o;}
+
+  // No pedestal: a continuous landscape rolls gently beyond the driving boundary.
+  const landHeight=(x,z)=>{const outside=Math.max(Math.abs(x),Math.abs(z))-44,rise=Math.min(1,Math.max(0,outside)/24);return -.035+rise*rise*(.8+Math.sin(x*.10+z*.06)*1.1+Math.cos(z*.13)*.6);};
+  const pondMask=(x,z,pad=1)=>Math.min(Math.hypot((x+40)/(4.2*pad),(z+8)/(5.8*pad)),Math.hypot((x+40)/(4.2*pad),(z-8)/(5.8*pad)));
+  const terrain=geo('continuous-terrain',()=>{
+    const g=new THREE.PlaneGeometry(192,192,128,128);g.rotateX(-Math.PI/2);const p=g.attributes.position,uv=g.attributes.uv,tile=mat.ground.userData.tileSize;
+    for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),outside=Math.max(Math.abs(x),Math.abs(z))-44;let y=-.035;if(outside>0){const rise=Math.min(1,outside/24);y+=rise*rise*(.8+Math.sin(x*.10+z*.06)*1.1+Math.cos(z*.13)*.6);}const bank=pondMask(x,z);if(bank<1.2)y-=Math.max(0,1.2-bank)*.65;p.setY(i,y);uv.setXY(i,x/tile,z/tile);}
+    const original=g.index.array,indices=[];for(let i=0;i<original.length;i+=3){const a=original[i],b=original[i+1],c=original[i+2],x=(p.getX(a)+p.getX(b)+p.getX(c))/3,z=(p.getZ(a)+p.getZ(b)+p.getZ(c))/3;if(pondMask(x,z)>.92)indices.push(a,b,c);}g.setIndex(indices);g.computeVertexNormals();return g;
+  });mesh(terrain,mat.ground,root,false);
+  const groundPickMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,colorWrite:false,depthWrite:false});materials.add(groundPickMat);
+  const groundTarget=plane(96,96,.012,groundPickMat,'navigation-ground');groundTarget.name='Flat driveable ground';groundTarget.userData.navigationSurface=true;
+
+  const kerbs=[],unit=geo('instance-unit-box',()=>new THREE.BoxGeometry(1,1,1));
+  function path(points,width,m=mat.stone,edging=true){
+    const curve=new THREE.CatmullRomCurve3(points.map(([x,z])=>new THREE.Vector3(x,.008,z))),samples=Math.max(12,Math.ceil(curve.getLength()/.75)),positions=[],uvs=[],indices=[],tile=m.userData.tileSize||2;
+    for(let i=0;i<=samples;i++){const p=curve.getPoint(i/samples),t=curve.getTangent(i/samples),n=new THREE.Vector3(-t.z,0,t.x);for(const side of [-1,1]){const v=p.clone().addScaledVector(n,width*.5*side);positions.push(v.x,v.y,v.z);uvs.push(v.x/tile,v.z/tile);}if(i<samples){const a=i*2;indices.push(a,a+1,a+2,a+1,a+3,a+2);}}
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));g.setIndex(indices);g.computeVertexNormals();geometries.set(`path:${geometries.size}`,g);mesh(g,m,root,false);
+    if(edging)for(let d=0;d<curve.getLength();d+=1.05){const t=d/curve.getLength(),p=curve.getPoint(t),a=curve.getTangent(t),n=new THREE.Vector3(-a.z,0,a.x);for(const side of [-1,1]){const q=p.clone().addScaledVector(n,side*(width/2+.055));kerbs.push({p:[q.x,.014,q.z],s:[.10,.075,1.02],r:[0,Math.atan2(a.x,a.z),0]});}}
+  }
+  const plaza=plane(17.4,14.6,.004,mat.stone,'central-courtyard');
+  path([[-25,0],[-16,-1],[-11,-5],[-10,-7]],3.5);path([[7,-2],[10,-4],[10,-7]],3.5);
+  path([[5,6],[8,9],[11,9]],3.5);path([[-5,6],[-8,9],[-11,9]],3.5);path([[0,-6],[0,-11],[0,-16]],3.6);
+  path([[0,6],[0,18],[0,27]],4.5);
+  const loopGeometry=geo('outer-loop',()=>{const g=new THREE.RingGeometry(31,37,144);g.rotateX(-Math.PI/2);const p=g.attributes.position,uv=g.attributes.uv,tile=mat.asphalt.userData.tileSize;for(let i=0;i<uv.count;i++)uv.setXY(i,p.getX(i)/tile,p.getZ(i)/tile);return g;});const loop=mesh(loopGeometry,mat.asphalt,root,false);loop.position.y=.006;
+  path([[-25,0],[-31,0],[-36,0]],5.1,mat.asphalt);path([[8,0],[24,0],[34,0]],5.1,mat.asphalt);path([[0,27],[0,34]],4.5,mat.asphalt);path([[8,-13],[9,-23],[5,-30],[0,-34]],4.5,mat.asphalt);
+  const stripes=[];for(let i=0;i<72;i++){const a=i*Math.PI*2/72,x=Math.sin(a)*34,z=Math.cos(a)*34;if(Math.abs(x)<3.5||Math.abs(z)<3.2)continue;stripes.push({p:[x,.016,z],s:[.10,.005,1.6],r:[0,a+Math.PI/2,0]});}
+  instances(root,unit,mat.paint,stripes,'weathered road centre markings');instances(root,unit,mat.concrete,kerbs,'flush concrete path edging');
+  // Paving joints establish a human scale without turning paths into raised islands.
+  const joints=[];for(let x=-8;x<=8;x+=1.2)joints.push({p:[x,.009,0],s:[.009,.002,14.6]});for(let z=-6.6;z<7.3;z+=1.2)joints.push({p:[0,.009,z],s:[17.4,.002,.009]});instances(root,unit,mat.concrete,joints,'courtyard expansion joints');
+
+  function createStation(id,x,z,r=4.45){const group=new THREE.Group();group.name=`${id} studio`;group.position.set(x,0,z);group.rotation.y=Math.atan2(-x,-z);root.add(group);interactables.push({id,object:group});architecture.push(group);colliders.push({x,z,r});group.userData.stationId=id;contact(group,0,0,9.6,7.1);return group;}
+  function glazing(parent,x,y,z,w,h,side=false){
+    const pane=box(parent,w,h,.012,x,y,z,mat.glass,.001);if(side)pane.rotation.y=Math.PI/2;
+    const frame=new THREE.Group();parent.add(frame);architecture.push(frame);frame.position.set(x,y,z);if(side)frame.rotation.y=Math.PI/2;
+    for(const xx of [-w/2,w/2])box(frame,.035,h+.07,.055,xx,0,0,mat.steel,.002);for(const yy of [-h/2,h/2])box(frame,w+.07,.035,.055,0,yy,0,mat.steel,.002);return pane;
+  }
+  function shell(parent,{cladding=mat.plaster,width=7.2,depth=5.2,title='',open=false}={}){
+    const w=width/2,d=depth/2;
+    box(parent,width+.35,.10,depth+.35,0,.015,0,mat.concrete,.003);
+    box(parent,width,.08,depth,0,.102,0,mat.stone,.002);
+    box(parent,width,2.82,.18,0,1.55,-d,cladding,.004);
+    for(const side of [-1,1]){
+      box(parent,.18,.55,depth,side*w,.40,0,cladding,.003);
+      box(parent,.18,.44,depth,side*w,2.74,0,cladding,.003);
+      for(const z of [-d+.35,d-.35])box(parent,.18,1.9,.70,side*w,1.6,z,cladding,.003);
+      glazing(parent,side*(w+.005),1.6,0,depth-1.5,1.83,true);
+    }
+    if(!open){
+      for(let i=0;i<4;i++){const x=-w+.9+i*(width/4);glazing(parent,x,1.42,d,width/4-.055,2.48);}
+      // A recognisable 2.1 m door leaf and physical frame.
+      box(parent,1.02,2.1,.035,1.85,1.19,d+.035,mat.glass,.001);
+      for(const x of [1.32,2.38])box(parent,.045,2.16,.075,x,1.19,d+.055,mat.steel,.002);
+      box(parent,1.10,.045,.075,1.85,2.29,d+.055,mat.steel,.002);
+      box(parent,.026,.30,.055,2.24,1.12,d+.105,mat.aluminium,.002);
+      box(parent,1.1,.022,.24,1.85,.16,d+.06,mat.aluminium,.002);
+    }
+    box(parent,width+.62,.16,depth+.65,0,3.01,0,mat.concrete,.008);
+    box(parent,width+.52,.035,depth+.55,0,3.105,0,mat.dark,.003);
+    for(const side of [-1,1])box(parent,.055,.12,depth+.67,side*(w+.30),3.05,0,mat.steel,.002);
+    box(parent,width+.68,.11,.09,0,2.98,-d-.32,mat.steel,.002);
+    for(const x of [-w+.1,w-.1]){cylinder(parent,.037,2.87,x,1.48,-d-.20,mat.steel,12);beam(parent,[x,.07,-d-.2],[x,.07,-d-.43],.037,mat.steel);}
+    for(const x of [-2.4,0,2.4]){box(parent,.56,.028,.065,x,2.88,.5,mat.dark,.002);box(parent,.48,.012,.04,x,2.862,.5,mat.light,.001);}
+    if(title)plate(parent,title,1.65,.23,-1.95,2.72,d+.115);
+    // Facade joints and a dark capillary break at the foot of each wall.
+    box(parent,width,.045,.025,0,.22,-d-.10,mat.dark,.001);
+    for(let i=0;i<6;i++)box(parent,.008,2.68,.012,-w+.55+i*1.22,1.55,-d-.098,mat.concrete,.001);
+  }
+  function table(parent,x,z,w=1.8,d=.76){box(parent,w,.045,d,x,.765,z,mat.wood,.004);for(const xx of [-w/2+.10,w/2-.10])for(const zz of [-d/2+.08,d/2-.08])box(parent,.045,.70,.045,x+xx,.39,z+zz,mat.steel,.002);return .79;}
+  function chair(parent,x,z,angle=0){const group=new THREE.Group();group.position.set(x,0,z);group.rotation.y=angle;parent.add(group);box(group,.46,.045,.44,0,.46,0,mat.wood,.005);box(group,.46,.34,.035,0,.74,-.21,mat.wood,.006);for(const xx of [-.19,.19])for(const zz of [-.17,.17])box(group,.028,.43,.028,xx,.235,zz,mat.steel,.002);architecture.push(group);return group;}
+  function bench(parent,x,z,angle=0){const b=new THREE.Group();b.position.set(x,0,z);b.rotation.y=angle;parent.add(b);for(let i=0;i<4;i++)box(b,1.82,.035,.105,0,.46,-.16+i*.11,mat.wood,.003);for(const xx of [-.68,.68]){box(b,.05,.42,.42,xx,.23,0,mat.steel,.002);box(b,.035,.45,.035,xx,.66,-.22,mat.steel,.002);}for(let i=0;i<3;i++)box(b,1.82,.095,.032,0,.62+i*.115,-.24,mat.wood,.003);architecture.push(b);return b;}
+  function planter(parent,x,z){box(parent,.62,.50,.62,x,.36,z,mat.clay,.009);box(parent,.55,.02,.55,x,.618,z,mat.dark,.002);const leaves=[];for(let i=0;i<13;i++){const a=i*2.399963;leaves.push({p:[x+Math.sin(a)*.13,.80+(i%4)*.075,z+Math.cos(a)*.13],s:[.06,.30,.014],r:[Math.sin(a)*.45,a,Math.cos(a)*.45]});}instances(parent,geo('potted-leaf',()=>new THREE.SphereGeometry(1,5,3)),mat.fabric,leaves,'small real-scale potted foliage');}
+  function monitor(parent,x,y,z,file,w=.63){box(parent,w+.025,w*.57+.025,.038,x,y,z,mat.black,.005);image(parent,file,w,w*.57,x,y,z+.023,false);box(parent,.035,.17,.035,x,y-w*.285-.07,z,mat.aluminium,.002);box(parent,.23,.014,.15,x,y-w*.285-.16,z+.015,mat.steel,.003);}
+
+  // 01. Product gallery. The public project is exhibited at normal gallery scale.
+  const works=createStation('works',-15,-10);shell(works,{title:'01   作品展馆'});
+  image(works,'color.webp',2.75,1.42,-.6,1.72,-2.49);
+  const workTop=table(works,-.55,.45,3.2,.86);monitor(works,1.45,1.10,-1.1,'first-build.webp');
+  const products=['#af936c','#c3beb2','#5d7577','#9c705a','#717d5e','#45534e'];
+  for(let i=0;i<6;i++){const x=-1.75+i*.47,m=material(products[i]);cylinder(works,.023,.255,x,workTop+.128,.45,m,16);cylinder(works,.025,.014,x,workTop+.262,.45,mat.paper,12);const nozzle=mesh(geo('sealant-nozzle',()=>new THREE.ConeGeometry(.014,.085,12)),mat.paper,works);nozzle.position.set(x,workTop+.31,.45);}
+  plate(works,'强鹰彩色胶 · 126 色',1.28,.13,-.6,1.01,.89,'#ddd9cd','#474c43');chair(works,1.35,-.1,Math.PI);planter(works,-2.8,1.65);
+
+  // 02. Film studio. The camera, tripod and clapper are equipment, never architecture.
+  const film=createStation('film',15,-10);shell(film,{title:'02   影像工作室',cladding:mat.dark});
+  image(film,'london.webp',2.6,1.46,-.6,1.7,-2.49);table(film,.9,-1.20,2.2,.75);monitor(film,.9,1.12,-1.18,'export.webp',.58);
+  const camera=new THREE.Group();camera.position.set(-1.7,1.37,.35);camera.rotation.y=-.28;film.add(camera);architecture.push(camera);
+  box(camera,.19,.125,.12,0,0,0,mat.black,.012);box(camera,.10,.045,.075,.02,.08,-.01,mat.black,.005);
+  const lens=cylinder(camera,.043,.12,0,-.005,.105,mat.black,24);lens.rotation.x=Math.PI/2;const optic=cylinder(camera,.035,.007,0,-.005,.168,mat.optic,24);optic.rotation.x=Math.PI/2;ring(camera,.045,.006,0,-.005,.13,mat.steel,'z');
+  cylinder(film,.018,.38,-1.7,1.10,.35,mat.aluminium,12);for(let i=0;i<3;i++){const a=i*Math.PI*2/3;beam(film,[-1.7,1.0,.35],[-1.7+Math.sin(a)*.42,.15,.35+Math.cos(a)*.42],.012,mat.steel);}
+  chair(film,1.0,.0,Math.PI);box(film,.33,.24,.025,-.3,.92,-1.2,mat.black,.003);for(let i=0;i<5;i++)box(film,.032,.045,.028,-.42+i*.06,1.06,-1.2,i%2?mat.paper:mat.black,.001);
+  box(film,.62,.25,.42,2.35,.27,.55,mat.black,.012);for(const x of [2.12,2.57])box(film,.035,.07,.018,x,.34,.77,mat.aluminium,.002);planter(film,-2.8,1.65);
+
+  // 03. Listening room. A 28cm record sits on a normal 75cm-high cabinet.
+  const music=createStation('music',16,12);shell(music,{title:'03   听音室',cladding:mat.wood});
+  table(music,0,-.25,2.0,.68);box(music,.46,.065,.36,0,.82,-.25,mat.wood,.005);
+  const record=new THREE.Group();record.position.set(-.055,.859,-.25);music.add(record);moving.record=record;
+  cylinder(record,.14,.009,0,0,0,mat.black,48);for(const r of [.072,.096,.12])ring(record,r,.0009,0,.005,0,mat.steel);cylinder(record,.039,.002,0,.006,0,mat.paper,24);cylinder(record,.002,.012,0,.014,0,mat.aluminium,8);
+  beam(music,[.16,.876,-.37],[.12,.883,-.23],.004,mat.aluminium);beam(music,[.12,.883,-.23],[.045,.877,-.15],.004,mat.aluminium);box(music,.016,.009,.024,.045,.872,-.15,mat.black,.001);
+  for(const x of [-1.4,1.4]){cylinder(music,.018,.63,x,.46,-.25,mat.steel);box(music,.22,.028,.25,x,.77,-.25,mat.steel,.003);box(music,.18,.36,.24,x,.97,-.25,mat.wood,.005);const woofer=cylinder(music,.062,.009,x,.91,-.123,mat.black,24);woofer.rotation.x=Math.PI/2;const tweeter=cylinder(music,.026,.009,x,1.04,-.123,mat.black,16);tweeter.rotation.x=Math.PI/2;}
+  image(music,'genesis.webp',.31,.31,.55,1.0,-.30);image(music,'genesis.webp',1.05,1.05,0,1.78,-2.49);chair(music,-.55,1.15,Math.PI);chair(music,.55,1.15,Math.PI);planter(music,-2.8,1.65);
+
+  // 04. An open photography courtyard with a 2.55m pergola and ordinary benches.
+  const life=createStation('life',-16,12,4.35);
+  box(life,7.3,.10,5.25,0,.035,0,mat.stone,.003);box(life,6.8,2.45,.20,0,1.34,-2.1,mat.plaster,.005);
+  image(life,'polaroids.webp',2.35,1.33,0,1.59,-1.985);image(life,'wave.jpg',.34,.46,-2.05,1.58,-1.97);image(life,'call.jpg',.34,.46,2.05,1.58,-1.97);
+  for(const x of [-3.25,3.25])for(const z of [-2.1,2.1])box(life,.09,2.55,.09,x,1.39,z,mat.steel,.002);
+  for(const x of [-3.25,3.25])box(life,.10,.14,4.45,x,2.67,0,mat.wood,.003);
+  const rafters=[];for(let i=0;i<15;i++)rafters.push({p:[-3.3+i*.47,2.75,0],s:[.065,.10,4.5]});instances(life,unit,mat.wood,rafters,'pergola timber battens',true);
+  plate(life,'04   照片庭院',1.52,.22,-1.9,2.43,-1.97);bench(life,-1.2,.75);bench(life,1.2,.75);planter(life,-2.8,1.6);planter(life,2.8,1.6);
+
+  // 05. Reception: personal photos, a desk and a wall-mounted real-size letterbox.
+  const about=createStation('about',0,-22,4.45);shell(about,{title:'05   侯世康 / 工作室'});
+  image(about,'portrait.jpg',.54,.78,-1.8,1.65,-2.49);image(about,'wave.jpg',.54,.78,-.95,1.65,-2.49);table(about,.55,-.5,1.6,.70);chair(about,.55,-1.25);
+  box(about,.33,.015,.23,.45,.798,-.5,mat.steel,.004);const laptop=box(about,.33,.215,.012,.45,.91,-.60,mat.black,.004);laptop.rotation.x=-.15;box(about,.21,.001,.10,.92,.794,-.36,mat.paper,.001);
+  box(about,.42,.30,.16,-2.75,1.2,2.72,mat.steel,.008);const mailFlag=box(about,.405,.285,.018,-2.75,1.2,2.81,mat.steel,.003);moving.mailFlag=mailFlag;box(about,.28,.012,.015,-2.75,1.27,2.825,mat.black,.001);const lock=cylinder(about,.012,.009,-2.75,1.12,2.827,mat.aluminium,12);lock.rotation.x=Math.PI/2;
+  for(const y of [1.1,1.3]){const hinge=cylinder(about,.008,.045,-2.96,y,2.823,mat.aluminium,8);hinge.rotation.z=Math.PI/2;}
+  bench(about,-.7,1.2);planter(about,-2.85,1.6);
+
+  // Landscape furniture is useful infrastructure at plausible human dimensions.
+  for(const [x,z,a] of [[-23,23,.5],[24,23,-.5],[-24,-23,2.5],[23,-23,-2.5]]){const b=bench(root,x,z,a);colliders.push({x,z,r:1.05});contact(root,x,z,2.8,1.4);}
+  for(const [x,z] of [[-7,-10],[8,-10],[-9,15],[9,16],[-4.1,-16],[4.1,-16],[-27,5],[27,-4],[3,28]]){
+    cylinder(root,.045,3.25,x,1.625,z,mat.steel,12);box(root,.35,.065,.14,x,3.26,z,mat.dark,.005);box(root,.26,.008,.09,x,3.222,z,mat.light,.002);cylinder(root,.10,.10,x,.05,z,mat.concrete,12);colliders.push({x,z,r:.15});
   }
 
-  function textPlate(parent, title, subtitle, width, height, x, y, z, background = palette.cream, ink = palette.ink) {
-    const texture = canvasTexture(1024, Math.round(1024 * height / width), (ctx, w, h) => {
-      ctx.fillStyle = background; ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = ink; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.font = `500 ${Math.round(h * (subtitle ? .42 : .53))}px "PingFang SC", Arial, sans-serif`;
-      ctx.fillText(title, w / 2, h * (subtitle ? .37 : .5), w * .9);
-      if (subtitle) {
-        ctx.font = `500 ${Math.round(h * .14)}px Arial, sans-serif`;
-        ctx.fillText(subtitle, w / 2, h * .78, w * .84);
-      }
-    });
-    const surface = new THREE.MeshBasicMaterial({ map: texture, toneMapped: false });
-    materials.add(surface);
-    const plate = mesh(geometry(`plane${width}:${height}`, () => new THREE.PlaneGeometry(width, height)), surface, parent, { receive: false });
-    plate.position.set(x, y, z);
-    return plate;
+  // The stream and timber bridge are on grade; no vehicle is asked to climb a decorative slope.
+  const water=material('#3e6258',{roughness:.22,metalness:.30});
+  for(const z of [-8,8]){
+    const shape=new THREE.Shape();for(let i=0;i<50;i++){const a=i/50*Math.PI*2,r=1+Math.sin(a*5+.4)*.055;const x=Math.cos(a)*4.6*r,zz=Math.sin(a)*6.25*r;if(!i)shape.moveTo(x,zz);else shape.lineTo(x,zz);}shape.closePath();const g=new THREE.ShapeGeometry(shape);g.rotateX(-Math.PI/2);geometries.set(`stream:${z}`,g);const surface=mesh(g,water,root,false);surface.position.set(-40,-.12,z);colliders.push({x:-40,z,r:5.35});
   }
-  function imagePlate(parent, file, width, height, x, y, z, surface = mat.cream) {
-    box(parent, width + .2, height + .2, .16, x, y, z - .09, surface, true);
-    let plane;
-    const fitImage = texture => {
-      if (!plane || !texture.image?.width || !texture.image?.height) return;
-      const imageAspect = texture.image.width / texture.image.height;
-      const frameAspect = width / height;
-      // Fit the full public image inside its architectural frame; never stretch a portrait.
-      plane.scale.set(imageAspect < frameAspect ? imageAspect / frameAspect : 1,
-        imageAspect > frameAspect ? frameAspect / imageAspect : 1, 1);
-    };
-    const texture = loader.load(new URL(file, new URL(assetBase, document.baseURI)).href, fitImage);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.anisotropy = 4;
-    textures.add(texture);
-    const imageMat = new THREE.MeshBasicMaterial({ map: texture, toneMapped: false });
-    materials.add(imageMat);
-    plane = mesh(geometry(`image${width}:${height}`, () => new THREE.PlaneGeometry(width, height)), imageMat, parent, { receive: false });
-    plane.position.set(x, y, z + .012);
-    fitImage(texture);
-    return plane;
-  }
-  function roundedShape(width, depth, radius) {
-    const shape = new THREE.Shape();
-    const x = -width / 2, z = -depth / 2;
-    shape.moveTo(x + radius, z);
-    shape.lineTo(x + width - radius, z);
-    shape.quadraticCurveTo(x + width, z, x + width, z + radius);
-    shape.lineTo(x + width, z + depth - radius);
-    shape.quadraticCurveTo(x + width, z + depth, x + width - radius, z + depth);
-    shape.lineTo(x + radius, z + depth);
-    shape.quadraticCurveTo(x, z + depth, x, z + depth - radius);
-    shape.lineTo(x, z + radius);
-    shape.quadraticCurveTo(x, z, x + radius, z);
-    return shape;
-  }
+  const bridge=[];for(let i=0;i<31;i++)bridge.push({p:[-44.1+i*.30,.016,0]});const bridgeBoard=geo('bridge-board',()=>worldBoxUV(new THREE.BoxGeometry(.28,.075,3.7),.28,.075,3.7,mat.wood.userData.tileSize));instances(root,bridgeBoard,mat.wood,bridge,'timber bridge deck',true);
+  for(const z of [-2,2]){for(let i=0;i<7;i++){const x=-44.1+i*1.5;box(root,.09,.95,.09,x,.48,z,mat.wood,.003);colliders.push({x,z,r:.13});}box(root,9.12,.065,.08,-39.6,.95,z,mat.wood,.003);box(root,9.12,.04,.05,-39.6,.48,z,mat.steel,.002);}
 
-  // A tangible thick clay slab, with a contrasting cut edge and soft surrounding floor.
-  const islandGeo = geometry('island', () => {
-    const geo = new THREE.ExtrudeGeometry(roundedShape(58, 58, 5), {
-      depth: 1.35, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: .18, bevelThickness: .15,
-    });
-    geo.rotateX(-Math.PI / 2);
-    geo.translate(0, -1.5, 0);
-    return geo;
+  // Leaf cards form broken, translucent crowns around explicit branches. There
+  // are no spherical tree meshes or cone-shaped grass tufts in this landscape.
+  const leafTexture=canvasTexture(256,256,(ctx,w,h)=>{
+    ctx.clearRect(0,0,w,h);ctx.strokeStyle='#6c7654';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(w*.5,h);ctx.bezierCurveTo(w*.4,h*.7,w*.6,h*.3,w*.5,0);ctx.stroke();
+    for(let i=0;i<33;i++){const a=i*2.399963,r=Math.sqrt((i+.5)/33)*.41*w,x=w/2+Math.cos(a)*r,y=h/2+Math.sin(a)*r;ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.fillStyle=['#526d43','#69824f','#7c8f59','#445d3b'][i%4];ctx.beginPath();ctx.ellipse(0,0,8+(i%4),15+(i%5),0,0,Math.PI*2);ctx.fill();ctx.restore();}
   });
-  mesh(islandGeo, [mat.sand, mat.edge], root, { shadow: true });
-  const floor = mesh(geometry('floor', () => new THREE.PlaneGeometry(240, 240)), material('#efe8d7'), root);
-  floor.rotation.x = -Math.PI / 2; floor.position.y = -1.8;
-
-  const roadMat = material('#f5efd9', { map: stoneColour, bumpMap: stoneBump, bumpScale: .035, roughness: .94 });
-  const plazaMap = stoneColour.clone(); plazaMap.repeat.set(2.4,2.4); textures.add(plazaMap);
-  const plazaBump = stoneBump.clone(); plazaBump.repeat.set(2.4,2.4); textures.add(plazaBump);
-  const plazaMat = material('#eee7d2', { map: plazaMap, bumpMap: plazaBump, bumpScale: .028, roughness: .92 });
-  const curbTransforms = [];
-  function path(points, width = 3.6) {
-    const curve = new THREE.CatmullRomCurve3(points.map(([x, z]) => new THREE.Vector3(x, .028, z)));
-    const samples = curve.getPoints(36);
-    const vertices = [], indices = [], uvs = [];
-    for (let i = 0; i < samples.length; i++) {
-      const tangent = curve.getTangent(i / (samples.length - 1));
-      const normal = new THREE.Vector3(-tangent.z, 0, tangent.x).normalize().multiplyScalar(width / 2);
-      for (const direction of [-1, 1]) {
-        const point = samples[i].clone().addScaledVector(normal, direction);
-        vertices.push(point.x, point.y, point.z); uvs.push(point.x / 6, point.z / 6);
-      }
-      if (i < samples.length - 1) {
-        const a = i * 2;
-        indices.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
-      }
+  const leavesMat=material('#c5cbb4',{map:leafTexture,transparent:false,alphaTest:.45,side:THREE.DoubleSide,roughness:1});
+  const trees=[[-25,-20,1],[-23,-16,.85],[-23,-6,.9],[-26,9,1.0],[-24,21,1.1],[-11,24,.85],[-7,25,1],[9,25,.9],[24,22,1.1],[25,5,1],[24,-4,.9],[25,-19,1.1],[17,-24,.9],[-13,-25,1.1],[-8,-22,.8],[9,-19,.8],[-24,2,.85],[23,16,.9],[-43,-38,1.35],[-40,-42,1.1],[-26,-42,1.2],[-18,-44,1.3],[-8,-43,1.1],[9,-43,1.25],[21,-42,1.1],[39,-42,1.3],[43,-35,1.25],[43,-22,1.1],[42,-12,1.2],[42,4,1.3],[43,17,1.1],[43,39,1.3],[28,43,1.35],[18,43,1.1],[7,42,1.2],[-8,43,1.2],[-22,42,1.3],[-43,39,1.2],[-43,18,1.1],[-43,-15,1.2],[-43,-27,1.1]];
+  // Less regular distant groves continue the ground to the horizon.
+  for(let i=0;i<36;i++){const a=i*2.399963,r=55+random()*21;trees.push([Math.sin(a)*r,Math.cos(a)*r,.85+random()*.7]);}
+  const trunks=[],branches=[],foliage=[],treeAO=[],rocks=[];
+  for(let i=0;i<trees.length;i++){
+    const [x,z,s]=trees[i],height=(5.3+(i%4)*.45)*s,base=landHeight(x,z)+.035;
+    trunks.push({p:[x,base+height*.46,z],s:[.12*s,height*.92,.12*s],r:[.025*Math.sin(i),0,.025*Math.cos(i)]});
+    for(let j=0;j<9;j++){
+      const a=j*2.399963+i*.31,start=new THREE.Vector3(x,base+height*(.43+j*.038),z),end=new THREE.Vector3(x+Math.sin(a)*(1.25+(j%3)*.26)*s,base+height*(.65+j*.026),z+Math.cos(a)*(1.25+(j%3)*.26)*s),delta=end.clone().sub(start),dummy=new THREE.Object3D();dummy.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.clone().normalize());
+      branches.push({p:start.clone().add(end).multiplyScalar(.5).toArray(),s:[.035*s,delta.length(),.035*s],r:[dummy.rotation.x,dummy.rotation.y,dummy.rotation.z]});
+      for(let k=0;k<7;k++){const b=a+k*2.399963,reach=.34+random()*.63;foliage.push({p:[end.x+Math.sin(b)*reach*s,end.y+(random()-.35)*1.35*s,end.z+Math.cos(b)*reach*s],s:[1.20*s,1.42*s,1],r:[(random()-.5)*1.2,b,(random()-.5)*1.1],color:['#b9c7a3','#cdd2b2','#a4b794'][i%3]});}
     }
-    for (let t=0;t<=1;t+=1/Math.max(2,Math.ceil(curve.getLength()/.68))) { const center=curve.getPoint(t), tangent=curve.getTangent(t), normal=new THREE.Vector3(-tangent.z,0,tangent.x).normalize();for(const side of [-1,1]) { const edge=center.clone().addScaledVector(normal,side*(width/2+.06));curbTransforms.push({p:[edge.x,.042,edge.z],s:[.15,.13,.61],r:[0,Math.atan2(tangent.x,tangent.z),0]}); } }
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-    geo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-    geo.setIndex(indices); geo.computeVertexNormals();
-    geometries.set(`path${geometries.size}`, geo);
-    const surface = mesh(geo, roadMat);
-    surface.material.side = THREE.DoubleSide;
-    return surface;
+    treeAO.push({p:[x,base-.018,z],s:[4.2*s,4.2*s,1],r:[-Math.PI/2,0,0]});colliders.push({x,z,r:.19*s});
   }
-  cylinder(root, 8.5, .055, 0, .01, 0, plazaMat, false, 64);
-  const ringGeo = geometry('plaza-ring', () => new THREE.RingGeometry(8.7, 10.4, 80));
-  const ring = mesh(ringGeo, roadMat); ring.rotation.x = -Math.PI / 2; ring.position.y = .025;
-  path([[-25, 0], [-16, -1], [-11, -5], [-10.5, -7]], 3.5);
-  path([[10, -4], [12, -5], [11.5, -7]], 3.5);
-  path([[6, 9], [9, 12], [12, 9]], 3.5);
-  path([[-7, 8], [-10, 10], [-12, 9]], 3.5);
-  path([[0, -9], [0, -13], [0, -17.5]], 3.7);
-  path([[0, 8], [0, 18], [2, 23], [0, 29]], 4.1);
-  for (let i=0;i<64;i++){const angle=i*Math.PI/32;curbTransforms.push({p:[Math.sin(angle)*10.53,.04,Math.cos(angle)*10.53],s:[.15,.13,.92],r:[0,angle+Math.PI/2,0]});}
-  instances(root,geometry('kerb',()=>new RoundedBoxGeometry(1,1,1,1,.10)),mat.cream,curbTransforms,'laid stone kerbs');
-  // A small printed maker's stamp on the plaza, not a floating UI billboard.
-  const mark = textPlate(root, 'S', 'SERKON / 侯世康', 7.2, 5.1, 0, .045, 0, palette.road, '#b2a17f');
-  mark.rotation.x = -Math.PI / 2;
+  instances(root,geo('tree-trunk',()=>new THREE.CylinderGeometry(.68,1,1,10)),mat.bark,trunks,'tapered tree trunks',true);
+  instances(root,geo('tree-branch',()=>new THREE.CylinderGeometry(.35,1,1,7)),mat.bark,branches,'natural branching',true);
+  instances(root,geo('foliage-card',()=>new THREE.PlaneGeometry(1,1)),leavesMat,foliage,'open tree leaf clusters',true);
+  instances(root,geo('tree-contact',()=>new THREE.PlaneGeometry(1,1)),aoMat,treeAO,'tree contact shading');
+  // Thin curved blades, sparsely distributed where a car can still cross grass.
+  const grassGeometry=geo('grass-blade',()=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([-.012,0,0,.012,0,0,-.009,.19,.012,.009,.19,.012,0,.37,.043],3));g.setAttribute('uv',new THREE.Float32BufferAttribute([0,0,1,0,0,.52,1,.52,.5,1],2));g.setIndex([0,1,2,1,3,2,2,3,4]);g.computeVertexNormals();return g;});
+  const grassMat=material('#6e7852',{side:THREE.DoubleSide,roughness:1}),grass=[];
+  for(let i=0;i<5400;i++){
+    const x=(random()-.5)*152,z=(random()-.5)*152,r=Math.hypot(x,z);
+    if((r>30&&r<38)||(Math.abs(x)<10&&Math.abs(z)<9)||pondMask(x,z)<1.1)continue;
+    if(colliders.some(c=>Math.hypot(x-c.x,z-c.z)<c.r+.8))continue;
+    if((Math.abs(z)<3&&Math.abs(x)<38)||(Math.abs(x)<2.7&&z>0&&z<35)||(x>5&&x<12&&z<-10&&z>-30))continue;
+    const outside=Math.max(Math.abs(x),Math.abs(z))-44,rise=Math.min(1,Math.max(0,outside)/24),y=-.035+rise*rise*(.8+Math.sin(x*.10+z*.06)*1.1+Math.cos(z*.13)*.6);
+    grass.push({p:[x,y,z],s:[.7+random()*.8,.4+random()*.6,1],r:[0,random()*Math.PI*2,0],color:['#929b78','#b1b593','#7d8a65'][i%3]});
+  }
+  instances(root,grassGeometry,grassMat,grass,'fine meadow grass');
+  for(let i=0;i<36;i++){const a=i*2.399963,r=46+random()*20,x=Math.sin(a)*r,z=Math.cos(a)*r,s=.25+random()*.55;rocks.push({p:[x,-.04,z],s:[s,.18+random()*.25,s*.72],r:[.1,random()*Math.PI,.1]});colliders.push({x,z,r:s*.8});}
+  instances(root,geo('landscape-rock',()=>new THREE.IcosahedronGeometry(1,1)),mat.concrete,rocks,'low natural field stones');
 
-  function building(id, x, z, radius) {
-    const group = new THREE.Group(); group.name = `${id} destination`;
-    group.position.set(x, 0, z);
-    group.rotation.y = Math.atan2(-x, -z);
-    root.add(group);
-    colliders.push({ x, z, r: radius });
-    cylinder(group, radius + 1.4, .12, 0, .03, 0, plazaMat, false, 48);
-    contactShadow(group,(radius+1)*2,(radius+1)*1.8,0,-.25,.096);
-    interactables.push({ id, object: group });
-    group.userData.stationId = id;
-    return group;
-  }
-  function tag(group, number, color) {
-    cylinder(group, .38, .12, -3.2, .15, 3.1, color);
-    const marker = textPlate(group, number, '', .7, .7, -3.2, .221, 3.1, palette.cream, palette.ink);
-    marker.rotation.x = -Math.PI / 2;
-  }
+  // A real service building in the distance establishes scale, without another themed toy shop.
+  const service=new THREE.Group();service.name='Grounds maintenance building';service.position.set(31,0,-31);service.rotation.y=-.55;root.add(service);architecture.push(service);colliders.push({x:31,z:-31,r:5.8});
+  box(service,8.4,3.3,5.5,0,1.68,0,mat.wood,.004);box(service,8.9,.13,5.95,0,3.42,0,mat.steel,.005);
+  box(service,2.4,2.55,.035,0,1.35,2.78,mat.dark,.003);for(let i=0;i<15;i++)box(service,2.35,.025,.02,0,.18+i*.17,2.805,mat.steel,.001);
+  glazing(service,-2.5,1.9,2.79,1.1,.85);glazing(service,2.5,1.9,2.79,1.1,.85);cylinder(service,.04,3.32,4.2,1.68,-2.8,mat.steel,12);
+  box(service,8.5,.08,.10,0,3.38,-2.86,mat.steel,.002);
 
-  // 01. Product gallery — architectural open front, printed real project, physical colour samples.
-  const works = building('works', -15, -10, 4.05);
-  box(works, 8.1, .32, 5.4, 0, .25, -.2, mat.cream, true);
-  box(works, 8, 4.1, .44, 0, 2.37, -2.45, mat.orange, true);
-  box(works, .43, 4.4, 4.7, -3.8, 2.5, -.2, mat.orange, true);
-  box(works, .43, 4.4, 4.7, 3.8, 2.5, -.2, mat.orange, true);
-  box(works, 8.55, .35, 5.85, 0, 4.84, -.25, mat.cream, true);
-  box(works, 7.6, .18, 4.9, 0, 5.08, -.25, mat.orange);
-  imagePlate(works, 'color.webp', 5.7, 3.1, 0, 2.55, -2.19);
-  textPlate(works, '作品展馆', 'PRODUCTS / TOOLS / WEBSITES', 5.5, .88, 0, 5.7, -1.1, palette.cream);
-  for (let i = 0; i < 6; i++) {
-    const colors = ['#e9bd53', '#e5d6bd', '#498a9e', '#d96c54', '#739466', '#3c4b42'];
-    const x = (i - 2.5) * 1.02;
-    const surface = material(colors[i]);
-    cylinder(works, .26, 1.45, x, 1.18, 1.45, surface, true);
-    cylinder(works, .28, .12, x, 1.92, 1.45, mat.cream);
-    const nozzle = mesh(geometry('nozzle', () => new THREE.ConeGeometry(.15, .58, 16)), mat.cream, works);
-    nozzle.position.set(x, 2.25, 1.45);
+  // Rigid fittings share draws. Moving records and letterbox leaves retain pivots.
+  function batch(parent){
+    const buckets=new Map();for(const o of parent.children){if(!o.isMesh||o.isInstancedMesh||o===moving.mailFlag||o===groundTarget||Array.isArray(o.material)||o.material===aoMat)continue;const key=`${o.material.uuid}:${o.castShadow}:${Object.keys(o.geometry.attributes).sort()}`;if(!buckets.has(key))buckets.set(key,[]);buckets.get(key).push(o);}
+    for(const objects of buckets.values()){if(objects.length<2)continue;const copies=objects.map(o=>{o.updateMatrix();const g=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();g.applyMatrix4(o.matrix);return g;});const g=mergeGeometries(copies,false);copies.forEach(a=>a.dispose());if(!g)continue;geometries.set(`batch:${geometries.size}`,g);const combined=mesh(g,objects[0].material,parent,objects[0].castShadow);combined.name='Batched architectural fittings';objects.forEach(o=>parent.remove(o));}
   }
-  textPlate(works, '126 色，做成一件看得懂的产品。', '', 6.1, .45, 0, .6, 2.57, palette.cream);
-  tag(works, '01', mat.orange);
-
-  // 02. An outdoor film room, with actual workspace stills and an oversized clapper.
-  const film = building('film', 15, -10, 3.85);
-  box(film, 8, .24, 5.5, 0, .18, 0, mat.blue, true);
-  box(film, 7.8, 4.25, .4, 0, 2.47, -1.8, mat.ink, true);
-  imagePlate(film, 'london.webp', 7.1, 3.6, 0, 2.5, -1.56, mat.black);
-  const topClapper = new THREE.Group(); film.add(topClapper);
-  topClapper.position.set(0, 5, -1.7); topClapper.rotation.z = -.085;
-  box(topClapper, 8.1, .76, .65, 0, 0, 0, mat.cream, true);
-  for (let i = 0; i < 8; i++) {
-    const stripe = box(topClapper, .6, .8, .69, (i - 3.5) * 1.0, 0, 0, mat.ink);
-    stripe.rotation.z = -.35;
-  }
-  textPlate(film, '影像棚', 'AI IMAGE WORKSPACE', 4.3, .9, 0, 6.15, -1.7, palette.blue, palette.cream);
-  const lensBody = cylinder(film, .68, 1.0, -2.45, 1.3, 2.0, mat.ink, true);
-  lensBody.rotation.x = Math.PI / 2;
-  const lensGlass = cylinder(film, .5, .08, -2.45, 1.3, 2.56, mat.glass);
-  lensGlass.rotation.x = Math.PI / 2;
-  beam(film, [-2.45, 1.0, 1.9], [-3.1, .16, 2.6], .055, mat.chrome);
-  beam(film, [-2.45, 1.0, 1.9], [-1.8, .16, 2.6], .055, mat.chrome);
-  beam(film, [-2.45, 1.0, 1.9], [-2.45, .16, 1.1], .055, mat.chrome);
-  const reel = cylinder(film, .65, .14, 2.6, 1.1, 2.1, mat.cream, true);
-  reel.rotation.x = Math.PI / 2;
-  tag(film, '02', mat.blue);
-
-  // 03. Record pavilion. The record's rotation is connected to actual audio state.
-  const music = building('music', 16, 12, 3.8);
-  cylinder(music, 4.4, .23, 0, .16, 0, mat.green, true, 48);
-  for (const x of [-3.1, 3.1]) for (const z of [-2.3, 2.3]) {
-    cylinder(music, .12, 4.9, x, 2.65, z, mat.cream, true, 12);
-  }
-  const roof = mesh(geometry('music-roof', () => new THREE.ConeGeometry(5.05, 1.7, 6)), mat.green, music, { shadow: true });
-  roof.position.y = 5.9; roof.rotation.y = Math.PI / 6;
-  cylinder(music, .09, .5, 0, 7.0, 0, mat.gold);
-  sphere(music, .16, 0, 7.27, 0, mat.gold);
-  box(music, 5.5, .7, 2.9, 0, 1.15, .2, mat.wood, true);
-  const platter = new THREE.Group(); platter.position.set(0, 1.72, .1); music.add(platter);
-  cylinder(platter, 1.3, .12, 0, 0, 0, mat.black, true, 64);
-  const grooveMat = material('#49524c');
-  for (const radius of [.72, .87, 1.02, 1.17]) {
-    const groove = mesh(geometry(`groove${radius}`, () => new THREE.TorusGeometry(radius, .008, 4, 64)), grooveMat, platter);
-    groove.rotation.x = Math.PI / 2; groove.position.y = .07;
-  }
-  cylinder(platter, .43, .013, 0, .073, 0, mat.orange, false, 32);
-  cylinder(platter, .045, .06, 0, .11, 0, mat.chrome, false, 12);
-  beam(music, [2.02, 1.82, -.66], [1.0, 1.92, .3], .045, mat.chrome);
-  beam(music, [1.0, 1.92, .3], [.7, 1.84, .58], .06, mat.cream);
-  for (const x of [-3.05, 3.05]) {
-    box(music, 1.1, 1.65, 1.0, x, 1.05, 1.65, mat.ink, true);
-    const woofer = cylinder(music, .35, .045, x, .88, 2.18, mat.black);
-    woofer.rotation.x = Math.PI / 2;
-    const tweeter = cylinder(music, .16, .045, x, 1.47, 2.18, mat.gold);
-    tweeter.rotation.x = Math.PI / 2;
-  }
-  imagePlate(music, 'genesis.webp', 2.6, 1.65, 0, 3.65, -2.25, mat.cream);
-  textPlate(music, '唱片亭', 'GENESIS / 创世纪', 4.0, .9, 0, 5.05, 2.5, palette.cream);
-  moving.record = platter;
-  tag(music, '03', mat.green);
-
-  // 04. A physical photo wall and a bench. The frame is the owner's original collage.
-  const life = building('life', -16, 12, 3.8);
-  box(life, 8.5, .2, 5.0, 0, .15, 0, mat.paleBlue, true);
-  for (const x of [-3.65, 3.65]) box(life, .15, 5.3, .15, x, 2.8, -.9, mat.wood, true);
-  box(life, 8.0, 5.1, .25, 0, 2.9, -.9, mat.cream, true);
-  imagePlate(life, 'polaroids.webp', 7.4, 4.15, 0, 3.0, -.74, mat.white);
-  textPlate(life, '生活照片墙', 'OUTSIDE THE PROJECT FILES', 5.9, .85, 0, 6.0, -.86, palette.cream);
-  for(let i=0;i<5;i++)box(life,4.1,.16,.16,0,.75,1.74+i*.18,mat.wood,true);
-  for (const x of [-1.5, 1.5]) {
-    box(life, .15, .65, .7, x, .37, 2.1, mat.green);
-    box(life, .15, .7, .15, x, 1.1, 1.75, mat.green);
-  }
-  box(life, 4.1, .55, .12, 0, 1.19, 1.75, mat.wood);
-  tag(life, '04', mat.blue);
-
-  // 05. The person and the letterbox; no generic "about me" office tower.
-  const about = building('about', 0, -22, 3.25);
-  box(about, 6.8, .18, 4.9, 0, .15, 0, mat.cream, true);
-  box(about, 3.4, 4.6, .3, -.9, 2.55, -.8, mat.green, true);
-  imagePlate(about, 'portrait.jpg', 2.9, 3.8, -.9, 2.65, -.61, mat.cream);
-  box(about, .15, 4.5, .15, 2.4, 2.55, -.6, mat.wood, true);
-  textPlate(about, '侯世康', 'SERKON', 3.2, 1.4, 1.2, 5.4, -.6, palette.orange, palette.cream);
-  box(about, 1.6, 1.15, 1.2, 2.15, 1.8, 1.7, mat.orange, true);
-  cylinder(about, .1, 1.2, 2.15, .73, 1.7, mat.green);
-  box(about, 1.18, .1, .02, 2.15, 2.02, 2.315, mat.ink);
-  textPlate(about, '写封信给我', '', 1.4, .35, 2.15, 1.58, 2.32, palette.orange, palette.cream);
-  const flag = box(about, .86, .5, .055, 3.18, 2.65, 1.7, mat.gold, true);
-  cylinder(about, .035, 1.5, 2.78, 2.3, 1.7, mat.chrome, false, 8);
-  moving.mailFlag = flag;
-  tag(about, '05', mat.orange);
-
-  // Construction details live in each destination's local space. They do not
-  // change its collision envelope or the five established parking positions.
-  const metalBolt = geometry('detail-bolt', () => new THREE.CylinderGeometry(.028,.028,.018,8));
-  const grilleTexture = canvasTexture(256,256,(ctx,w,h)=>{
-    ctx.fillStyle='#29312f';ctx.fillRect(0,0,w,h);
-    for(let row=0;row<24;row++)for(let col=0;col<24;col++){ctx.fillStyle=(row+col)%2?'#505852':'#3f4742';ctx.beginPath();ctx.arc(col*11+(row%2?5.5:0),row*11,2.9,0,Math.PI*2);ctx.fill();}
-  });
-  grilleTexture.wrapS=grilleTexture.wrapT=THREE.RepeatWrapping;
-  const grilleMaterial=material('#b7bcae',{map:grilleTexture,bumpMap:grilleTexture,bumpScale:.015,metalness:.32,roughness:.7});
-  function frontBolts(parent,width,height,z,y=0){
-    const bolts=[];for(const x of [-width/2,width/2])for(const yy of [-height/2,height/2])bolts.push({p:[x,y+yy,z],r:[Math.PI/2,0,0]});
-    instances(parent,metalBolt,mat.chrome,bolts,'fasteners');
-  }
-
-  // The shop has actual joinery: mullions, roof battens, a lit soffit and steps.
-  box(works,8.35,.18,1.0,0,.15,2.88,mat.cream,true);
-  box(works,8.35,.09,.13,0,.28,3.28,mat.brass);
-  const roofBattens=[];
-  for(let i=0;i<27;i++)roofBattens.push({p:[-3.66+i*.282,5.22,-.25],s:[.13,.07,4.95]});
-  instances(works,unitBox,mat.orange,roofBattens,'individual roof battens');
-  for(const side of [-1,1]){
-    const x=side*4.025;
-    box(works,.10,2.40,2.46,x,2.65,.02,mat.cream);
-    box(works,.035,2.16,2.20,x+side*.062,2.65,.02,mat.glass);
-    box(works,.06,2.2,.065,x+side*.085,2.65,.02,mat.cream);
-    box(works,.06,.065,2.22,x+side*.085,2.65,.02,mat.cream);
-  }
-  box(works,6.4,.08,.18,0,4.60,1.75,mat.ink);
-  box(works,6.12,.035,.14,0,4.54,1.75,mat.light);
-  const slats=[];
-  for(let i=0;i<12;i++)for(const side of [-1,1])slats.push({p:[side*3.56,2.42,-2.0+i*.33],s:[.07,3.75,.05]});
-  instances(works,unitBox,mat.terracotta,slats,'side-wall relief');
-  const tubeLabel=canvasTexture(256,384,(ctx,w,h)=>{
-    ctx.fillStyle='#eee7d4';ctx.fillRect(0,0,w,h);ctx.fillStyle='#34463b';ctx.fillRect(0,0,w,18);ctx.fillRect(0,h-24,w,24);
-    ctx.textAlign='center';ctx.font='bold 39px Arial';ctx.fillText('Q–730',w/2,75);ctx.font='24px "PingFang SC",Arial';ctx.fillText('强鹰彩色胶',w/2,121);ctx.font='16px Arial';ctx.fillText('COLOUR SERIES',w/2,156);ctx.fillText('126 COLOURS',w/2,191);
-    for(let i=0;i<28;i++){ctx.fillStyle='#4a5147';ctx.fillRect(30+i*7,260,(i%3)+1,50);}
-  });
-  const tubeLabelMat=new THREE.MeshBasicMaterial({map:tubeLabel,toneMapped:false});materials.add(tubeLabelMat);
-  for(let i=0;i<6;i++){
-    const x=(i-2.5)*1.02;
-    cylinder(works,.31,.08,x,.50,1.45,mat.brass);
-    const label=mesh(geometry('tube-label',()=>new THREE.PlaneGeometry(.43,.67)),tubeLabelMat,works,{receive:false});label.position.set(x,1.25,1.715);
-    hardwareRing(works,.266,.012,x,.76,1.45,mat.cream);
-  }
-  plant(works,-3.15,2.1,.62,.35);
-  const shopLamps=[];for(const x of [-2.7,0,2.7])shopLamps.push({p:[x,4.42,-.2],s:[.13,.13,.13]});
-  instances(works,sphereGeometry,mat.light,shopLamps,'gallery ceiling lamps');
-
-  // Camera body, concentric lens rings, cable, director chair and a reel with
-  // visually open sockets give the film station useful near-view detail.
-  box(film,1.44,.95,.88,-2.45,1.36,1.60,mat.black,true);
-  box(film,.82,.56,.10,-2.45,1.40,1.12,mat.glass);
-  box(film,.92,.12,.12,-2.45,2.08,1.58,mat.ink);
-  for(const x of [-2.83,-2.07])box(film,.09,.32,.12,x,1.94,1.58,mat.ink);
-  for(let i=0;i<5;i++){
-    const collar=cylinder(film,.61-i*.026,.09,-2.45,1.3,2.30+i*.12,i%2?mat.chrome:mat.black);
-    collar.rotation.x=Math.PI/2;
-  }
-  const opticalGlass=cylinder(film,.48,.025,-2.45,1.3,2.83,mat.glass);opticalGlass.rotation.x=Math.PI/2;
-  hardwareRing(film,.49,.024,-2.45,1.3,2.85,mat.chrome,'z');
-  cable(film,[[-2.85,.95,1.20],[-3.25,.10,1.30],[-3.05,.10,.10],[-1.45,.10,-.30]],.032);
-  const reelFace=cylinder(film,.61,.035,2.6,1.1,2.20,mat.chrome);reelFace.rotation.x=Math.PI/2;
-  const holes=[];
-  for(let i=0;i<6;i++){const a=i*Math.PI/3;holes.push({p:[2.6+Math.cos(a)*.38,1.1+Math.sin(a)*.38,2.225],r:[Math.PI/2,0,0],s:[.115,.018,.115]});}
-  instances(film,cylinderGeometry(16),mat.black,holes,'reel perforations');
-  box(film,1.8,.13,1.10,2.20,.95,.25,mat.fabric,true);
-  box(film,1.8,.68,.11,2.20,1.65,-.22,mat.fabric,true);
-  for(const side of [-1,1]){
-    const x=2.20+side*.75;
-    beam(film,[x,.12,-.30],[x,1.20,.75],.055,mat.chrome);
-    beam(film,[x,.12,.85],[x,1.20,-.25],.055,mat.chrome);
-    beam(film,[x,1.08,-.23],[x,2.06,-.23],.045,mat.wood);
-  }
-  textPlate(film,'SERKON','',1.23,.25,2.20,1.70,-.15,palette.green,palette.cream);
-  box(film,1.55,.65,.80,.10,.65,1.98,mat.ink,true);
-  box(film,1.60,.075,.84,.10,1.0,1.98,mat.chrome);
-  for(const x of [-.45,.65])box(film,.13,.16,.04,x,.78,2.41,mat.brass);
-  const vent=[];for(let i=0;i<11;i++)vent.push({p:[-.55+i*.13,.65,2.395],s:[.04,.27,.015]});
-  instances(film,unitBox,mat.black,vent,'equipment-case ribs');
-  box(film,7.8,.075,.075,0,.34,2.65,mat.light);
-  frontBolts(film,7.35,3.78,-1.50,2.47);
-
-  // A proper turntable has a plinth, controls and cartridge. The existing
-  // platter continues to turn only when the real audio player is playing.
-  box(music,3.8,.16,2.68,0,1.57,.1,mat.ink,true);
-  box(music,3.58,.04,2.48,0,1.67,.1,mat.chrome);
-  for(const x of [-1.55,1.55])for(const z of [-.90,1.12])cylinder(music,.14,.15,x,1.47,z,mat.black);
-  cylinder(music,.22,.11,1.60,1.76,.98,mat.black);
-  cylinder(music,.10,.08,1.22,1.74,1.08,mat.brass);
-  box(music,.27,.04,.11,1.57,1.84,.98,mat.orange);
-  cylinder(music,.19,.23,2.02,1.79,-.66,mat.chrome);
-  box(music,.31,.12,.16,.70,1.84,.58,mat.orange);
-  beam(music,[.70,1.84,.58],[.70,1.79,.58],.013,mat.chrome);
-  const recordName=textPlate(platter,'GENESIS','',.55,.16,0,.088,.15,palette.orange,palette.cream);recordName.rotation.x=-Math.PI/2;
-  for(const x of [-3.05,3.05]){
-    box(music,1.17,1.72,1.04,x,1.05,1.63,mat.wood,true);
-    box(music,.98,1.48,.035,x,1.05,2.18,grilleMaterial);
-    for(const yy of [.42,1.68]){const screw=cylinder(music,.027,.025,x-.42,yy,2.205,mat.chrome, false,8);screw.rotation.x=Math.PI/2;}
-  }
-  for(let i=0;i<6;i++){const a=i*Math.PI/3+Math.PI/6;beam(music,[0,6.65,0],[Math.cos(a)*4.82,5.1,Math.sin(a)*4.82],.045,mat.cream);}
-  for(const x of [-3.1,3.1])for(const z of [-2.3,2.3]){cylinder(music,.20,.10,x,.48,z,mat.brass);cylinder(music,.18,.12,x,4.94,z,mat.brass);}
-  box(music,4.6,.11,1.85,0,.76,.20,mat.wood);
-  for(let i=0;i<7;i++){
-    const sleeve=box(music,.075,.64,.64,-.54+i*.18,.94,1.13,i%2?mat.orange:mat.cream);sleeve.rotation.z=.10;
-  }
-  plant(music,-2.70,-1.22,.65,.28);
-
-  // Individual frame edges, clamps, a hanging light cable and slatted bench
-  // make the photo corner feel assembled rather than a single image plane.
-  for(const x of [-3.86,3.86])box(life,.13,5.05,.10,x,2.95,-.52,mat.wood,true);
-  for(const y of [.48,5.45])box(life,7.75,.13,.10,0,y,-.52,mat.wood,true);
-  const photoClamps=[];
-  for(let i=0;i<8;i++)photoClamps.push({p:[-3.25+i*.93,5.14,-.42],s:[.09,.22,.07],r:[0,0,(i%2?.08:-.08)]});
-  instances(life,unitBox,mat.brass,photoClamps,'photo clamps');
-  cable(life,[[-3.9,5.8,-.46],[-2,5.41,-.30],[0,5.20,-.25],[2,5.41,-.30],[3.9,5.8,-.46]],.022);
-  const fairyLights=[];
-  for(let i=0;i<13;i++){const x=-3.72+i*.62,y=5.20+Math.pow(x/3.9,2)*.60;fairyLights.push({p:[x,y-.12,-.27],s:[.095,.13,.095]});}
-  instances(life,sphereGeometry,mat.light,fairyLights,'warm photo-wall bulbs');
-  const benchScrews=[];
-  for(const x of [-1.55,1.55])for(let i=0;i<5;i++)benchScrews.push({p:[x,.837,1.74+i*.18]});
-  instances(life,metalBolt,mat.brass,benchScrews,'bench screws');
-  imagePlate(life,'wave.jpg',1.0,1.32,-2.75,1.45,1.55,mat.wood);
-  plant(life,3.12,1.48,.80,.24);
-  contactShadow(life,5.7,2.2,0,2.1,.255);
-
-  // Letterbox hardware and a real paper envelope retain the personal purpose.
-  box(about,1.40,.91,.055,2.15,1.79,2.34,mat.orange,true);
-  for(const y of [1.47,2.12]){
-    const hinge=cylinder(about,.055,.18,1.44,y,2.38,mat.chrome);hinge.rotation.z=Math.PI/2;
-  }
-  const keyPlate=cylinder(about,.11,.025,2.56,1.83,2.385,mat.brass);keyPlate.rotation.x=Math.PI/2;
-  const keyHole=cylinder(about,.028,.028,2.56,1.83,2.405,mat.black);keyHole.rotation.x=Math.PI/2;
-  cable(about,[[1.98,1.98,2.40],[1.98,2.04,2.53],[2.25,2.04,2.53],[2.25,1.98,2.40]],.025,mat.chrome);
-  const envelope=new THREE.Group();about.add(envelope);envelope.position.set(2.17,2.33,1.88);envelope.rotation.x=-.18;envelope.rotation.z=.10;
-  box(envelope,1.1,.74,.035,0,0,0,mat.cream);
-  // A narrow raised fold catches light without relying on a floating label.
-  beam(envelope,[-.53,.32,.025],[0,-.02,.026],.010,mat.brass);beam(envelope,[0,-.02,.026],[.53,.32,.025],.010,mat.brass);
-  plant(about,-2.53,1.39,.9,.25);
-  for(const x of [-2.48,.68])box(about,.055,4.25,.08,x,2.62,-.40,mat.brass);
-  box(about,3.2,.055,.08,-.9,4.75,-.40,mat.brass);
-  for(const x of [-1.95,.15]){
-    const lamp=box(about,.42,.18,.20,x,5.18,-.30,mat.ink);box(about,.31,.04,.16,x,5.06,-.30,mat.light);
-  }
-
-  // Give the pointer controller a station id without depending on a specific picking strategy.
-  for (const { id, object } of interactables) object.traverse(child => { child.userData.stationId = id; });
-
-  // Instanced trees keep a lush outer frame without hundreds of individual draw calls.
-  const treePositions = [
-    [-25, -20, 1.0], [-23, -16, .78], [-23, -6, .8], [-26, 9, .9], [-24, 21, 1.1],
-    [-11, 24, .8], [-7, 25, .9], [9, 25, .84], [24, 22, 1.1], [25, 5, .9],
-    [24, -4, .8], [25, -19, 1.0], [17, -24, .86], [-13, -25, .95], [-8, -22, .64],
-    [9, -19, .65], [-24, 2, .64], [23, 16, .7],
-  ];
-  const dummy = new THREE.Object3D();
-  const barkMap=woodColour.clone();barkMap.center.set(.5,.5);barkMap.rotation=Math.PI/2;barkMap.repeat.set(2,1);textures.add(barkMap);
-  mat.bark=material('#bdad92',{map:barkMap,bumpMap:woodBump,bumpScale:.055,roughness:.98});
-  const trunks = new THREE.InstancedMesh(cylinderGeometry(10), mat.bark, treePositions.length);
-  const branches = new THREE.InstancedMesh(cylinderGeometry(8),mat.bark,treePositions.length*3);
-  const leaves = new THREE.InstancedMesh(sphereGeometry, mat.leaf, treePositions.length * 5);
-  const leafDetails=new THREE.InstancedMesh(geometry('individual-leaf',()=>new THREE.SphereGeometry(1,6,4)),mat.darkLeaf,treePositions.length*36);
-  const treeShadows=[];
-  trunks.castShadow = true; trunks.receiveShadow = true; leaves.castShadow = true; leaves.receiveShadow = true;
-  treePositions.forEach(([x, z, scale], index) => {
-    dummy.position.set(x, 1.05 * scale, z); dummy.rotation.set(0, 0, .04 * Math.sin(index));
-    dummy.scale.set(.18 * scale, 2.1 * scale, .18 * scale); dummy.updateMatrix(); trunks.setMatrixAt(index, dummy.matrix);
-    const lobes=[[-.42,2.48,.10,.98,1.16,.9],[.55,2.72,.15,1.0,1.28,.9],[-.22,3.12,-.47,.98,1.23,.9],[.28,3.62,-.10,.93,1.04,.85],[-.34,3.38,.45,.90,1.06,.83]];
-    lobes.forEach(([dx,dy,dz,sx,sy,sz],tier)=>{
-      dummy.position.set(x+dx*scale,dy*scale,z+dz*scale);dummy.rotation.set(index*.31,tier*1.34+index*.7,tier*.18);
-      dummy.scale.set(sx*scale,sy*scale,sz*scale);dummy.updateMatrix();leaves.setMatrixAt(index*5+tier,dummy.matrix);
-      leaves.setColorAt(index*5+tier,new THREE.Color(['#6c865b','#789363','#4c7255','#8d9e69','#5f805c'][(index+tier)%5]));
-    });
-    for(let j=0;j<3;j++){
-      const angle=j*Math.PI*2/3+index*.7;
-      dummy.position.set(x+Math.sin(angle)*.38*scale,2.2*scale,z+Math.cos(angle)*.38*scale);
-      dummy.rotation.set(Math.cos(angle)*.65,angle,Math.sin(angle)*.65);dummy.scale.set(.08*scale,1.3*scale,.08*scale);dummy.updateMatrix();branches.setMatrixAt(index*3+j,dummy.matrix);
-    }
-    for(let j=0;j<36;j++){
-      const a=j*2.399963+index*.3,yy=(j+.5)/36*2-1,radial=Math.sqrt(1-yy*yy);
-      dummy.position.set(x+Math.sin(a)*radial*1.38*scale,(3.05+yy*1.75)*scale,z+Math.cos(a)*radial*1.18*scale);
-      dummy.rotation.set(a*.7,a,yy);dummy.scale.set(.085*scale,.21*scale,.048*scale);dummy.updateMatrix();leafDetails.setMatrixAt(index*36+j,dummy.matrix);
-      leafDetails.setColorAt(index*36+j,new THREE.Color(j%3?'#6f8a60':'#9aa46e'));
-    }
-    treeShadows.push({p:[x,-.125,z],s:[3.8*scale,3.4*scale,1],r:[-Math.PI/2,0,0]});
-    colliders.push({ x, z, r: .5 * scale });
-  });
-  root.add(trunks, branches, leaves, leafDetails);
-  instances(root,geometry('tree-shadow-plane',()=>new THREE.PlaneGeometry(1,1)),aoMaterial,treeShadows,'tree contact shadows');
-  geometries.set('tree-leaf-reference', sphereGeometry);
-
-  // Dotted clay pebbles and clustered grass remain away from the central driveway.
-  const pebbleGeo = geometry('pebble', () => new THREE.IcosahedronGeometry(1, 0));
-  const pebbles = new THREE.InstancedMesh(pebbleGeo, material('#bdac88'), 60);
-  const grass = new THREE.InstancedMesh(geometry('grass', () => new THREE.ConeGeometry(.13, .55, 4)), mat.darkLeaf, 54);
-  for (let i = 0; i < 60; i++) {
-    const angle = i * 2.399963;
-    const radius = 24.0 + Math.sin(i * 1.73) * 2.2;
-    const x = Math.sin(angle) * radius, z = Math.cos(angle) * radius;
-    dummy.position.set(x, .1, z); dummy.rotation.set(i * .7, i, 0);
-    dummy.scale.set(.14 + (i % 3) * .08, .08, .13 + (i % 2) * .13); dummy.updateMatrix();
-    pebbles.setMatrixAt(i, dummy.matrix);
-    if (i < 54) {
-      dummy.position.set(x + .35, .23, z - .4); dummy.rotation.set(.05, angle, Math.sin(i) * .15);
-      dummy.scale.setScalar(.7 + (i % 4) * .16); dummy.updateMatrix(); grass.setMatrixAt(i, dummy.matrix);
-    }
-  }
-  root.add(pebbles, grass);
-  const grassBlades=[];
-  for(let i=0;i<60;i++){const a=i*2.399963,r=24+Math.sin(i*1.73)*2.2,cx=Math.sin(a)*r,cz=Math.cos(a)*r;for(let j=0;j<7;j++){const aa=j*2.399963+i;grassBlades.push({p:[cx+Math.sin(aa)*.18,.08+(j%3)*.035,cz+Math.cos(aa)*.18],s:[.035,.25+(j%4)*.07,.018],r:[Math.cos(aa)*.30,aa,Math.sin(aa)*.28],color:j%2?'#7e8b62':'#57724f'});}}
-  instances(root,geometry('grass-blade',()=>new THREE.SphereGeometry(1,4,3)),mat.leaf,grassBlades,'individual meadow blades');
-
-  // A few purposeful street furnishings, rather than another set of floating cards.
-  function lamp(x, z) {
-    cylinder(root, .10, 3.8, x, 1.9, z, mat.green, true, 12);
-    cylinder(root, .28, .17, x, .12, z, mat.ink);
-    cylinder(root, .34, .13, x, 3.89, z, mat.ink);
-    sphere(root, .28, x, 3.58, z, mat.light);
-    const hood=mesh(geometry('lamp-hood',()=>new THREE.ConeGeometry(.43,.23,16)),mat.ink,root);hood.position.set(x,4.04,z);
-    for(const dx of [-.22,.22])for(const dz of [-.22,.22])box(root,.035,.62,.035,x+dx,3.59,z+dz,mat.ink);
-    contactShadow(root,.95,.95,x,z,.032);
-    colliders.push({ x, z, r: .3 });
-  }
-  lamp(-7, -10); lamp(8, -10); lamp(-9, 15); lamp(9, 16); lamp(-4.1, -16); lamp(4.1, -16);
-  const fencePosts = new THREE.InstancedMesh(unitBox, mat.cream, 36);
-  for (let i = 0; i < 36; i++) {
-    const side = i < 18 ? -1 : 1, j = i % 18;
-    dummy.position.set(side * 27.6, .65, -23 + j * 2.7); dummy.rotation.set(0, 0, 0);
-    dummy.scale.set(.16, 1.3, .16); dummy.updateMatrix(); fencePosts.setMatrixAt(i, dummy.matrix);
-  }
-  root.add(fencePosts);
-  for (const side of [-1, 1]) for (const y of [.42, 1.02]) box(root, .09, .10, 45.9, side * 27.6, y, -.05, mat.cream);
-
-  // One pinwheel in the meadow adds a small bit of life, with no autonomous camera motion.
-  const pinwheel = new THREE.Group(); pinwheel.position.set(-6, 2.8, 18); root.add(pinwheel);
-  cylinder(root, .045, 2.8, -6, 1.4, 18, mat.wood, false, 8);
-  const pinwheelRotor = new THREE.Group(); pinwheel.add(pinwheelRotor);
-  for (let i = 0; i < 4; i++) {
-    const blade = box(pinwheelRotor, .45, .95, .07, 0, .52, 0, i % 2 ? mat.orange : mat.cream);
-    const pivot = new THREE.Group(); pinwheelRotor.remove(blade); pivot.add(blade); pivot.rotation.z = i * Math.PI / 2;
-    pinwheelRotor.add(pivot);
-  }
-  sphere(pinwheel, .12, 0, 0, .11, mat.gold);
-  moving.pinwheel = pinwheelRotor;
-
-  // Architecture has many small fittings, but rigid parts sharing a surface
-  // render together. Animated groups, image planes and instanced foliage stay live.
-  function batchStaticMeshes(parent) {
-    const buckets = new Map();
-    for (const object of parent.children) {
-      if (!object.isMesh || object.isInstancedMesh || object === moving.mailFlag || Array.isArray(object.material) || object.material.transparent) continue;
-      const attributes = Object.keys(object.geometry.attributes).sort().join(',');
-      const key = `${object.material.uuid}:${object.castShadow}:${object.receiveShadow}:${object.renderOrder}:${attributes}`;
-      if (!buckets.has(key)) buckets.set(key, []);
-      buckets.get(key).push(object);
-    }
-    for (const objects of buckets.values()) {
-      if (objects.length < 2) continue;
-      const pieces = objects.map(object => {
-        object.updateMatrix();
-        const copy = object.geometry.index ? object.geometry.toNonIndexed() : object.geometry.clone();
-        copy.applyMatrix4(object.matrix); return copy;
-      });
-      const merged = mergeGeometries(pieces, false);
-      pieces.forEach(copy => copy.dispose());
-      if (!merged) continue;
-      geometries.set(`batch:${geometries.size}`, merged);
-      const combined = mesh(merged, objects[0].material, parent, { shadow: objects[0].castShadow, receive: objects[0].receiveShadow });
-      combined.name = 'Batched rigid architecture'; combined.renderOrder = objects[0].renderOrder;
-      if (parent.userData.stationId) combined.userData.stationId = parent.userData.stationId;
-      objects.forEach(object => parent.remove(object));
-    }
-  }
-  for (const { object } of interactables) batchStaticMeshes(object);
-  batchStaticMeshes(root);
-
-  return {
-    root,
-    colliders,
-    interactables,
-    update(dt, time, state = {}) {
-      const musicPlaying = Boolean(state.musicPlaying || state.audioPlaying);
-      if (musicPlaying) moving.record.rotation.y -= dt * 2.1;
-      if (!state.reducedMotion) moving.pinwheel.rotation.z -= dt * .65;
-      moving.mailFlag.rotation.z = state.activeId === 'about' ? -.15 : 0;
-    },
-    dispose() {
-      root.removeFromParent();
-      for (const geo of new Set(geometries.values())) geo.dispose();
-      for (const surface of materials) surface.dispose();
-      for (const texture of textures) texture.dispose();
-    },
+  for(const parent of architecture)batch(parent);batch(root);
+  for(const {id,object} of interactables)object.traverse(child=>{child.userData.stationId=id;});
+  return {root,bounds:WORLD_BOUNDS,groundTarget,groundMeshes:[groundTarget],colliders,interactables,
+    update(dt,time,state={}){if(state.musicPlaying||state.audioPlaying)moving.record.rotation.y-=dt*2.1;moving.mailFlag.rotation.y=state.activeId==='about'?-.08:0;},
+    dispose(){root.removeFromParent();for(const g of new Set(geometries.values()))g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();},
   };
 }
