@@ -4,7 +4,7 @@ import * as THREE from 'three';
 export function loadSurfaceLibrary() {
   const loader = new THREE.TextureLoader();
   const maps = {};
-  const tileSizes = { ground: 4, stone: 2, wood: 2, asphalt: 4, desk: 1.4 };
+  const tileSizes = { ground: 2, stone: 2, wood: 2, asphalt: 4, desk: 1.4 };
   for (const [name, tileSize] of Object.entries(tileSizes)) {
     const load = (suffix, colour = false) => {
       const texture = loader.load(new URL(`./materials/${name}-${suffix}.jpg`, document.baseURI).href);

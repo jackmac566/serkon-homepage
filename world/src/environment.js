@@ -1,12 +1,13 @@
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
-export const WORLD_BOUNDS = 44;
+export const WORLD_BOUNDS = 72;
+const NAVIGATION_SIZE = 160;
 
 /** A metre-based landscape: level driving campus, real-scale architecture and furnishings. */
 export function createEnvironment(THREE, scene, { assetBase = './assets/', surfaceMaps = {} } = {}) {
   const root = new THREE.Group(); root.name = 'Serkon landscape studios'; scene.add(root);
-  const colliders = [], interactables = [], architecture = [];
+  const colliders = [], interactables = [], actionTargets = [], architecture = [];
   const geometries = new Map(), materials = new Set(), textures = new Set();
   const moving = {}, loader = new THREE.TextureLoader(), imageTextures = new Map();
   let seed = 578421;
@@ -71,20 +72,20 @@ export function createEnvironment(THREE, scene, { assetBase = './assets/', surfa
   function plane(gw,gd,y,m,name){const g=geo(name,()=>{const shape=new THREE.PlaneGeometry(gw,gd);shape.rotateX(-Math.PI/2);const p=shape.attributes.position,uv=shape.attributes.uv,tile=m.userData.tileSize||1;for(let i=0;i<uv.count;i++)uv.setXY(i,p.getX(i)/tile,p.getZ(i)/tile);return shape;});const o=mesh(g,m,root,false);o.position.y=y;return o;}
 
   // No pedestal: a continuous landscape rolls gently beyond the driving boundary.
-  const landHeight=(x,z)=>{const outside=Math.max(Math.abs(x),Math.abs(z))-44,rise=Math.min(1,Math.max(0,outside)/24);return -.035+rise*rise*(.8+Math.sin(x*.10+z*.06)*1.1+Math.cos(z*.13)*.6);};
-  const pondMask=(x,z,pad=1)=>Math.min(Math.hypot((x+40)/(4.2*pad),(z+8)/(5.8*pad)),Math.hypot((x+40)/(4.2*pad),(z-8)/(5.8*pad)));
+  const landHeight=(x,z)=>{const outside=Math.max(Math.abs(x),Math.abs(z))-NAVIGATION_SIZE/2,rise=Math.min(1,Math.max(0,outside)/24);return -.035+rise*rise*(.8+Math.sin(x*.10+z*.06)*1.1+Math.cos(z*.13)*.6);};
+  const pondMask=(x,z,pad=1)=>Math.min(Math.hypot((x+40)/(4.2*pad),(z+8)/(5.8*pad)),Math.hypot((x+40)/(4.2*pad),(z-8)/(5.8*pad)),Math.hypot((x+60)/(9.0*pad),(z-34)/(12.0*pad)));
   const terrain=geo('continuous-terrain',()=>{
-    const g=new THREE.PlaneGeometry(192,192,128,128);g.rotateX(-Math.PI/2);const p=g.attributes.position,uv=g.attributes.uv,tile=mat.ground.userData.tileSize;
-    for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),outside=Math.max(Math.abs(x),Math.abs(z))-44;let y=-.035;if(outside>0){const rise=Math.min(1,outside/24);y+=rise*rise*(.8+Math.sin(x*.10+z*.06)*1.1+Math.cos(z*.13)*.6);}const bank=pondMask(x,z);if(bank<1.2)y-=Math.max(0,1.2-bank)*.65;p.setY(i,y);uv.setXY(i,x/tile,z/tile);}
+    const g=new THREE.PlaneGeometry(256,256,160,160);g.rotateX(-Math.PI/2);const p=g.attributes.position,uv=g.attributes.uv,tile=mat.ground.userData.tileSize;
+    for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),outside=Math.max(Math.abs(x),Math.abs(z))-NAVIGATION_SIZE/2;let y=-.035;if(outside>0){const rise=Math.min(1,outside/24);y+=rise*rise*(.8+Math.sin(x*.10+z*.06)*1.1+Math.cos(z*.13)*.6);}const bank=pondMask(x,z);if(bank<1.2)y-=Math.max(0,1.2-bank)*.65;p.setY(i,y);uv.setXY(i,x/tile,z/tile);}
     const original=g.index.array,indices=[];for(let i=0;i<original.length;i+=3){const a=original[i],b=original[i+1],c=original[i+2],x=(p.getX(a)+p.getX(b)+p.getX(c))/3,z=(p.getZ(a)+p.getZ(b)+p.getZ(c))/3;if(pondMask(x,z)>.92)indices.push(a,b,c);}g.setIndex(indices);g.computeVertexNormals();return g;
   });mesh(terrain,mat.ground,root,false);
   const groundPickMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,colorWrite:false,depthWrite:false});materials.add(groundPickMat);
-  const groundTarget=plane(96,96,.012,groundPickMat,'navigation-ground');groundTarget.name='Flat driveable ground';groundTarget.userData.navigationSurface=true;
+  const groundTarget=plane(NAVIGATION_SIZE,NAVIGATION_SIZE,.012,groundPickMat,'navigation-ground');groundTarget.name='Flat driveable ground';groundTarget.userData.navigationSurface=true;
 
-  const kerbs=[],unit=geo('instance-unit-box',()=>new THREE.BoxGeometry(1,1,1));
+  const kerbs=[],roadSamples=[],unit=geo('instance-unit-box',()=>new THREE.BoxGeometry(1,1,1));
   function path(points,width,m=mat.stone,edging=true){
     const curve=new THREE.CatmullRomCurve3(points.map(([x,z])=>new THREE.Vector3(x,.008,z))),samples=Math.max(12,Math.ceil(curve.getLength()/.75)),positions=[],uvs=[],indices=[],tile=m.userData.tileSize||2;
-    for(let i=0;i<=samples;i++){const p=curve.getPoint(i/samples),t=curve.getTangent(i/samples),n=new THREE.Vector3(-t.z,0,t.x);for(const side of [-1,1]){const v=p.clone().addScaledVector(n,width*.5*side);positions.push(v.x,v.y,v.z);uvs.push(v.x/tile,v.z/tile);}if(i<samples){const a=i*2;indices.push(a,a+1,a+2,a+1,a+3,a+2);}}
+    for(let i=0;i<=samples;i++){const p=curve.getPoint(i/samples),t=curve.getTangent(i/samples),n=new THREE.Vector3(-t.z,0,t.x);roadSamples.push({x:p.x,z:p.z,r:width/2});for(const side of [-1,1]){const v=p.clone().addScaledVector(n,width*.5*side);positions.push(v.x,v.y,v.z);uvs.push(v.x/tile,v.z/tile);}if(i<samples){const a=i*2;indices.push(a,a+1,a+2,a+1,a+3,a+2);}}
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));g.setIndex(indices);g.computeVertexNormals();geometries.set(`path:${geometries.size}`,g);mesh(g,m,root,false);
     if(edging)for(let d=0;d<curve.getLength();d+=1.05){const t=d/curve.getLength(),p=curve.getPoint(t),a=curve.getTangent(t),n=new THREE.Vector3(-a.z,0,a.x);for(const side of [-1,1]){const q=p.clone().addScaledVector(n,side*(width/2+.055));kerbs.push({p:[q.x,.014,q.z],s:[.10,.075,1.02],r:[0,Math.atan2(a.x,a.z),0]});}}
   }
@@ -94,12 +95,36 @@ export function createEnvironment(THREE, scene, { assetBase = './assets/', surfa
   path([[0,6],[0,18],[0,27]],4.5);
   const loopGeometry=geo('outer-loop',()=>{const g=new THREE.RingGeometry(31,37,144);g.rotateX(-Math.PI/2);const p=g.attributes.position,uv=g.attributes.uv,tile=mat.asphalt.userData.tileSize;for(let i=0;i<uv.count;i++)uv.setXY(i,p.getX(i)/tile,p.getZ(i)/tile);return g;});const loop=mesh(loopGeometry,mat.asphalt,root,false);loop.position.y=.006;
   path([[-25,0],[-31,0],[-36,0]],5.1,mat.asphalt);path([[8,0],[24,0],[34,0]],5.1,mat.asphalt);path([[0,27],[0,34]],4.5,mat.asphalt);path([[8,-13],[9,-23],[5,-30],[0,-34]],4.5,mat.asphalt);
+  // The outer landscape is reached through connected trails, not through
+  // another ring of buildings. Clearings remain large enough to turn a car.
+  const trail=mat.stone.clone();trail.color.set('#c2bdaa');trail.roughness=.98;materials.add(trail);
+  const explorationSpots=[
+    {id:'forest-clearing',name:'北侧林缘广场',x:-16,z:-60,kind:'clearing'},
+    {id:'east-lookout',name:'东侧观景步道',x:62,z:10,kind:'lookout'},
+    {id:'wetland-deck',name:'西侧湿地观景台',x:-62,z:18,kind:'wetland'},
+    {id:'picnic-grove',name:'南侧林间休息区',x:-16,z:62,kind:'grove'},
+  ];
+  path([[0,-34],[3,-44],[-9,-53],[-16,-60]],4.9,trail);
+  path([[34,0],[44,4],[54,-4],[62,-15]],5.1,trail);
+  path([[54,-4],[59,2],[62,10]],4.5,trail);
+  path([[62,-15],[59,-38],[42,-55],[12,-62],[-16,-60]],4.7,trail);
+  path([[-16,-60],[-37,-55],[-57,-38],[-62,-12],[-52,0],[-44,0]],4.7,trail);
+  path([[0,34],[8,45],[-3,55],[-16,62]],4.9,trail);
+  path([[-44,0],[-52,4],[-61,15],[-62,18]],4.5,trail);
+  path([[-61,15],[-44,16],[-38,39],[-37,57],[-16,62]],4.5,trail);
+  path([[-16,62],[15,64],[43,53],[61,31],[62,10]],4.7,trail);
+  for(const spot of explorationSpots){const p=plane(9,8,.010,mat.stone,`clearing:${spot.id}`);p.position.set(spot.x,.010,spot.z);}
   const stripes=[];for(let i=0;i<72;i++){const a=i*Math.PI*2/72,x=Math.sin(a)*34,z=Math.cos(a)*34;if(Math.abs(x)<3.5||Math.abs(z)<3.2)continue;stripes.push({p:[x,.016,z],s:[.10,.005,1.6],r:[0,a+Math.PI/2,0]});}
   instances(root,unit,mat.paint,stripes,'weathered road centre markings');instances(root,unit,mat.concrete,kerbs,'flush concrete path edging');
   // Paving joints establish a human scale without turning paths into raised islands.
   const joints=[];for(let x=-8;x<=8;x+=1.2)joints.push({p:[x,.009,0],s:[.009,.002,14.6]});for(let z=-6.6;z<7.3;z+=1.2)joints.push({p:[0,.009,z],s:[17.4,.002,.009]});instances(root,unit,mat.concrete,joints,'courtyard expansion joints');
 
   function createStation(id,x,z,r=4.45){const group=new THREE.Group();group.name=`${id} studio`;group.position.set(x,0,z);group.rotation.y=Math.atan2(-x,-z);root.add(group);interactables.push({id,object:group});architecture.push(group);colliders.push({x,z,r});group.userData.stationId=id;contact(group,0,0,9.6,7.1);return group;}
+  function registerAction(object,id,action,stationId,label){
+    object.userData.action=action;object.userData.actionLabel=label;object.userData.stationId=stationId;
+    actionTargets.push({id,action,stationId,label,object});return object;
+  }
+  function spatialType(object,type){object.userData.spatialType=type;interactables.find(item=>item.object===object).type=type;}
   function glazing(parent,x,y,z,w,h,side=false){
     const pane=box(parent,w,h,.012,x,y,z,mat.glass,.001);if(side)pane.rotation.y=Math.PI/2;
     const frame=new THREE.Group();parent.add(frame);architecture.push(frame);frame.position.set(x,y,z);if(side)frame.rotation.y=Math.PI/2;
@@ -143,7 +168,20 @@ export function createEnvironment(THREE, scene, { assetBase = './assets/', surfa
   function monitor(parent,x,y,z,file,w=.63){box(parent,w+.025,w*.57+.025,.038,x,y,z,mat.black,.005);image(parent,file,w,w*.57,x,y,z+.023,false);box(parent,.035,.17,.035,x,y-w*.285-.07,z,mat.aluminium,.002);box(parent,.23,.014,.15,x,y-w*.285-.16,z+.015,mat.steel,.003);}
 
   // 01. Product gallery. The public project is exhibited at normal gallery scale.
-  const works=createStation('works',-15,-10);shell(works,{title:'01   作品展馆'});
+  const works=createStation('works',-15,-10);spatialType(works,'open-gallery');
+  box(works,7.45,.10,5.35,0,.028,0,mat.stone,.003);
+  box(works,6.9,2.72,.18,0,1.47,-2.60,mat.plaster,.005);
+  box(works,.16,2.72,1.45,-3.42,1.47,-1.95,mat.plaster,.005);
+  // A cantilevered gallery canopy and one glass windbreak leave three sides open.
+  box(works,7.6,.15,3.45,0,2.98,-1.1,mat.concrete,.007);
+  box(works,7.5,.025,3.35,0,3.07,-1.1,mat.dark,.002);
+  for(const x of [-3.35,3.35]){box(works,.08,2.85,.08,x,1.48,-2.4,mat.steel,.002);box(works,.07,.11,3.4,x,2.88,-1.1,mat.steel,.002);}
+  glazing(works,-3.49,1.29,.25,2.25,2.35,true);
+  for(let i=0;i<12;i++)box(works,.045,2.45,.045,3.4,1.36,-2.3+i*.19,mat.wood,.002);
+  box(works,7.6,.075,.09,0,2.95,-2.85,mat.steel,.002);cylinder(works,.032,2.90,3.34,1.46,-2.73,mat.steel,12);
+  box(works,.68,1.02,.11,-2.75,.61,2.18,mat.steel,.004);plate(works,'01  开放展廊',.59,.17,-2.75,.93,2.243);
+  for(const x of [-1.6,1.6]){box(works,.48,.022,.06,x,2.84,-1.0,mat.dark,.002);box(works,.40,.009,.04,x,2.825,-1.0,mat.light,.001);}
+
   image(works,'color.webp',2.75,1.42,-.6,1.72,-2.49);
   const workTop=table(works,-.55,.45,3.2,.86);monitor(works,1.45,1.10,-1.1,'first-build.webp');
   const products=['#af936c','#c3beb2','#5d7577','#9c705a','#717d5e','#45534e'];
@@ -151,35 +189,63 @@ export function createEnvironment(THREE, scene, { assetBase = './assets/', surfa
   plate(works,'强鹰彩色胶 · 126 色',1.28,.13,-.6,1.01,.89,'#ddd9cd','#474c43');chair(works,1.35,-.1,Math.PI);planter(works,-2.8,1.65);
 
   // 02. Film studio. The camera, tripod and clapper are equipment, never architecture.
-  const film=createStation('film',15,-10);shell(film,{title:'02   影像工作室',cladding:mat.dark});
-  image(film,'london.webp',2.6,1.46,-.6,1.7,-2.49);table(film,.9,-1.20,2.2,.75);monitor(film,.9,1.12,-1.18,'export.webp',.58);
-  const camera=new THREE.Group();camera.position.set(-1.7,1.37,.35);camera.rotation.y=-.28;film.add(camera);architecture.push(camera);
+  const film=createStation('film',15,-10);spatialType(film,'open-air-cinema');
+  box(film,7.45,.10,5.35,0,.028,0,mat.concrete,.003);
+  const projectionRig=new THREE.Group();film.add(projectionRig);projectionRig.name='Outdoor projection screen';architecture.push(projectionRig);
+  for(const x of [-2.52,2.52]){box(projectionRig,.07,3.18,.07,x,1.69,-2.24,mat.steel,.002);beam(projectionRig,[x,.13,-1.55],[x,2.7,-2.24],.018,mat.steel);}
+  box(projectionRig,5.18,2.96,.07,0,1.86,-2.25,mat.dark,.004);
+  const projectionScreen=image(projectionRig,'london.webp',4.90,2.75,0,1.86,-2.205,false);
+  registerAction(projectionRig,'projection','projection-toggle','film','播放或暂停影像轮播');
+  moving.projection={screen:projectionScreen,playing:false,clock:0,frame:0,files:['london.webp','export.webp','first-build.webp']};
+  for(const [x,z] of [[-1.2,1.55],[0,1.55],[1.2,1.55],[-.6,.65],[.6,.65]])chair(film,x,z,Math.PI);
+  plate(film,'02  露天放映场',1.2,.19,-1.72,.73,-2.19);
+  table(film,2.15,-.30,1.25,.70);monitor(film,2.15,1.12,-.34,'export.webp',.48);
+  // A compact real projector on a low equipment table, with no enclosing room.
+  box(film,.29,.13,.22,-1.86,.87,1.0,mat.paper,.009);const projectorLens=cylinder(film,.026,.035,-1.81,.87,.872,mat.optic,16);projectorLens.rotation.x=Math.PI/2;
+  table(film,-1.86,1.0,.55,.42);
+
+  const camera=new THREE.Group();camera.position.set(-2.30,1.37,-.30);camera.rotation.y=-.28;film.add(camera);architecture.push(camera);
   box(camera,.19,.125,.12,0,0,0,mat.black,.012);box(camera,.10,.045,.075,.02,.08,-.01,mat.black,.005);
   const lens=cylinder(camera,.043,.12,0,-.005,.105,mat.black,24);lens.rotation.x=Math.PI/2;const optic=cylinder(camera,.035,.007,0,-.005,.168,mat.optic,24);optic.rotation.x=Math.PI/2;ring(camera,.045,.006,0,-.005,.13,mat.steel,'z');
-  cylinder(film,.018,.38,-1.7,1.10,.35,mat.aluminium,12);for(let i=0;i<3;i++){const a=i*Math.PI*2/3;beam(film,[-1.7,1.0,.35],[-1.7+Math.sin(a)*.42,.15,.35+Math.cos(a)*.42],.012,mat.steel);}
-  chair(film,1.0,.0,Math.PI);box(film,.33,.24,.025,-.3,.92,-1.2,mat.black,.003);for(let i=0;i<5;i++)box(film,.032,.045,.028,-.42+i*.06,1.06,-1.2,i%2?mat.paper:mat.black,.001);
-  box(film,.62,.25,.42,2.35,.27,.55,mat.black,.012);for(const x of [2.12,2.57])box(film,.035,.07,.018,x,.34,.77,mat.aluminium,.002);planter(film,-2.8,1.65);
+  cylinder(film,.018,.38,-2.30,1.10,-.30,mat.aluminium,12);for(let i=0;i<3;i++){const a=i*Math.PI*2/3;beam(film,[-2.30,1.0,-.30],[-2.30+Math.sin(a)*.42,.15,-.30+Math.cos(a)*.42],.012,mat.steel);}
+  box(film,.33,.24,.025,2.15,.92,-.30,mat.black,.003);for(let i=0;i<5;i++)box(film,.032,.045,.028,2.03+i*.06,1.06,-.30,i%2?mat.paper:mat.black,.001);
+  box(film,.62,.25,.42,2.35,.27,.55,mat.black,.012);for(const x of [2.12,2.57])box(film,.035,.07,.018,x,.34,.77,mat.aluminium,.002);planter(film,3.05,1.65);
 
   // 03. Listening room. A 28cm record sits on a normal 75cm-high cabinet.
-  const music=createStation('music',16,12);shell(music,{title:'03   听音室',cladding:mat.wood});
-  table(music,0,-.25,2.0,.68);box(music,.46,.065,.36,0,.82,-.25,mat.wood,.005);
-  const record=new THREE.Group();record.position.set(-.055,.859,-.25);music.add(record);moving.record=record;
+  const music=createStation('music',16,12);spatialType(music,'lightweight-listening-pavilion');
+  box(music,7.0,.10,5.05,0,.025,0,mat.wood,.003);
+  for(const x of [-3.1,3.1])for(const z of [-2.1,2.1]){cylinder(music,.036,2.91,x,1.50,z,mat.steel,12);box(music,.14,.025,.14,x,.13,z,mat.aluminium,.002);}
+  const lightRoof=box(music,7.25,.065,5.3,0,3.10,0,mat.aluminium,.006);lightRoof.rotation.x=.075;
+  for(const x of [-3.1,0,3.1]){const rib=box(music,.06,.12,5.1,x,3.03,0,mat.steel,.003);rib.rotation.x=.075;}
+  box(music,7.2,.075,.07,0,2.92,2.64,mat.steel,.002);cylinder(music,.027,2.87,3.1,1.46,2.4,mat.steel,10);
+  for(let i=0;i<22;i++)box(music,.13,1.57,.045,-2.85+i*.27,1.35,-2.1,mat.wood,.003);
+  plate(music,'03  听音廊',1.18,.19,-1.85,1.80,-2.06);
+  table(music,0,-.25,2.0,.68);
+  const recordDeck=new THREE.Group();music.add(recordDeck);recordDeck.name='Record player';architecture.push(recordDeck);
+  registerAction(recordDeck,'record','record-toggle','music','播放或暂停唱片');
+  box(recordDeck,.46,.065,.36,0,.82,-.25,mat.wood,.005);
+  const record=new THREE.Group();record.position.set(-.055,.859,-.25);recordDeck.add(record);moving.record=record;
+
   cylinder(record,.14,.009,0,0,0,mat.black,48);for(const r of [.072,.096,.12])ring(record,r,.0009,0,.005,0,mat.steel);cylinder(record,.039,.002,0,.006,0,mat.paper,24);cylinder(record,.002,.012,0,.014,0,mat.aluminium,8);
   beam(music,[.16,.876,-.37],[.12,.883,-.23],.004,mat.aluminium);beam(music,[.12,.883,-.23],[.045,.877,-.15],.004,mat.aluminium);box(music,.016,.009,.024,.045,.872,-.15,mat.black,.001);
   for(const x of [-1.4,1.4]){cylinder(music,.018,.63,x,.46,-.25,mat.steel);box(music,.22,.028,.25,x,.77,-.25,mat.steel,.003);box(music,.18,.36,.24,x,.97,-.25,mat.wood,.005);const woofer=cylinder(music,.062,.009,x,.91,-.123,mat.black,24);woofer.rotation.x=Math.PI/2;const tweeter=cylinder(music,.026,.009,x,1.04,-.123,mat.black,16);tweeter.rotation.x=Math.PI/2;}
-  image(music,'genesis.webp',.31,.31,.55,1.0,-.30);image(music,'genesis.webp',1.05,1.05,0,1.78,-2.49);chair(music,-.55,1.15,Math.PI);chair(music,.55,1.15,Math.PI);planter(music,-2.8,1.65);
+  image(music,'genesis.webp',.31,.31,.55,1.0,-.30);image(music,'genesis.webp',.56,.56,1.80,1.43,-2.06);chair(music,-.55,1.15,Math.PI);chair(music,.55,1.15,Math.PI);planter(music,-2.8,1.65);
 
   // 04. An open photography courtyard with a 2.55m pergola and ordinary benches.
-  const life=createStation('life',-16,12,4.35);
+  const life=createStation('life',-16,12,4.35);spatialType(life,'photography-courtyard');
   box(life,7.3,.10,5.25,0,.035,0,mat.stone,.003);box(life,6.8,2.45,.20,0,1.34,-2.1,mat.plaster,.005);
   image(life,'polaroids.webp',2.35,1.33,0,1.59,-1.985);image(life,'wave.jpg',.34,.46,-2.05,1.58,-1.97);image(life,'call.jpg',.34,.46,2.05,1.58,-1.97);
   for(const x of [-3.25,3.25])for(const z of [-2.1,2.1])box(life,.09,2.55,.09,x,1.39,z,mat.steel,.002);
   for(const x of [-3.25,3.25])box(life,.10,.14,4.45,x,2.67,0,mat.wood,.003);
-  const rafters=[];for(let i=0;i<15;i++)rafters.push({p:[-3.3+i*.47,2.75,0],s:[.065,.10,4.5]});instances(life,unit,mat.wood,rafters,'pergola timber battens',true);
+  const rafters=[];for(let i=0;i<15;i++)rafters.push({p:[-3.3+i*.47,2.75,i<5?0:-1.05],s:[.065,.10,i<5?4.5:2.4]});instances(life,unit,mat.wood,rafters,'pergola timber battens',true);
+  for(const x of [-3.3,3.3])box(life,.35,.43,2.20,x,.31,-.15,mat.stone,.005);
+  const hanging=new THREE.Group();life.add(hanging);architecture.push(hanging);hanging.position.set(-2.5,0,-.65);hanging.rotation.y=.22;
+  for(const x of [-.44,.44])box(hanging,.027,1.96,.027,x,1.12,0,mat.steel,.002);box(hanging,.92,.028,.035,0,2.09,0,mat.steel,.002);
+  image(hanging,'portrait.jpg',.58,.82,0,1.47,.023);for(const x of [-.22,.22])beam(hanging,[x,1.91,.02],[x,2.08,.02],.002,mat.aluminium);
   plate(life,'04   照片庭院',1.52,.22,-1.9,2.43,-1.97);bench(life,-1.2,.75);bench(life,1.2,.75);planter(life,-2.8,1.6);planter(life,2.8,1.6);
 
   // 05. Reception: personal photos, a desk and a wall-mounted real-size letterbox.
-  const about=createStation('about',0,-22,4.45);shell(about,{title:'05   侯世康 / 工作室'});
+  const about=createStation('about',0,-22,4.45);spatialType(about,'reception-studio');shell(about,{title:'05   侯世康 / 工作室'});
   image(about,'portrait.jpg',.54,.78,-1.8,1.65,-2.49);image(about,'wave.jpg',.54,.78,-.95,1.65,-2.49);table(about,.55,-.5,1.6,.70);chair(about,.55,-1.25);
   box(about,.33,.015,.23,.45,.798,-.5,mat.steel,.004);const laptop=box(about,.33,.215,.012,.45,.91,-.60,mat.black,.004);laptop.rotation.x=-.15;box(about,.21,.001,.10,.92,.794,-.36,mat.paper,.001);
   box(about,.42,.30,.16,-2.75,1.2,2.72,mat.steel,.008);const mailFlag=box(about,.405,.285,.018,-2.75,1.2,2.81,mat.steel,.003);moving.mailFlag=mailFlag;box(about,.28,.012,.015,-2.75,1.27,2.825,mat.black,.001);const lock=cylinder(about,.012,.009,-2.75,1.12,2.827,mat.aluminium,12);lock.rotation.x=Math.PI/2;
@@ -200,6 +266,26 @@ export function createEnvironment(THREE, scene, { assetBase = './assets/', surfa
   const bridge=[];for(let i=0;i<31;i++)bridge.push({p:[-44.1+i*.30,.016,0]});const bridgeBoard=geo('bridge-board',()=>worldBoxUV(new THREE.BoxGeometry(.28,.075,3.7),.28,.075,3.7,mat.wood.userData.tileSize));instances(root,bridgeBoard,mat.wood,bridge,'timber bridge deck',true);
   for(const z of [-2,2]){for(let i=0;i<7;i++){const x=-44.1+i*1.5;box(root,.09,.95,.09,x,.48,z,mat.wood,.003);colliders.push({x,z,r:.13});}box(root,9.12,.065,.08,-39.6,.95,z,mat.wood,.003);box(root,9.12,.04,.05,-39.6,.48,z,mat.steel,.002);}
 
+  // Four outer destinations have different ground treatments and uses.
+  // Every solid furnishing is reserved as an explicit circular footprint.
+  const addSeat=(x,z,a)=>{bench(root,x,z,a);colliders.push({x,z,r:1.10});contact(root,x,z,2.8,1.4);};
+  for(const [x,z,a] of [[-19.0,-62.0,.2],[-12.4,-62.0,-.2],[65,7,Math.PI/2],[65,13,Math.PI/2],[-65,18,-Math.PI/2]])addSeat(x,z,a);
+  for(const [x,z,title] of [[-20.2,-57.3,'林缘 / FOREST EDGE'],[58.2,14.5,'远眺 / EAST LOOKOUT'],[-57.6,18.6,'湿地 / WETLAND'],[-18.8,58.5,'林间 / PICNIC GROVE']]){
+    const sign=new THREE.Group();sign.position.set(x,0,z);root.add(sign);architecture.push(sign);box(sign,.038,1.12,.038,0,.56,0,mat.steel,.002);box(sign,.94,.38,.045,0,1.12,0,mat.steel,.004);plate(sign,title,.87,.28,0,1.12,.026);colliders.push({x,z,r:.48});
+  }
+  // The eastern lookout is an open paved promenade, with the rail confined to its edge.
+  for(let i=0;i<11;i++){const z=2.5+i*1.5;box(root,.045,.98,.045,68,.49,z,mat.steel,.002);colliders.push({x:68,z,r:.08});}
+  box(root,.06,.055,15.05,68,1.00,10,mat.wood,.003);box(root,.035,.025,15.05,68,.48,10,mat.steel,.001);
+  // The wetland deck is on dry, level ground, facing a natural water basin.
+  const wetlandBoards=[];for(let i=0;i<27;i++)wetlandBoards.push({p:[-66+i*.30,.017,18],s:[.28,.075,6.2]});instances(root,unit,mat.wood,wetlandBoards,'wetland viewing deck');
+  for(let i=0;i<7;i++){const x=-66+i*1.3;box(root,.07,.93,.07,x,.47,21.1,mat.wood,.002);colliders.push({x,z:21.1,r:.10});}box(root,7.9,.06,.07,-62.1,.96,21.1,mat.wood,.003);
+  const wetlandShape=new THREE.Shape();for(let i=0;i<64;i++){const a=i*Math.PI*2/64,r=1+Math.sin(a*5)*.045,x=Math.cos(a)*9.45*r,z=Math.sin(a)*12.45*r;if(i)wetlandShape.lineTo(x,z);else wetlandShape.moveTo(x,z);}wetlandShape.closePath();const wetlandGeo=new THREE.ShapeGeometry(wetlandShape);wetlandGeo.rotateX(-Math.PI/2);geometries.set('wetland-water',wetlandGeo);const wetlandWater=mesh(wetlandGeo,water,root,false);wetlandWater.position.set(-60,-.12,34);colliders.push({x:-60,z:34,r:12.1});
+  // A pair of ordinary picnic tables gives the southern grove a purpose.
+  for(const [x,z] of [[-21,62],[-10,66]]){table(root,x,z,1.9,.76);bench(root,x,z-.72);bench(root,x,z+.72,Math.PI);colliders.push({x,z,r:1.60});contact(root,x,z,3.5,2.7);}
+  // Small pavement inlays orient the north clearing without a monumental prop.
+  const compass=[];for(let i=0;i<16;i++){const a=i*Math.PI/8;compass.push({p:[-16+Math.sin(a)*2.35,.019,-60+Math.cos(a)*2.35],s:[.07,.006,i%4?.26:.42],r:[0,a,0]});}instances(root,unit,mat.steel,compass,'forest clearing paving inlay');
+  const withinRoad=(x,z,pad=0)=>roadSamples.some(p=>Math.hypot(x-p.x,z-p.z)<p.r+pad);
+
   // Leaf cards form broken, translucent crowns around explicit branches. There
   // are no spherical tree meshes or cone-shaped grass tufts in this landscape.
   const leafTexture=canvasTexture(256,256,(ctx,w,h)=>{
@@ -209,10 +295,13 @@ export function createEnvironment(THREE, scene, { assetBase = './assets/', surfa
   const leavesMat=material('#c5cbb4',{map:leafTexture,transparent:false,alphaTest:.45,side:THREE.DoubleSide,roughness:1});
   const trees=[[-25,-20,1],[-23,-16,.85],[-23,-6,.9],[-26,9,1.0],[-24,21,1.1],[-11,24,.85],[-7,25,1],[9,25,.9],[24,22,1.1],[25,5,1],[24,-4,.9],[25,-19,1.1],[17,-24,.9],[-13,-25,1.1],[-8,-22,.8],[9,-19,.8],[-24,2,.85],[23,16,.9],[-43,-38,1.35],[-40,-42,1.1],[-26,-42,1.2],[-18,-44,1.3],[-8,-43,1.1],[9,-43,1.25],[21,-42,1.1],[39,-42,1.3],[43,-35,1.25],[43,-22,1.1],[42,-12,1.2],[42,4,1.3],[43,17,1.1],[43,39,1.3],[28,43,1.35],[18,43,1.1],[7,42,1.2],[-8,43,1.2],[-22,42,1.3],[-43,39,1.2],[-43,18,1.1],[-43,-15,1.2],[-43,-27,1.1]];
   // Less regular distant groves continue the ground to the horizon.
-  for(let i=0;i<36;i++){const a=i*2.399963,r=55+random()*21;trees.push([Math.sin(a)*r,Math.cos(a)*r,.85+random()*.7]);}
+  for(const [cx,cz] of [[-58,-36],[-25,-66],[26,-67],[62,-42],[65,39],[27,67],[-28,67],[-67,46]])for(let j=0;j<7;j++){
+    const a=j*2.399963,r=2+random()*7,x=cx+Math.sin(a)*r,z=cz+Math.cos(a)*r;if(!withinRoad(x,z,2.0)&&pondMask(x,z)>1.2)trees.push([x,z,.95+random()*.55]);
+  }
+  for(let i=0;i<28;i++){const a=i*2.399963,r=88+random()*22;trees.push([Math.sin(a)*r,Math.cos(a)*r,1.0+random()*.65]);}
   const trunks=[],branches=[],foliage=[],treeAO=[],rocks=[];
   for(let i=0;i<trees.length;i++){
-    const [x,z,s]=trees[i],height=(5.3+(i%4)*.45)*s,base=landHeight(x,z)+.035;
+    const [x,z,s]=trees[i];if(withinRoad(x,z,1.5))continue;const height=(5.3+(i%4)*.45)*s,base=landHeight(x,z)+.035;
     trunks.push({p:[x,base+height*.46,z],s:[.12*s,height*.92,.12*s],r:[.025*Math.sin(i),0,.025*Math.cos(i)]});
     for(let j=0;j<9;j++){
       const a=j*2.399963+i*.31,start=new THREE.Vector3(x,base+height*(.43+j*.038),z),end=new THREE.Vector3(x+Math.sin(a)*(1.25+(j%3)*.26)*s,base+height*(.65+j*.026),z+Math.cos(a)*(1.25+(j%3)*.26)*s),delta=end.clone().sub(start),dummy=new THREE.Object3D();dummy.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.clone().normalize());
@@ -227,35 +316,48 @@ export function createEnvironment(THREE, scene, { assetBase = './assets/', surfa
   instances(root,geo('tree-contact',()=>new THREE.PlaneGeometry(1,1)),aoMat,treeAO,'tree contact shading');
   // Thin curved blades, sparsely distributed where a car can still cross grass.
   const grassGeometry=geo('grass-blade',()=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([-.012,0,0,.012,0,0,-.009,.19,.012,.009,.19,.012,0,.37,.043],3));g.setAttribute('uv',new THREE.Float32BufferAttribute([0,0,1,0,0,.52,1,.52,.5,1],2));g.setIndex([0,1,2,1,3,2,2,3,4]);g.computeVertexNormals();return g;});
-  const grassMat=material('#6e7852',{side:THREE.DoubleSide,roughness:1}),grass=[];
-  for(let i=0;i<5400;i++){
-    const x=(random()-.5)*152,z=(random()-.5)*152,r=Math.hypot(x,z);
+  const grassMat=material('#ffffff',{side:THREE.DoubleSide,roughness:1}),grass=[];
+  for(let i=0;i<11000;i++){
+    const x=(random()-.5)*240,z=(random()-.5)*240,r=Math.hypot(x,z);
     if((r>30&&r<38)||(Math.abs(x)<10&&Math.abs(z)<9)||pondMask(x,z)<1.1)continue;
-    if(colliders.some(c=>Math.hypot(x-c.x,z-c.z)<c.r+.8))continue;
+    if(withinRoad(x,z,.35)||colliders.some(c=>Math.hypot(x-c.x,z-c.z)<c.r+.8))continue;
     if((Math.abs(z)<3&&Math.abs(x)<38)||(Math.abs(x)<2.7&&z>0&&z<35)||(x>5&&x<12&&z<-10&&z>-30))continue;
-    const outside=Math.max(Math.abs(x),Math.abs(z))-44,rise=Math.min(1,Math.max(0,outside)/24),y=-.035+rise*rise*(.8+Math.sin(x*.10+z*.06)*1.1+Math.cos(z*.13)*.6);
-    grass.push({p:[x,y,z],s:[.7+random()*.8,.4+random()*.6,1],r:[0,random()*Math.PI*2,0],color:['#929b78','#b1b593','#7d8a65'][i%3]});
+    const outside=Math.max(Math.abs(x),Math.abs(z))-NAVIGATION_SIZE/2,rise=Math.min(1,Math.max(0,outside)/24),y=-.035+rise*rise*(.8+Math.sin(x*.10+z*.06)*1.1+Math.cos(z*.13)*.6);
+    grass.push({p:[x,y,z],s:[.7+random()*.8,.4+random()*.6,1],r:[0,random()*Math.PI*2,0],color:['#6b8554','#7b955f','#527343'][i%3]});
   }
   instances(root,grassGeometry,grassMat,grass,'fine meadow grass');
   for(let i=0;i<36;i++){const a=i*2.399963,r=46+random()*20,x=Math.sin(a)*r,z=Math.cos(a)*r,s=.25+random()*.55;rocks.push({p:[x,-.04,z],s:[s,.18+random()*.25,s*.72],r:[.1,random()*Math.PI,.1]});colliders.push({x,z,r:s*.8});}
   instances(root,geo('landscape-rock',()=>new THREE.IcosahedronGeometry(1,1)),mat.concrete,rocks,'low natural field stones');
 
-  // A real service building in the distance establishes scale, without another themed toy shop.
-  const service=new THREE.Group();service.name='Grounds maintenance building';service.position.set(31,0,-31);service.rotation.y=-.55;root.add(service);architecture.push(service);colliders.push({x:31,z:-31,r:5.8});
-  box(service,8.4,3.3,5.5,0,1.68,0,mat.wood,.004);box(service,8.9,.13,5.95,0,3.42,0,mat.steel,.005);
-  box(service,2.4,2.55,.035,0,1.35,2.78,mat.dark,.003);for(let i=0;i<15;i++)box(service,2.35,.025,.02,0,.18+i*.17,2.805,mat.steel,.001);
-  glazing(service,-2.5,1.9,2.79,1.1,.85);glazing(service,2.5,1.9,2.79,1.1,.85);cylinder(service,.04,3.32,4.2,1.68,-2.8,mat.steel,12);
-  box(service,8.5,.08,.10,0,3.38,-2.86,mat.steel,.002);
+  // Distinct geological groups mark distant forks; no repeated themed houses.
+  const ridgeRocks=[];
+  for(const [cx,cz] of [[-69,-58],[-42,-80],[-11,-87],[33,-80],[82,-25],[81,28],[38,84],[-54,82]])for(let i=0;i<4;i++){
+    const x=cx+Math.sin(i*2.399963)*3.6,z=cz+Math.cos(i*2.399963)*3.2,sx=1.2+random()*1.8,sz=1.0+random()*1.5,sy=.8+random()*1.9;
+    ridgeRocks.push({p:[x,landHeight(x,z)+sy*.35,z],s:[sx,sy,sz],r:[.08+random()*.2,random()*Math.PI,.12],color:i%2?'#aca99c':'#96998d'});colliders.push({x,z,r:Math.max(sx,sz)});
+  }
+  const ridgeGeometry=geo('weathered-ridge-rock',()=>{const g=new THREE.IcosahedronGeometry(1,2),p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),f=1+Math.sin(x*9+z*5)*.10+Math.cos(y*11-x*4)*.07;p.setXYZ(i,x*f,y*f,z*f);}g.computeVertexNormals();return g;});
+  instances(root,ridgeGeometry,mat.stone,ridgeRocks,'weathered outer stone outcrops',true);
 
   // Rigid fittings share draws. Moving records and letterbox leaves retain pivots.
   function batch(parent){
-    const buckets=new Map();for(const o of parent.children){if(!o.isMesh||o.isInstancedMesh||o===moving.mailFlag||o===groundTarget||Array.isArray(o.material)||o.material===aoMat)continue;const key=`${o.material.uuid}:${o.castShadow}:${Object.keys(o.geometry.attributes).sort()}`;if(!buckets.has(key))buckets.set(key,[]);buckets.get(key).push(o);}
+    const buckets=new Map();for(const o of parent.children){if(!o.isMesh||o.isInstancedMesh||o===moving.mailFlag||o===groundTarget||o.userData.action||Array.isArray(o.material)||o.material===aoMat)continue;const key=`${o.material.uuid}:${o.castShadow}:${Object.keys(o.geometry.attributes).sort()}`;if(!buckets.has(key))buckets.set(key,[]);buckets.get(key).push(o);}
     for(const objects of buckets.values()){if(objects.length<2)continue;const copies=objects.map(o=>{o.updateMatrix();const g=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();g.applyMatrix4(o.matrix);return g;});const g=mergeGeometries(copies,false);copies.forEach(a=>a.dispose());if(!g)continue;geometries.set(`batch:${geometries.size}`,g);const combined=mesh(g,objects[0].material,parent,objects[0].castShadow);combined.name='Batched architectural fittings';objects.forEach(o=>parent.remove(o));}
   }
   for(const parent of architecture)batch(parent);batch(root);
   for(const {id,object} of interactables)object.traverse(child=>{child.userData.stationId=id;});
-  return {root,bounds:WORLD_BOUNDS,groundTarget,groundMeshes:[groundTarget],colliders,interactables,
-    update(dt,time,state={}){if(state.musicPlaying||state.audioPlaying)moving.record.rotation.y-=dt*2.1;moving.mailFlag.rotation.y=state.activeId==='about'?-.08:0;},
+  function advanceProjection(){
+    const p=moving.projection,file=p.files[p.frame%p.files.length],entry=imageTextures.get(file);if(!entry)return;
+    const texture=entry.texture;p.screen.material.map=texture;p.screen.material.needsUpdate=true;
+    const width=texture.image?.width,height=texture.image?.height;if(width&&height){const aspect=width/height,frame=4.90/2.75;p.screen.scale.set(aspect<frame?aspect/frame:1,aspect>frame?frame/aspect:1,1);}
+  }
+  return {root,bounds:WORLD_BOUNDS,groundTarget,groundMeshes:[groundTarget],colliders,interactables,actionTargets,explorationSpots,
+    activateAction(action){if(action==='projection-toggle'){moving.projection.playing=!moving.projection.playing;moving.projection.clock=0;advanceProjection();return {playing:moving.projection.playing};}return null;},
+    getActionState(action){return action==='projection-toggle'?{playing:moving.projection.playing}:null;},
+    update(dt,time,state={}){
+      if(state.musicPlaying||state.audioPlaying)moving.record.rotation.y-=dt*2.1;
+      moving.mailFlag.rotation.y=state.activeId==='about'?-.08:0;
+      const p=moving.projection;if(p.playing){p.clock+=dt;if(p.clock>3.6){p.clock=0;p.frame=(p.frame+1)%p.files.length;advanceProjection();}}
+    },
     dispose(){root.removeFromParent();for(const g of new Set(geometries.values()))g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();},
   };
 }

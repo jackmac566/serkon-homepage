@@ -4,8 +4,8 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 export function createDeskScene(THREE, { assetBase = './assets/', environmentMap = null, surfaceMaps = {} } = {}) {
   const scene = new THREE.Scene();
   scene.name = 'Serkon — a quiet place to make things';
-  scene.background = new THREE.Color('#f7f7f4');
-  scene.fog = new THREE.Fog('#f7f7f4', 42, 90);
+  scene.background = new THREE.Color('#d9dbdc');
+  scene.fog = new THREE.Fog('#d9dbdc', 62, 120);
   scene.environment = environmentMap;
   scene.environmentIntensity = .42;
   const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, .045, 110);
@@ -37,26 +37,32 @@ export function createDeskScene(THREE, { assetBase = './assets/', environmentMap
     }
   });
   weaveMap.wrapS = weaveMap.wrapT = THREE.RepeatWrapping; weaveMap.repeat.set(5, 2);
+  const leatherMap = texture(256, 256, (ctx, w, h) => {
+    ctx.fillStyle = '#b5a18a'; ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < 16000; i++) { ctx.fillStyle = random() > .5 ? '#ffffff14' : '#25160c18'; ctx.fillRect(random() * w, random() * h, .7 + random(), .7 + random()); }
+  });
+  leatherMap.wrapS = leatherMap.wrapT = THREE.RepeatWrapping; leatherMap.repeat.set(3, 3);
   const surface = (color, extra = {}) => { const mat = new THREE.MeshStandardMaterial({ color, roughness: .7, metalness: 0, ...extra }); materials.add(mat); return mat; };
   const mat = {
-    cream: surface('#ece8dd', { roughness: .44 }), bezel: surface('#d8d5c9', { roughness: .54 }),
+    cream: surface('#dbdcdb', { roughness: .50 }), bezel: surface('#bfc3c2', { roughness: .58 }),
     dark: surface('#263d36', { roughness: .48 }), black: surface('#202725', { roughness: .83 }),
-    wood: surface('#ffffff', { map: woodMap, bumpMap: woodMap, bumpScale: .011, roughness: .56 }),
-    metal: surface('#a3a99a', { metalness: .8, roughness: .28 }), brass: surface('#a48c54', { metalness: .7, roughness: .32 }),
-    orange: surface('#bf694b', { roughness: .8 }), paper: surface('#eee7d2', { roughness: .94 }),
-    white: surface('#f0f0eb', { roughness: .4 }), floor: surface('#f7f7f4', { roughness: .96 }),
+    wood: surface('#303338', { map: woodMap, bumpMap: woodMap, bumpScale: .011, roughness: .65 }),
+    metal: surface('#757a80', { metalness: .65, roughness: .50 }), brass: surface('#a48c54', { metalness: .7, roughness: .32 }),
+    orange: surface('#bf694b', { roughness: .8 }), paper: surface('#ecece8', { roughness: .94 }),
+    white: surface('#eeeeea', { roughness: .4 }), floor: surface('#d9dbdc', { roughness: .96 }),
+    furniture: surface('#62676e', { metalness: .48, roughness: .54 }), leather: surface('#aa744b', { map: leatherMap, bumpMap: leatherMap, bumpScale: .012, roughness: .79 }),
     fabric: surface('#a9b4ad', { map: weaveMap, bumpMap: weaveMap, bumpScale: .012, roughness: .96 }),
     midnight: surface('#252a2e', { metalness: .78, roughness: .31 }),
     earMesh: surface('#292d31', { map: weaveMap, bumpMap: weaveMap, bumpScale: .013, roughness: .96 }),
     green: surface('#47674e', { roughness: .88 }), leaf: surface('#718256', { roughness: .84 }),
-    key: surface('#e8e1cf', { roughness: .58 }), keyDark: surface('#6c7b69', { roughness: .63 }),
-    rubber: surface('#3a4037', { roughness: .98 }), red: surface('#b36d53', { roughness: .92 }),
+    key: surface('#dedfda', { roughness: .58 }), keyDark: surface('#a8adaa', { roughness: .63 }),
+    rubber: surface('#292c2e', { roughness: .98 }), red: surface('#b36d53', { roughness: .92 }),
   };
-  // Real walnut scan gives the desk warmth against the white room.
+  // Keep the real walnut surface scan, stained charcoal as in the requested reference.
   if (surfaceMaps.desk) {
     const source=surfaceMaps.desk;
     for (const key of ['map','normalMap','roughnessMap']) {const map=source[key].clone();map.repeat.set(2,1);map.needsUpdate=true;textures.add(map);mat.wood[key]=map;}
-    mat.wood.color.set('#ba824f');mat.wood.bumpMap=null;mat.wood.normalScale.set(.28,.28);mat.wood.roughness=.66;
+    mat.wood.color.set('#3b414b');mat.wood.bumpMap=null;mat.wood.normalScale.set(.28,.28);mat.wood.roughness=.66;
   }
   const boxGeometry = new THREE.BoxGeometry(1, 1, 1); geometries.set('box', boxGeometry);
   function mesh(geo, material, x = 0, y = 0, z = 0, parent = objects, shadow = true) {
@@ -96,31 +102,45 @@ export function createDeskScene(THREE, { assetBase = './assets/', environmentMap
     glow.addColorStop(0, '#46514b40'); glow.addColorStop(.55, '#46514b18'); glow.addColorStop(1, '#46514b00');
     ctx.fillStyle = glow; ctx.fillRect(0, 0, w, h);
   });
-  for (const [x, z, w, d] of [[0, -.15, 13, 8.5], [.2, 3.4, 4.8, 4.7]]) {
+  for (const [x, z, w, d] of [[0, -.15, 13, 8.5], [.2, 3.4, 4.8, 4.7], [6.1, 1.35, 3.1, 3.1]]) {
     const contact = textPlane(contactMap, w, d, x, -.019, z); contact.rotation.x = -Math.PI / 2; contact.renderOrder = 1;
   }
 
-  // Pale ash top and porcelain drawer pedestal: rounded furniture, full backs and visible joinery.
-  box(10.7, .25, 5.5, 0, 2.42, -.05, mat.wood, objects, .09);
-  box(10.35, .045, 5.13, 0, 2.275, -.05, mat.white, objects, .025);
-  box(1.88, 2.12, 4.67, -4.13, 1.2, -.15, mat.white, objects, .065);
-  box(1.65, .15, 4.31, -4.13, .12, -.15, mat.dark, objects, .025);
-  for (let i = 0; i < 3; i++) {
-    const yy = .52 + i * .663;
-    box(1.76, .63, .09, -4.13, yy, 2.225, mat.white, objects, .025);
-    box(.66, .028, .035, -4.13, yy + .19, 2.285, mat.metal, objects, .012);
+  // Charcoal timber with a restrained metal frame and two suspended utility drawers.
+  box(10.7, .18, 5.5, 0, 2.455, -.05, mat.wood, objects, .045);
+  box(10.35, .07, 5.13, 0, 2.32, -.05, mat.furniture, objects, .015);
+  box(2.45, 1.33, 4.44, -3.51, 1.62, -.05, mat.furniture, objects, .025);
+  for (let i = 0; i < 2; i++) {
+    const yy = 1.29 + i * .65;
+    box(2.31, .61, .07, -3.51, yy, 2.207, mat.furniture, objects, .018);
+    cable([[-3.85, yy + .10, 2.26], [-3.85, yy + .10, 2.31], [-3.2, yy + .10, 2.31], [-3.2, yy + .10, 2.26]], .022, mat.black);
   }
-  for (const z of [-2.02, 2.02]) { box(.15, 2.22, .15, 4.55, 1.18, z, mat.white, objects, .045); cylinder(.12, .06, 4.55, .055, z, mat.rubber); }
-  box(.15, .14, 4.1, 4.55, .17, 0, mat.white, objects, .04);
-  box(8.7, .12, .12, .1, 2.04, -2.08, mat.white, objects, .025);
-  box(3.8, .17, .5, .3, 2.16, -2.20, mat.white, objects, .025);
+  for (const x of [-4.76, 4.76]) for (const z of [-2.15, 2.15]) {
+    box(.23, 2.25, .23, x, 1.17, z, mat.furniture, objects, .025); cylinder(.12, .05, x, .045, z, mat.rubber);
+  }
+  box(.085, 1.72, 3.96, 4.72, 1.36, -.05, mat.furniture, objects, .015);
+  box(9.45, .13, .13, 0, 2.08, -2.13, mat.furniture, objects, .020);
+  box(3.8, .17, .5, .3, 2.16, -2.20, mat.furniture, objects, .025);
   cable([[.1, 2.18, -2.3], [.25, 1.6, -2.45], [.7, .4, -2.5], [1.6, .04, -2.55]], .024, mat.bezel);
 
   // Monitor: substantial rounded housing, separate bezel, screen lip, screws and side vents.
   const computer = new THREE.Group(); objects.add(computer);
+  computer.scale.setScalar(.76); computer.position.y = 1.18;
+  // A complete horizontal system unit supports the CRT, with drive bays, front keys and rear I/O.
+  const system = new THREE.Group(); system.position.set(0, 2.86, -1.03); objects.add(system);
+  box(3.72, .61, 2.55, 0, 0, 0, mat.cream, system, .065);
+  box(3.57, .48, .055, 0, -.015, 1.285, mat.bezel, system, .026);
+  box(1.39, .075, .028, .56, .10, 1.320, mat.dark, system, .012);
+  box(1.39, .075, .028, .56, -.055, 1.320, mat.dark, system, .012);
+  box(.23, .065, .035, 1.17, -.055, 1.338, mat.cream, system, .010);
+  for (let i = 0; i < 10; i++) box(.52, .014, .017, -1.10, -.13 + i * .029, 1.322, mat.furniture, system, .005);
+  const systemPower = cylinder(.073, .022, 1.50, -.09, 1.323, mat.furniture, system, 24); systemPower.rotation.x = Math.PI / 2;
+  box(3.42, .40, .03, 0, 0, -1.285, mat.furniture, system, .022);
+  for (let i = 0; i < 7; i++) box(.64, .022, .012, -1.0, -.13 + i * .045, -1.31, mat.black, system, .005);
+  for (const x of [.10, .55, 1.0]) { box(.29, .13, .025, x, -.02, -1.31, mat.metal, system, .012); box(.23, .07, .026, x, -.02, -1.33, mat.black, system, .006); }
   box(2.8, .17, 1.75, 0, 2.68, -1.10, mat.bezel, computer, .07);
   box(.48, 1.05, .43, 0, 3.19, -1.23, mat.cream, computer, .08);
-  box(4.52, 3.26, .93, 0, 4.57, -1.14, mat.cream, computer, .19);
+  box(4.52, 3.26, 1.80, 0, 4.57, -1.55, mat.cream, computer, .19);
   box(4.26, 2.98, .13, 0, 4.60, -.646, mat.bezel, computer, .075);
   box(3.98, 2.57, .10, 0, 4.65, -.557, mat.dark, computer, .12);
   for (const x of [-2.04, 2.04]) for (const y of [3.27, 5.96]) screw(x, y, -.564, computer);
@@ -130,7 +150,7 @@ export function createDeskScene(THREE, { assetBase = './assets/', environmentMap
     dummy.position.set(side * 2.266, 4.02 + row * .08, -1.28); dummy.rotation.set(0, 0, 0); dummy.scale.set(.012, .023, .46); dummy.updateMatrix(); vents.setMatrixAt(i, dummy.matrix);
   }
   computer.add(vents);
-  const rear = new THREE.Group(); rear.position.set(0, 4.57, -1.619); rear.rotation.y = Math.PI; computer.add(rear);
+  const rear = new THREE.Group(); rear.position.set(0, 4.57, -2.465); rear.rotation.y = Math.PI; computer.add(rear);
   box(3.44, 2.45, .045, 0, 0, 0, mat.bezel, rear, .10);
   for (let row = 0; row < 9; row++) box(2.26, .028, .016, 0, .30 + row * .076, .031, mat.dark, rear, .009);
   for (const x of [-1.5, 1.5]) for (const y of [-1.0, 1.0]) screw(x, y, .034, rear);
@@ -144,7 +164,7 @@ export function createDeskScene(THREE, { assetBase = './assets/', environmentMap
     ctx.font = '20px monospace'; ctx.fillText('DESIGNED FOR MAKING THINGS.  № 001', 18, 88);
   });
   textPlane(rearLabel, 2.45, .61, 0, -.28, .033, rear);
-  cable([[.77, 3.77, -1.78], [.73, 3.45, -1.90], [.48, 2.70, -2.10], [.13, 2.58, -2.3]], .033, mat.bezel);
+  cable([[.77, 3.77, -2.55], [.73, 3.45, -2.60], [.48, 2.70, -2.6], [.13, 2.58, -2.7]], .033, mat.bezel, computer);
   box(3.6, .045, .025, 0, 3.17, -.62, mat.dark, computer);
   const badgeMap = texture(512, 100, (ctx, w, h) => { ctx.fillStyle = '#284139'; ctx.font = 'italic 64px Georgia'; ctx.fillText('serkon', 15, 73); ctx.font = '16px Arial'; ctx.fillText('PERSONAL COMPUTER / 01', 238, 69); });
   textPlane(badgeMap, 2.3, .45, 0, 3.22, -.556, computer);
@@ -178,7 +198,7 @@ export function createDeskScene(THREE, { assetBase = './assets/', environmentMap
   textPlane(glassMap, 3.74, 2.28, 0, 4.65, -.487, computer);
 
   // Keyboard: individual rounded keycaps, a separate printed legend overlay, and a coiled lead.
-  const keyboard = new THREE.Group(); keyboard.position.set(-.15, 2.61, 1.22); keyboard.rotation.y = -.025; objects.add(keyboard);
+  const keyboard = new THREE.Group(); keyboard.position.set(-.25, 2.62, 1.30); keyboard.scale.setScalar(.74); keyboard.rotation.y = -.025; objects.add(keyboard);
   box(4.28, .16, 1.60, 0, -.025, 0, mat.bezel, keyboard, .06);
   const keyGeometry = new RoundedBoxGeometry(.238, .105, .235, 2, .025); geometries.set('keycaps', keyGeometry);
   const keycaps = new THREE.InstancedMesh(keyGeometry, mat.key, 67);
@@ -198,11 +218,11 @@ export function createDeskScene(THREE, { assetBase = './assets/', environmentMap
   });
   const legends = textPlane(keyLabels, 4.28, 1.6, 0, .146, 0, keyboard); legends.rotation.x = -Math.PI / 2;
   cable([[-1.52, 2.62, .40], [-1.5, 2.61, .03], [-2.12, 2.60, -.28], [-1.2, 2.59, -1.75], [-.6, 2.85, -1.8]], .025);
-  const mouse = new THREE.Group(); mouse.position.set(3.01, 2.69, 1.18); mouse.rotation.y = -.13; objects.add(mouse);
+  const mouse = new THREE.Group(); mouse.position.set(2.10, 2.67, 1.33); mouse.scale.setScalar(.84); mouse.rotation.y = -.13; objects.add(mouse);
   box(.76, .26, 1.13, 0, 0, 0, mat.cream, mouse, .12); box(.008, .008, .42, 0, .133, -.29, mat.dark, mouse);
   const wheel = cylinder(.055, .11, 0, .152, -.20, mat.dark, mouse, 16); wheel.rotation.z = Math.PI / 2;
-  cable([[3.08, 2.69, .61], [3.32, 2.62, .20], [3.41, 2.59, -.42], [2.62, 2.59, -1.83], [1.34, 2.79, -1.85]], .023);
-  box(1.9, .025, 2.02, 3, 2.56, 1.23, mat.dark, objects, .07);
+  cable([[2.12, 2.67, .86], [2.28, 2.60, .48], [2.31, 2.59, -.24], [2.15, 2.59, -1.83], [1.34, 2.79, -1.85]], .021);
+  box(1.48, .016, 1.64, 2.1, 2.555, 1.34, mat.rubber, objects, .045);
 
   // Loose manuscript sheets, a cloth-bound notebook and a metal pen: quiet, useful desk objects.
   const documents = new THREE.Group(); documents.position.set(-3.20, 2.565, .95); documents.rotation.y = -.11; objects.add(documents);
@@ -220,6 +240,14 @@ export function createDeskScene(THREE, { assetBase = './assets/', environmentMap
   box(1.05, .095, 1.56, -3.93, 2.60, -.95, mat.dark, objects, .028);
   box(.99, .055, 1.51, -3.93, 2.66, -.95, mat.paper, objects, .010);
   box(1.05, .023, 1.56, -3.93, 2.70, -.95, mat.dark, objects, .010);
+  const folderMaterial = surface('#77766f', { roughness: .86 });
+  for (let i = 0; i < 3; i++) {
+    const x = -3.75 + i * .06, y = 2.80 + i * .22, z = -1.40 + i * .035;
+    box(1.94, .028, 1.54, x, y, z, folderMaterial, objects, .012);
+    box(1.83, .17, 1.44, x, y + .10, z, mat.paper, objects, .010);
+    box(1.94, .024, 1.54, x, y + .20, z, folderMaterial, objects, .012);
+    box(.51, .02, .15, x - .49, y + .21, z - .76, folderMaterial, objects, .012);
+  }
   const pen = cylinder(.026, 1.37, -2.19, 2.60, 1.17, mat.midnight, objects, 16); pen.rotation.x = Math.PI / 2; pen.rotation.z = -.13;
   const penTip = cylinder(.018, .15, -2.28, 2.60, 1.85, mat.metal, objects, 12); penTip.rotation.x = Math.PI / 2;
 
@@ -234,6 +262,7 @@ export function createDeskScene(THREE, { assetBase = './assets/', environmentMap
   let bookX = 2.70;
   novels.forEach((novel, index) => {
     const book = new THREE.Group(); book.position.set(bookX, 2.565 + Math.abs(Math.sin(novel.lean)) * novel.w / 2, -1.77);
+    book.scale.setScalar(.84);
     book.rotation.set(0, -.035, novel.lean); objects.add(book);
     const cover = surface(novel.color, { roughness: .80 });
     const pages = box(novel.w - .045, novel.h - .07, 1.06, 0, novel.h / 2, -.015, mat.paper, book, .014);
@@ -266,25 +295,38 @@ export function createDeskScene(THREE, { assetBase = './assets/', environmentMap
   box(.07, 1.15, 1.12, 4.98, 3.10, -1.77, mat.metal, objects, .025);
   box(.79, .035, 1.12, 4.62, 2.565, -1.77, mat.metal, objects, .015);
 
-  // A single living plant balances the books. Individual stems and cupped leaves cast real shadows.
-  const potX = -4.44, potZ = -1.86;
-  const potGeometry = new THREE.CylinderGeometry(.39, .31, .57, 40); geometries.set('ceramic-pot', potGeometry);
-  mesh(potGeometry, mat.white, potX, 2.86, potZ);
-  const rimGeometry = new THREE.TorusGeometry(.375, .026, 8, 40); geometries.set('pot-rim', rimGeometry);
-  const rim = mesh(rimGeometry, mat.white, potX, 3.15, potZ); rim.rotation.x = Math.PI / 2;
-  cylinder(.344, .016, potX, 3.13, potZ, surface('#49473b'), objects, 32);
-  const leafGeometry = new THREE.SphereGeometry(1, 14, 8); geometries.set('botanical-leaf', leafGeometry);
-  for (let i = 0; i < 15; i++) {
-    const angle = i * 2.399, height = .35 + random() * .85, reach = .20 + random() * .44;
-    const x = potX + Math.cos(angle) * reach, z = potZ + Math.sin(angle) * reach, y = 3.21 + height;
-    cable([[potX, 3.13, potZ], [potX + Math.cos(angle) * reach * .35, y - .20, potZ + Math.sin(angle) * reach * .35], [x, y, z]], .012, mat.green);
-    const leaf = mesh(leafGeometry, i % 2 ? mat.leaf : mat.green, x, y + .10, z);
-    leaf.scale.set(.13, .28 + random() * .11, .032); leaf.rotation.set(Math.sin(angle) * .65, angle, Math.cos(angle) * -.65);
+  // A floor-standing monstera: broad split blades, open fenestrations and individually curved petioles.
+  const potX = 6.14, potZ = 1.12;
+  const potProfile = [[.50, .025], [.57, .06], [.62, .18], [.68, 1.08], [.675, 1.16], [.65, 1.19], [.59, 1.17], [.595, 1.06]];
+  const potGeometry = new THREE.LatheGeometry(potProfile.map(([r, y]) => new THREE.Vector2(r, y)), 48); geometries.set('ceramic-pot', potGeometry);
+  mesh(potGeometry, mat.white, potX, 0, potZ);
+  cylinder(.596, .018, potX, 1.09, potZ, surface('#44443b'), objects, 40);
+  const leafShape = new THREE.Shape();
+  const leafOutline = [[0, 0], [-.26, -.11], [-.55, -.03], [-.74, .16], [-.27, .33], [-.80, .29], [-.82, .50], [-.27, .62], [-.76, .62], [-.65, .85], [-.19, .86], [-.51, 1.00], [-.31, 1.21], [-.08, 1.14], [0, 1.45], [.08, 1.14], [.31, 1.21], [.51, 1.00], [.19, .86], [.65, .85], [.76, .62], [.27, .62], [.82, .50], [.80, .29], [.27, .33], [.74, .16], [.55, -.03], [.26, -.11]];
+  const last = leafOutline.at(-1), first = leafOutline[0]; leafShape.moveTo((last[0] + first[0]) / 2, (last[1] + first[1]) / 2);
+  leafOutline.forEach(([x, y], i) => { const next = leafOutline[(i + 1) % leafOutline.length]; leafShape.quadraticCurveTo(x, y, (x + next[0]) / 2, (y + next[1]) / 2); });
+  for (const side of [-1, 1]) for (const [x, y, ry] of [[.16, .43, .075], [.14, .75, .055]]) {
+    const hole = new THREE.Path(); hole.absellipse(x * side, y, .037, ry, side * -.30, Math.PI * 2 + side * -.30, true, side * -.35); leafShape.holes.push(hole);
   }
+  const leafGeometry = new THREE.ShapeGeometry(leafShape, 9); geometries.set('monstera-leaf', leafGeometry);
+  const leafPositions = leafGeometry.attributes.position;
+  for (let i = 0; i < leafPositions.count; i++) {
+    const x = leafPositions.getX(i), y = leafPositions.getY(i); leafPositions.setZ(i, .09 * Math.sin(y * 2.0) - x * x * .11);
+  }
+  leafGeometry.computeVertexNormals();
+  const monsteraMaterials = [surface('#397449', { roughness: .73, side: THREE.DoubleSide }), surface('#4a8455', { roughness: .76, side: THREE.DoubleSide })];
+  const leafVein = surface('#729266', { roughness: .88 });
+  const foliage = [[-.36, 2.42, .02, -.45, -.28, .98], [.56, 2.78, .12, .40, -.30, 1.05], [-.54, 3.16, -.24, -.60, -.08, .88], [.24, 3.56, -.20, .65, -.12, .93], [.57, 1.95, .30, .90, -.48, .86], [-.57, 1.71, .28, -.82, -.52, .85], [.05, 2.67, -.46, 2.65, -.25, 1.0]];
+  foliage.forEach(([x, y, z, turn, tilt, size], i) => {
+    cable([[potX + .05 * (i % 3 - 1), 1.09, potZ], [potX + x * .36, 1.72 + (y - 2.5) * .3, potZ + z * .38], [potX + x, y, potZ + z]], .018, mat.green);
+    const leaf = new THREE.Group(); leaf.position.set(potX + x, y, potZ + z); leaf.rotation.set(tilt, turn, x * -.28); leaf.scale.setScalar(size); objects.add(leaf);
+    mesh(leafGeometry, monsteraMaterials[i % 2], 0, 0, 0, leaf);
+    cable([[0, .02, .012], [0, .45, .08], [0, .95, .10], [0, 1.37, .045]], .009, leafVein, leaf);
+  });
 
   // Midnight over-ear headphones: oval aluminium shells, mesh canopy, telescoping arms and USB-C.
   // The shape is modelled here, with no copied assets or brand marks.
-  const headphones = new THREE.Group(); headphones.position.set(2.27, 2.78, .10);
+  const headphones = new THREE.Group(); headphones.position.set(3.92, 2.735, 1.25); headphones.scale.setScalar(.78);
   headphones.rotation.set(-Math.PI / 2, 0, -.26); objects.add(headphones);
   const cupGeometry = new RoundedBoxGeometry(.53, .84, .235, 5, .22); geometries.set('headphone-aluminium-shell', cupGeometry);
   const cushionGeometry = new RoundedBoxGeometry(.49, .79, .12, 5, .21); geometries.set('headphone-cushion', cushionGeometry);
@@ -327,24 +369,27 @@ export function createDeskScene(THREE, { assetBase = './assets/', environmentMap
   const canopyMaterial = surface('#656d70', { map: weaveMap, bumpMap: weaveMap, bumpScale: .013, roughness: .97, side: THREE.DoubleSide });
   mesh(bandGeometry, canopyMaterial, 0, 0, 0, headphones);
 
-  // Upholstered task chair with a finished rear shell, armrests, gas lift and paired rolling casters.
-  const chair = new THREE.Group(); chair.position.set(.20, 0, 3.55); chair.rotation.y = -.16; objects.add(chair);
-  cylinder(.135, .97, 0, .72, 0, mat.metal, chair);
-  cylinder(.205, .25, 0, .27, 0, mat.white, chair);
-  box(2.02, .17, 1.87, 0, 1.39, 0, mat.white, chair, .13);
-  box(1.99, .18, 1.83, 0, 1.52, 0, mat.fabric, chair, .12);
-  const chairBack = new THREE.Group(); chairBack.position.set(0, 2.13, .82); chairBack.rotation.x = -.13; chair.add(chairBack);
-  box(2.02, 1.43, .20, 0, 0, 0, mat.white, chairBack, .17);
-  box(1.89, 1.30, .13, 0, .025, -.125, mat.fabric, chairBack, .15);
-  box(.19, 1.09, .12, 0, -.45, .16, mat.metal, chairBack, .045);
-  box(.43, .24, .25, 0, -.80, -.14, mat.white, chairBack, .05);
-  for (const side of [-1, 1]) {
-    cable([[side * .83, 1.34, .36], [side * 1.12, 1.55, .17], [side * 1.12, 1.97, .08]], .048, mat.white, chair);
-    box(.22, .10, 1.15, side * 1.12, 2.00, -.07, mat.fabric, chair, .07);
-  }
+  // A compact vintage task chair: cognac upholstery, charcoal rear plate and exposed adjustment hardware.
+  const chair = new THREE.Group(); chair.position.set(.10, 0, 3.58); chair.rotation.y = -.12; objects.add(chair);
+  cylinder(.13, .98, 0, .72, 0, mat.metal, chair);
+  cylinder(.19, .22, 0, .25, 0, mat.black, chair);
+  box(2.04, .16, 1.85, 0, 1.34, 0, mat.furniture, chair, .11);
+  box(2.08, .32, 1.90, 0, 1.54, 0, mat.leather, chair, .20);
+  // A fine piping seam follows all four edges of the seat cushion.
+  cable([[-.87, 1.56, -.83], [.87, 1.56, -.83], [.96, 1.56, -.66], [.96, 1.56, .65], [.83, 1.56, .84], [-.83, 1.56, .84], [-.96, 1.56, .65], [-.96, 1.56, -.66], [-.87, 1.56, -.83]], .012, surface('#795334', { roughness: .92 }), chair);
+  const chairBack = new THREE.Group(); chairBack.position.set(0, 2.29, .84); chairBack.rotation.x = -.11; chair.add(chairBack);
+  box(2.03, 1.22, .29, 0, 0, 0, mat.leather, chairBack, .18);
+  box(1.75, .94, .09, 0, 0, .18, mat.furniture, chairBack, .065);
+  box(.79, .37, .14, 0, -.02, .28, mat.metal, chairBack, .035);
+  const backKnob = cylinder(.14, .11, 0, -.02, .41, mat.furniture, chairBack, 12); backKnob.rotation.x = Math.PI / 2;
+  const knobCenter = cylinder(.083, .018, 0, -.02, .478, mat.metal, chairBack, 16); knobCenter.rotation.x = Math.PI / 2;
+  for (const x of [-.20, .20]) box(.095, 1.08, .11, x, -.78, .25, mat.metal, chairBack, .022);
+  box(.54, .20, .29, 0, 1.29, .40, mat.black, chair, .03);
+  cable([[.10, 1.25, .05], [.60, 1.23, .14], [.77, 1.28, .18]], .025, mat.metal, chair);
+  box(.26, .065, .14, .82, 1.28, .18, mat.black, chair, .025);
   for (let i = 0; i < 5; i++) {
     const angle = i * Math.PI * 2 / 5, x = Math.cos(angle) * 1.12, z = Math.sin(angle) * 1.12;
-    cable([[0, .25, 0], [Math.cos(angle) * .48, .19, Math.sin(angle) * .48], [x, .14, z]], .064, mat.white, chair);
+    cable([[0, .24, 0], [Math.cos(angle) * .48, .18, Math.sin(angle) * .48], [x, .14, z]], .069, mat.black, chair);
     cylinder(.065, .14, x, .13, z, mat.metal, chair, 16);
     for (const offset of [-.067, .067]) { const caster = cylinder(.105, .052, x, .084, z + offset, mat.rubber, chair, 20); caster.rotation.x = Math.PI / 2; }
   }
@@ -357,32 +402,43 @@ export function createDeskScene(THREE, { assetBase = './assets/', environmentMap
   const fill = new THREE.DirectionalLight('#e3edf1', .85); fill.position.set(5, 6, 4); scene.add(fill);
   const rimLight = new THREE.DirectionalLight('#ffffff', 1.0); rimLight.position.set(1, 7, -6); scene.add(rimLight);
 
-  const screenCenter = new THREE.Vector3(0, 4.65, -.492);
+  scene.updateMatrixWorld(true);
+  const screenCenter = screenTarget.getWorldPosition(new THREE.Vector3());
+  const screenScale = screenTarget.getWorldScale(new THREE.Vector3());
   const inspectionTarget = new THREE.Vector3();
   const initialPosition = new THREE.Vector3(), initialTarget = inspectionTarget;
   let zooming = false, finished = false, notified = false, elapsed = 0, previousBlink = -1;
   const fromPosition = new THREE.Vector3(), fromTarget = new THREE.Vector3(), lookTarget = new THREE.Vector3(), direction = new THREE.Vector3();
+  let approachCurve = null;
   let initialized = false;
   function initialView(width, height) {
-    const portrait = width / height < .8;
-    initialTarget.set(0, portrait ? 3.40 : 3.12, .05);
-    initialPosition.set(portrait ? 5.5 : 9.2, portrait ? 8.2 : 7.7, portrait ? 17.8 : 11.7);
-    if (width / height < .43) initialPosition.multiplyScalar(1.08);
+    const aspect = width / height, portrait = aspect < .8;
+    // An elevated framing target leaves the requested generous grey space above the furniture.
+    initialTarget.set(portrait ? .3 : -1.4, portrait ? 4.6 : 3.9, .05);
+    initialPosition.set(portrait ? 13.5 : 17.5, portrait ? 16.4 : 15.8, portrait ? 38.5 : 25);
+    if (aspect < .43) initialPosition.sub(initialTarget).multiplyScalar(1.12).add(initialTarget);
   }
   function finalPosition() {
     // Cover rather than contain: at completion the screen becomes the entire responsive desktop.
     const half = Math.tan(camera.fov * Math.PI / 360);
-    const distance = Math.min(2.28 / (2 * half), 3.74 / (2 * half * camera.aspect)) * .96;
+    const distance = Math.min(2.28 * screenScale.y / (2 * half), 3.74 * screenScale.x / (2 * half * camera.aspect)) * .96;
     return screenCenter.clone().add(new THREE.Vector3(0, 0, distance));
   }
   function resize(width, height) {
+    const previousRadius = initialized ? initialPosition.distanceTo(inspectionTarget) : 0;
+    const orbitOffset = initialized ? camera.position.clone().sub(inspectionTarget) : null;
     camera.aspect = width / height; camera.fov = width / height < .8 ? 39 : 38; camera.updateProjectionMatrix();
     initialView(width, height);
-    // OrbitControls owns the camera outside the deliberate entry animation. Resizing preserves its angle.
+    // Preserve the user's inspection angle while fitting the same relative zoom to a new viewport.
     if (!initialized) { camera.position.copy(initialPosition); lookTarget.copy(initialTarget); camera.lookAt(lookTarget); initialized = true; }
+    else if (!zooming && !finished) {
+      const radiusRatio = previousRadius > 0 ? initialPosition.distanceTo(inspectionTarget) / previousRadius : 1;
+      camera.position.copy(inspectionTarget).addScaledVector(orbitOffset, radiusRatio);
+      lookTarget.copy(inspectionTarget); camera.lookAt(lookTarget);
+    }
   }
   function reset() {
-    zooming = finished = notified = false; elapsed = 0; previousBlink = -1;
+    zooming = finished = notified = false; elapsed = 0; previousBlink = -1; approachCurve = null;
     camera.position.copy(initialPosition); lookTarget.copy(initialTarget); camera.lookAt(lookTarget); drawScreen(false, true);
   }
   function startZoom() {
@@ -390,13 +446,20 @@ export function createDeskScene(THREE, { assetBase = './assets/', environmentMap
     zooming = true; elapsed = 0; fromPosition.copy(camera.position);
     camera.getWorldDirection(direction);
     fromTarget.copy(camera.position).addScaledVector(direction, camera.position.distanceTo(inspectionTarget));
+    // Entry from a rear inspection angle travels above the housing before approaching its glass.
+    approachCurve = fromPosition.z < screenCenter.z + 1 ? new THREE.CubicBezierCurve3(
+      fromPosition.clone(), fromPosition.clone().add(new THREE.Vector3(0, 8, 0)),
+      screenCenter.clone().add(new THREE.Vector3(0, 7, 10)), finalPosition()
+    ) : null;
     drawScreen(true, true);
   }
   function update(dt, time, { reducedMotion = false } = {}) {
     if (zooming) {
       elapsed += Math.min(.1, Math.max(0, dt));
       const t = reducedMotion ? 1 : Math.min(1, elapsed / 1.65), eased = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      camera.position.lerpVectors(fromPosition, finalPosition(), eased); lookTarget.lerpVectors(fromTarget, screenCenter, eased); camera.lookAt(lookTarget);
+      if (approachCurve) { approachCurve.v3.copy(finalPosition()); approachCurve.getPoint(eased, camera.position); }
+      else camera.position.lerpVectors(fromPosition, finalPosition(), eased);
+      lookTarget.lerpVectors(fromTarget, screenCenter, eased); camera.lookAt(lookTarget);
       if (t === 1) { zooming = false; finished = true; }
     } else if (!finished) {
       const blink = reducedMotion ? 1 : Math.floor(time * 1.3) % 2;

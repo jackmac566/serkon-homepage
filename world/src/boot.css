@@ -1,84 +1,38 @@
-#loading.serkon-boot{--sb-green:#9beaaf;--sb-white:#ced9d0;--sb-muted:#6d8372;--sb-line:#253a2b;position:fixed;inset:0;display:flex;flex-direction:column;gap:34px;z-index:120;padding:35px 46px 24px;background:#020403;color:var(--sb-white);font:12px/1.7 'SFMono-Regular',Consolas,'Liberation Mono','PingFang SC',monospace;letter-spacing:.025em;overflow:hidden;transition:opacity .24s ease,visibility .24s ease;visibility:visible;opacity:1;color-scheme:dark;isolation:isolate}
-#loading.serkon-boot::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:3;background:repeating-linear-gradient(transparent 0,transparent 3px,#b6f1bc06 3px,#b6f1bc06 4px);opacity:.4}
+#loading.serkon-boot{position:fixed;inset:0;display:block;z-index:120;margin:0;padding:0;background:#000;color:#fff;font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation Mono',monospace,'PingFang SC';font-size:clamp(14px,1.45vw,21px);line-height:1.35;letter-spacing:.025em;overflow:hidden;opacity:1;visibility:visible;color-scheme:dark;transition:opacity .2s ease,visibility .2s ease}
 #loading.serkon-boot.done{opacity:0;visibility:hidden;pointer-events:none}
-#loading.serkon-boot *{box-sizing:border-box}
-#loading.serkon-boot p,#loading.serkon-boot h1{margin:0;font-family:inherit}
-#loading.serkon-boot .sb-header{display:flex;align-items:flex-start;justify-content:space-between;gap:25px;flex:none}
-#loading.serkon-boot .sb-brand{display:flex;flex-direction:column;gap:5px}
-#loading.serkon-boot .sb-brand>strong{font-size:clamp(23px,2.3vw,33px);font-weight:600;letter-spacing:.07em;line-height:1.25;color:var(--sb-green);text-shadow:0 0 18px #94e4a428}
-#loading.serkon-boot .sb-brand>strong>span{color:#6b9e75}
-#loading.serkon-boot .sb-brand>span{font-size:10px;letter-spacing:.2em;color:#a9baab}
-#loading.serkon-boot .sb-system-meta{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:10px;line-height:1.6;letter-spacing:.055em;color:#899b8c}
-#loading.serkon-boot .sb-system-meta>span:last-child{color:#5e7d65}
-#loading.serkon-boot .sb-terminal{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(310px,405px);gap:clamp(34px,6.5vw,110px);max-width:1500px;width:100%;margin:0 auto;align-items:center}
-#loading.serkon-boot .sb-console{height:100%;min-height:0;display:flex;flex-direction:column;padding-top:12px;border-top:1px solid var(--sb-line);overflow:hidden}
-#loading.serkon-boot .sb-console-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;color:var(--sb-muted);margin-bottom:19px;flex:none}
-#loading.serkon-boot h1{font-size:10px;line-height:1.6;font-weight:400;letter-spacing:.08em;color:#8ba18f}
-#loading.serkon-boot .sb-timer{font-size:9px;line-height:1.7;white-space:nowrap;color:#56775d;font-variant-numeric:tabular-nums;letter-spacing:.06em}
-#loading.serkon-boot .sb-mount{font-size:12px;line-height:1.8;color:#d2dfd4;flex:none;margin-bottom:18px}
-#loading.serkon-boot .sb-mount>span:first-child{color:var(--sb-green);margin-right:8px}
-#loading.serkon-boot .sb-mount>span:last-child{color:#6b8873}
-#loading.serkon-boot .sb-stages{display:flex;flex-direction:column;gap:4px;min-height:0;flex:none;max-height:150px;overflow:hidden}
-#loading.serkon-boot .sb-stage{display:grid;grid-template-columns:57px 1fr;gap:11px;font-size:11px;line-height:1.8}
-#loading.serkon-boot .sb-stage-status{color:var(--sb-green);font-size:10px}
-#loading.serkon-boot .sb-stage[data-status=wait] .sb-stage-status,#loading.serkon-boot .sb-stage[data-status=loading] .sb-stage-status{color:#627c68}
-#loading.serkon-boot .sb-stage[data-status=warn] .sb-stage-status,#loading.serkon-boot .sb-stage[data-status=error] .sb-stage-status{color:#dbbd80}
-#loading.serkon-boot .sb-stage-label{color:#a7b6aa;overflow-wrap:anywhere}
-#loading.serkon-boot .sb-trace-heading{display:flex;justify-content:space-between;gap:20px;padding-top:19px;margin:18px 0 10px;border-top:1px solid #16251b;font-size:8px;letter-spacing:.1em;color:#496650;flex:none}
-#loading.serkon-boot .sb-log-viewport{flex:1;min-height:84px;overflow:hidden;mask-image:linear-gradient(transparent,#000 9px);padding-top:5px;scroll-behavior:auto}
-#loading.serkon-boot .sb-history{display:flex;flex-direction:column;gap:3px}
-#loading.serkon-boot .sb-log-line{display:grid;grid-template-columns:25px 58px minmax(0,1fr);gap:9px;font-size:11px;line-height:1.8;animation:sb-line-in .16s ease-out both}
-#loading.serkon-boot .sb-log-seq{font-size:8px;line-height:2.4;color:#294733;font-variant-numeric:tabular-nums}
-#loading.serkon-boot .sb-log-time{font-size:9px;line-height:2.2;color:#466e51;font-variant-numeric:tabular-nums}
-#loading.serkon-boot .sb-log-text{color:#768f7e;overflow-wrap:anywhere;white-space:pre-wrap}
-#loading.serkon-boot .sb-log-line[data-status=ok] .sb-log-text{color:#86ae90}
-#loading.serkon-boot .sb-log-line[data-status=wait] .sb-log-text{color:#506f59}
-#loading.serkon-boot .sb-log-line[data-status=warn] .sb-log-text,#loading.serkon-boot .sb-log-line[data-status=error] .sb-log-text{color:#cdb587}
-#loading.serkon-boot .sb-runtime-line{display:flex;align-items:center;gap:8px;min-height:31px;padding-top:9px;margin-top:11px;font-size:9px;color:#6a9475;flex:none}
-#loading.serkon-boot .sb-live-dot{width:4px;height:4px;background:#6ea97c;flex:none;box-shadow:0 0 8px #71c78a55;animation:sb-dot 3s ease-in-out infinite}
-#loading.serkon-boot .sb-cursor{display:inline-block;width:6px;height:11px;background:#a1e8af;animation:sb-blink 1.15s steps(1,end) infinite;flex:none}
-#loading.serkon-boot .sb-launch{padding:25px 27px 16px;border:1px solid #4a7053;outline:1px solid #162e1d;outline-offset:5px;background:#020604;box-shadow:0 0 50px #315f3820;position:relative;min-width:0}
-#loading.serkon-boot .sb-launch::before,#loading.serkon-boot .sb-launch::after{content:'';position:absolute;width:7px;height:7px;border:1px solid #b5e7ba;background:#020604}
-#loading.serkon-boot .sb-launch::before{left:-4px;top:-4px}#loading.serkon-boot .sb-launch::after{right:-4px;bottom:-4px}
-#loading.serkon-boot .sb-launch-label{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:17px;margin-bottom:21px;border-bottom:1px solid #263e2d;font-size:8px;letter-spacing:.08em;color:#658b6f}
-#loading.serkon-boot .sb-launch-label>span:first-child{color:#a7c0aa}
-#loading.serkon-boot .sb-welcome{font-size:19px;line-height:1.5;letter-spacing:-.025em;color:#d2e1d3}
-#loading.serkon-boot .sb-owner{font-size:10px;line-height:1.85;color:#718d79;margin-top:10px}
-#loading.serkon-boot .sb-resource{margin-top:28px}
-#loading.serkon-boot .sb-resource-label{display:flex;justify-content:space-between;gap:14px;font-size:8px;letter-spacing:.04em;color:#6b8b73;margin-bottom:10px}
-#loading.serkon-boot .sb-resource-count{font-variant-numeric:tabular-nums;letter-spacing:.05em;color:#b4d9bc;white-space:nowrap}
-#loading.serkon-boot .sb-progress{height:7px;background:#13271a;border:1px solid #294631;position:relative;overflow:hidden}
-#loading.serkon-boot .sb-progress>span{position:absolute;left:0;top:0;bottom:0;width:0;background:repeating-linear-gradient(90deg,#8ad79c 0,#8ad79c 7px,#557d5e 7px,#557d5e 8px);box-shadow:0 0 10px #9de9b055;transition:width .14s linear}
-#loading.serkon-boot .sb-state{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:19px;font-size:10px;min-height:19px}
-#loading.serkon-boot .sb-state-label{font-size:10px;letter-spacing:.1em;color:#6a8b73}
-#loading.serkon-boot.sb-ready .sb-state-label{color:var(--sb-green)}
-#loading.serkon-boot .sb-state-note{display:block;width:100%;font-size:9px;line-height:1.85;color:#7d9a84;margin-top:1px}
-#loading.serkon-boot .sb-start-row{display:flex;flex-direction:column;align-items:stretch;gap:13px;margin-top:24px}
-#loading.serkon-boot .sb-start{display:inline-flex;align-items:center;justify-content:center;gap:30px;min-height:50px;padding:10px 15px;font-family:inherit;font-size:16px;line-height:1.4;letter-spacing:.16em;color:#b5efc1;background:#0a1b0f;border:1px solid #6fba80;cursor:pointer;transition:background .15s,color .15s,border-color .15s,box-shadow .15s}
-#loading.serkon-boot .sb-start>span{color:#5f8d68}
-#loading.serkon-boot .sb-start:disabled{color:#4a6752;border-color:#2b4833;background:#07100a;opacity:1;cursor:wait}
-#loading.serkon-boot .sb-start:disabled>span{color:#304e38}
-#loading.serkon-boot .sb-start:hover:not(:disabled){background:#a2e9b1;color:#07150b;border-color:#c2f5cb;box-shadow:0 0 25px #63c97c26}
-#loading.serkon-boot .sb-start:hover:not(:disabled)>span{color:#487151}
-#loading.serkon-boot .sb-start:focus-visible,#loading.serkon-boot input:focus-visible,#loading.serkon-boot .sb-command-form>button:focus-visible,#loading.serkon-boot .sb-footer a:focus-visible{outline:2px solid #c2f5cb;outline-offset:4px}
-#loading.serkon-boot .sb-start-hint{font-size:8px;line-height:1.8;color:#6c8a73;text-align:center;letter-spacing:.08em}
-#loading.serkon-boot .sb-command-form{display:flex;align-items:center;gap:9px;border-top:1px solid #203929;margin-top:22px;padding-top:14px;color:#86ad8e}
-#loading.serkon-boot .sb-command-form>label{font-size:10px;line-height:1;white-space:nowrap;color:#6b9c76}
-#loading.serkon-boot .sb-command-form>input{display:block;flex:1;min-width:0;width:100%;border:0;background:transparent;padding:5px 0;color:#b8dac0;font-family:inherit;font-size:10px;line-height:1.7;outline:0;border-radius:0;letter-spacing:.02em;caret-color:#b0e8bb}
-#loading.serkon-boot .sb-command-form>input::placeholder{color:#4d6e56;font-size:9px}
-#loading.serkon-boot .sb-command-form>button{width:30px;height:31px;flex:none;background:transparent;border:0;color:#82b28e;font-family:inherit;font-size:17px;line-height:1;cursor:pointer}
-#loading.serkon-boot .sb-command-output{font-size:9px;color:#9bc7a6;line-height:1.9;min-height:18px;margin-top:7px}
-#loading.serkon-boot .sb-footer{display:flex;justify-content:space-between;align-items:center;gap:20px;font-size:8px;letter-spacing:.08em;color:#57745e;flex:none}
-#loading.serkon-boot .sb-footer i{font-style:normal;opacity:.5;margin:0 11px}
-#loading.serkon-boot .sb-footer a{font-size:9px;color:#7d9d84;text-decoration:none;min-height:30px;display:inline-flex;align-items:center;letter-spacing:.02em;white-space:nowrap}
-#loading.serkon-boot .sb-footer a:hover{color:#b6ecc2}
-@keyframes sb-blink{0%,54%{opacity:1}55%,100%{opacity:0}}
-@keyframes sb-dot{0%,100%{opacity:.4}50%{opacity:1}}
-@keyframes sb-line-in{from{opacity:.2;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:1050px){#loading.serkon-boot{padding:28px 30px 20px;gap:25px}#loading.serkon-boot .sb-terminal{grid-template-columns:minmax(0,1fr) minmax(285px,350px);gap:30px}#loading.serkon-boot .sb-launch{padding:22px 22px 13px}#loading.serkon-boot .sb-log-line{font-size:10px;grid-template-columns:21px 50px minmax(0,1fr);gap:6px}#loading.serkon-boot .sb-log-time{font-size:8px}#loading.serkon-boot .sb-log-seq{font-size:7px}#loading.serkon-boot .sb-welcome{font-size:17px}}
-@media(max-width:700px){#loading.serkon-boot{padding:23px 23px 16px;gap:23px}#loading.serkon-boot .sb-header{gap:15px}#loading.serkon-boot .sb-brand{gap:5px}#loading.serkon-boot .sb-brand>strong{font-size:25px}#loading.serkon-boot .sb-brand>span{font-size:7px;letter-spacing:.18em}#loading.serkon-boot .sb-system-meta{font-size:7px;gap:2px;line-height:1.7;max-width:170px}#loading.serkon-boot .sb-terminal{grid-template-columns:1fr;grid-template-rows:minmax(115px,1fr) auto;align-items:stretch;gap:21px}#loading.serkon-boot .sb-console{padding-top:9px}#loading.serkon-boot .sb-console-heading{margin-bottom:9px;gap:10px}#loading.serkon-boot h1{font-size:7px;letter-spacing:.04em}#loading.serkon-boot .sb-timer{font-size:7px}#loading.serkon-boot .sb-mount{font-size:9px;margin-bottom:10px}#loading.serkon-boot .sb-stages{gap:1px;max-height:65px}#loading.serkon-boot .sb-stage{font-size:8px;grid-template-columns:43px 1fr;gap:5px}#loading.serkon-boot .sb-stage-status{font-size:7px}#loading.serkon-boot .sb-trace-heading{padding-top:9px;margin:9px 0 5px;font-size:6px}#loading.serkon-boot .sb-log-viewport{min-height:35px;padding-top:3px}#loading.serkon-boot .sb-history{gap:1px}#loading.serkon-boot .sb-log-line{font-size:8px;line-height:1.6;grid-template-columns:18px 42px minmax(0,1fr);gap:5px}#loading.serkon-boot .sb-log-time{font-size:7px;line-height:1.9}#loading.serkon-boot .sb-log-seq{font-size:6px;line-height:2}#loading.serkon-boot .sb-runtime-line{font-size:7px;min-height:23px;padding-top:6px;margin-top:7px;gap:6px}#loading.serkon-boot .sb-runtime-line .sb-cursor{width:4px;height:8px}#loading.serkon-boot .sb-launch{padding:16px 18px 8px;outline-offset:4px;box-shadow:0 0 35px #315f3815}#loading.serkon-boot .sb-launch-label{font-size:7px;padding-bottom:10px;margin-bottom:12px}#loading.serkon-boot .sb-welcome{font-size:16px;line-height:1.4}#loading.serkon-boot .sb-owner{font-size:8px;line-height:1.8;margin-top:7px}#loading.serkon-boot .sb-resource{margin-top:18px}#loading.serkon-boot .sb-resource-label{font-size:7px;margin-bottom:7px}#loading.serkon-boot .sb-progress{height:6px}#loading.serkon-boot .sb-state{margin-top:12px;gap:7px}#loading.serkon-boot .sb-state-label{font-size:9px}#loading.serkon-boot .sb-state-note{font-size:8px;line-height:1.7}#loading.serkon-boot .sb-start-row{margin-top:15px;gap:8px}#loading.serkon-boot .sb-start{min-height:44px;font-size:14px;gap:32px}#loading.serkon-boot .sb-start-hint{font-size:7px}#loading.serkon-boot .sb-command-form{margin-top:13px;padding-top:8px;gap:9px}#loading.serkon-boot .sb-command-form>label{font-size:8px}#loading.serkon-boot .sb-command-form>input{font-size:9px}#loading.serkon-boot .sb-command-form>input::placeholder{font-size:8px}#loading.serkon-boot .sb-command-form>button{height:27px;font-size:15px}#loading.serkon-boot .sb-command-output{font-size:7px;min-height:13px;margin-top:3px}#loading.serkon-boot .sb-footer{font-size:5px;gap:12px;letter-spacing:.03em}#loading.serkon-boot .sb-footer>span{max-width:180px}#loading.serkon-boot .sb-footer i{margin:0 6px}#loading.serkon-boot .sb-footer a{font-size:7px;min-height:22px}}
-@media(max-height:600px) and (min-width:701px){#loading.serkon-boot{padding:18px 28px 12px;gap:16px}#loading.serkon-boot .sb-brand>strong{font-size:24px}#loading.serkon-boot .sb-brand>span{font-size:7px}#loading.serkon-boot .sb-system-meta{font-size:7px}#loading.serkon-boot .sb-terminal{grid-template-columns:minmax(0,1fr) minmax(285px,340px);gap:28px}#loading.serkon-boot .sb-console-heading{margin-bottom:10px}#loading.serkon-boot .sb-mount{margin-bottom:10px;font-size:10px}#loading.serkon-boot .sb-stages{max-height:72px;gap:1px}#loading.serkon-boot .sb-stage{font-size:9px;line-height:1.6}#loading.serkon-boot .sb-stage-status{font-size:8px}#loading.serkon-boot .sb-trace-heading{padding-top:9px;margin:9px 0 5px}#loading.serkon-boot .sb-log-viewport{min-height:30px}#loading.serkon-boot .sb-runtime-line{min-height:20px;margin-top:6px;padding-top:5px;font-size:7px}#loading.serkon-boot .sb-launch{padding:13px 18px 7px}#loading.serkon-boot .sb-launch-label{margin-bottom:10px;padding-bottom:8px;font-size:7px}#loading.serkon-boot .sb-welcome{font-size:15px;line-height:1.4}#loading.serkon-boot .sb-owner{font-size:8px;margin-top:5px}#loading.serkon-boot .sb-resource{margin-top:12px}#loading.serkon-boot .sb-resource-label{font-size:7px;margin-bottom:6px}#loading.serkon-boot .sb-state{margin-top:10px;gap:6px;min-height:13px}#loading.serkon-boot .sb-state-label{font-size:8px}#loading.serkon-boot .sb-state-note{font-size:7px;line-height:1.6}#loading.serkon-boot .sb-start-row{margin-top:10px;gap:5px}#loading.serkon-boot .sb-start{min-height:34px;font-size:12px}#loading.serkon-boot .sb-start-hint{font-size:6px}#loading.serkon-boot .sb-command-form{margin-top:10px;padding-top:5px}#loading.serkon-boot .sb-command-form>label{font-size:8px}#loading.serkon-boot .sb-command-form>input{font-size:9px}#loading.serkon-boot .sb-command-form>button{height:24px;font-size:14px}#loading.serkon-boot .sb-command-output{font-size:7px;line-height:1.6;min-height:12px;margin-top:2px}#loading.serkon-boot .sb-footer{font-size:6px}#loading.serkon-boot .sb-footer a{font-size:7px;min-height:20px}}
-@media(max-height:660px) and (max-width:700px){#loading.serkon-boot{padding:16px 19px 12px;gap:15px}#loading.serkon-boot .sb-brand>strong{font-size:21px}#loading.serkon-boot .sb-terminal{gap:15px;grid-template-rows:minmax(70px,1fr) auto}#loading.serkon-boot .sb-stages{max-height:0}#loading.serkon-boot .sb-mount{margin-bottom:5px}#loading.serkon-boot .sb-trace-heading{padding-top:5px;margin-top:5px}#loading.serkon-boot .sb-launch{padding-top:12px}#loading.serkon-boot .sb-launch-label{margin-bottom:9px;padding-bottom:7px}#loading.serkon-boot .sb-owner{display:none}#loading.serkon-boot .sb-resource{margin-top:12px}#loading.serkon-boot .sb-state{margin-top:9px}#loading.serkon-boot .sb-start-row{margin-top:10px}#loading.serkon-boot .sb-command-form{margin-top:8px}#loading.serkon-boot .sb-command-output{min-height:11px}#loading.serkon-boot .sb-start{min-height:39px}}
-@media(prefers-reduced-motion:reduce){#loading.serkon-boot,#loading.serkon-boot *{transition:none!important;animation:none!important}}
-
-@media(max-height:600px) and (min-width:701px){#loading.serkon-boot .sb-launch{padding-top:10px;padding-bottom:6px}#loading.serkon-boot .sb-launch-label,#loading.serkon-boot .sb-owner,#loading.serkon-boot .sb-state-note,#loading.serkon-boot .sb-start-hint{display:none}#loading.serkon-boot .sb-resource{margin-top:8px}#loading.serkon-boot .sb-state{margin-top:6px}#loading.serkon-boot .sb-start-row{margin-top:8px}#loading.serkon-boot .sb-command-form{margin-top:8px}}
+#loading.serkon-boot *{box-sizing:border-box;font-family:inherit}
+#loading.serkon-boot p,#loading.serkon-boot h1{margin:0;font:inherit;line-height:1.35;color:#fff}
+#loading.serkon-boot p>span{display:inline;font:inherit;color:inherit}
+#loading.serkon-boot [hidden]{display:none!important}
+#loading.serkon-boot .sb-load-screen{position:absolute;inset:0;display:flex;flex-direction:column;padding:clamp(28px,4vw,64px);overflow:auto}
+#loading.serkon-boot .sb-header{display:flex;align-items:flex-start;gap:clamp(35px,5vw,95px);flex:none}
+#loading.serkon-boot .sb-brand{display:flex;flex-direction:column;font-weight:700;flex:none}
+#loading.serkon-boot .sb-brand>strong{font:inherit;font-weight:700;line-height:1.1;white-space:nowrap}
+#loading.serkon-boot .sb-version p{line-height:1.1;white-space:nowrap}
+#loading.serkon-boot .sb-load-main{flex:1;min-height:0;padding-top:clamp(40px,6vh,78px)}
+#loading.serkon-boot .sb-scene-name{margin-top:23px}
+#loading.serkon-boot .sb-stages{margin-top:5px;max-height:5.6em;overflow:hidden}
+#loading.serkon-boot .sb-stage{display:flex;gap:.6em;flex-wrap:wrap}
+#loading.serkon-boot .sb-resource-title{margin-top:clamp(32px,4vh,52px);white-space:nowrap}
+#loading.serkon-boot .sb-resources{margin-top:20px;padding-left:1.7em;max-width:min(680px,100%)}
+#loading.serkon-boot .sb-resource{display:flex;align-items:baseline;gap:1.5em;line-height:1.35}
+#loading.serkon-boot .sb-resource-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#loading.serkon-boot .sb-resource-value{flex:none;white-space:pre;font-variant-numeric:tabular-nums}
+#loading.serkon-boot .sb-load-cursor{margin-top:25px;line-height:1}
+#loading.serkon-boot .sb-cursor{display:inline-block;width:.72em;height:.19em;margin-left:.08em;vertical-align:-.12em;background:#fff;animation:sb-bios-cursor 1s steps(1,end) infinite}
+#loading.serkon-boot .sb-progress{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#loading.serkon-boot .sb-footer{padding-top:40px;flex:none}
+#loading.serkon-boot .sb-footer p{line-height:1.35}
+#loading.serkon-boot .sb-footer b{font-weight:700}
+#loading.serkon-boot .sb-ready-screen{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px}
+#loading.serkon-boot .sb-start-modal{width:min(660px,100%);border:7px solid #fff;padding:30px 32px 28px;background:#000;color:#fff;font-size:clamp(16px,1.75vw,25px);line-height:1.35;letter-spacing:.025em}
+#loading.serkon-boot .sb-start-modal h1{font-weight:400}
+#loading.serkon-boot .sb-start-modal>p{display:flex;align-items:baseline;gap:.35em;flex-wrap:wrap}
+#loading.serkon-boot .sb-start-row{display:flex;align-items:center;justify-content:center;margin-top:25px}
+#loading.serkon-boot .sb-start{display:inline-flex;align-items:center;justify-content:center;min-height:56px;padding:7px 13px;border:5px solid #fff;border-radius:0;background:#000;color:#fff;font:inherit;line-height:1.25;letter-spacing:0;cursor:pointer;transition:background .1s,color .1s}
+#loading.serkon-boot .sb-start:hover{background:#fff;color:#000}
+#loading.serkon-boot .sb-start:focus-visible{outline:none;text-decoration:underline;text-underline-offset:.17em}
+@keyframes sb-bios-cursor{0%,49%{opacity:1}50%,100%{opacity:0}}
+@media(max-width:700px){#loading.serkon-boot{font-size:clamp(11px,2.9vw,15px);letter-spacing:.01em}#loading.serkon-boot .sb-load-screen{padding:27px 22px 25px}#loading.serkon-boot .sb-header{gap:22px}#loading.serkon-boot .sb-version{font-size:9px;line-height:1.35;padding-top:1px}#loading.serkon-boot .sb-version p{white-space:normal;line-height:1.35}#loading.serkon-boot .sb-load-main{padding-top:44px}#loading.serkon-boot .sb-scene-name{margin-top:20px}#loading.serkon-boot .sb-stages{max-height:7em}#loading.serkon-boot .sb-resource-title{margin-top:32px}#loading.serkon-boot .sb-resources{padding-left:17px;margin-top:18px}#loading.serkon-boot .sb-resource{gap:10px;line-height:1.5}#loading.serkon-boot .sb-footer{padding-top:30px;font-size:10px}#loading.serkon-boot .sb-ready-screen{padding:24px}#loading.serkon-boot .sb-start-modal{border-width:5px;padding:24px 20px 22px;font-size:clamp(14px,3.8vw,20px)}#loading.serkon-boot .sb-start{min-height:45px;padding:7px 11px;border-width:4px}#loading.serkon-boot .sb-start-row{margin-top:23px}}
+@media(max-height:560px){#loading.serkon-boot{font-size:12px}#loading.serkon-boot .sb-load-screen{padding:22px 30px 18px}#loading.serkon-boot .sb-load-main{padding-top:25px}#loading.serkon-boot .sb-scene-name{margin-top:13px}#loading.serkon-boot .sb-stages{max-height:2.8em}#loading.serkon-boot .sb-resource-title{margin-top:19px}#loading.serkon-boot .sb-resources{margin-top:10px}#loading.serkon-boot .sb-resource{line-height:1.2}#loading.serkon-boot .sb-load-cursor{margin-top:12px}#loading.serkon-boot .sb-footer{padding-top:19px;font-size:10px}#loading.serkon-boot .sb-start-modal{padding:24px 27px 23px;font-size:18px;width:min(580px,100%)}#loading.serkon-boot .sb-start-row{margin-top:20px}#loading.serkon-boot .sb-start{min-height:45px;padding:6px 11px;border-width:4px}}
+@media(prefers-reduced-motion:reduce){#loading.serkon-boot,#loading.serkon-boot *{animation:none!important;transition:none!important}}
