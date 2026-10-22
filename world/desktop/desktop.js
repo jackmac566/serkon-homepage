@@ -28,7 +28,7 @@ const apps = {
   room: { label: '回到房间', icon: 'room' },
 };
 const windows = new Map();
-let front = null, topZ = 10, opening = 0, hostActive = true, drag = null, popup = null;
+let front = null, topZ = 10, opening = 0, hostActive = true, desktopInUse = true, drag = null, popup = null;
 const audio = new Audio(asset('genesis.mp3')); audio.preload = 'metadata'; audio.volume = .65;
 let musicNotice = '点击播放，听一首《创世纪》。';
 let lastMusicState = null;
@@ -62,6 +62,8 @@ function icon(kind) {
   return holder;
 }
 function post(type) {
+  if (type === 'desktopRequest') desktopInUse = false;
+  for (const item of windows.values()) suspendGame(item);
   pauseAudio();
   if (window.parent !== window) window.parent.postMessage({ source: 'serkon-desktop', type }, location.origin);
   else location.assign('../');
@@ -216,7 +218,12 @@ function renderMusic(item) {
 async function toggleAudio() {
   if (!hostActive) return;
   if (!audio.paused) { pauseAudio(); return; }
-  try { await audio.play(); musicNotice = '正在播放《创世纪》'; syncMusic(); }
+  try {
+    await audio.play();
+    const game = windows.get('samsy');
+    if (game?.gameFrame) windowAction(game, 'minimize');
+    musicNotice = '正在播放《创世纪》'; syncMusic();
+  }
   catch { musicNotice = '暂时无法播放，请再点击播放。'; syncMusic(); announce(musicNotice); }
 }
 function pauseAudio() { audio.pause(); musicNotice = '已暂停'; syncMusic(); }
@@ -249,7 +256,7 @@ function renderGame(item) {
   syncGame(item);
 }
 function syncGame(item) {
-  if (item.id !== 'samsy' || !item.gameStage || item.gameFrame || item.minimized || !hostActive || document.hidden) return;
+  if (item.id !== 'samsy' || !item.gameStage || item.gameFrame || item.minimized || !hostActive || !desktopInUse || document.hidden) return;
   pauseAudio();
   const frame = node('iframe', {
     title: 'SAMSY 互动小游戏', src: SAMSY,
@@ -302,8 +309,10 @@ window.addEventListener('keydown', event => {
 window.addEventListener('resize', () => { for (const item of windows.values()) { item.x = Math.max(0, Math.min(item.x, innerWidth - 120)); item.y = Math.max(0, Math.min(item.y, workspace.clientHeight - 30)); placeWindow(item); } closeStart(); closePopup(); });
 window.addEventListener('message', event => {
   if (event.source !== window.parent || event.origin !== location.origin || event.data?.source !== 'serkon-host') return;
-  if (['pause', 'desktopPause', 'hide'].includes(event.data.type)) { hostActive = false; pauseAudio(); for (const item of windows.values()) suspendGame(item); closeStart(); closePopup(); drag = null; }
-  else if (['resume', 'enter', 'desktopResume'].includes(event.data.type)) { hostActive = true; for (const item of windows.values()) syncGame(item); }
+  if (event.data.type === 'desktopPause') { desktopInUse = false; pauseAudio(); for (const item of windows.values()) suspendGame(item); }
+  else if (event.data.type === 'desktopResume') { desktopInUse = true; for (const item of windows.values()) syncGame(item); }
+  else if (['pause', 'hide'].includes(event.data.type)) { hostActive = false; pauseAudio(); for (const item of windows.values()) suspendGame(item); closeStart(); closePopup(); drag = null; }
+  else if (['resume', 'enter'].includes(event.data.type)) { hostActive = true; for (const item of windows.values()) syncGame(item); }
 });
 document.addEventListener('visibilitychange', () => { if (document.hidden) { pauseAudio(); for (const item of windows.values()) suspendGame(item); } else { for (const item of windows.values()) syncGame(item); } });
 window.addEventListener('pagehide', () => { pauseAudio(); for (const item of windows.values()) suspendGame(item); });

@@ -40,3 +40,6 @@ Visible author/technology/license introductions and links were removed from scen
 - Maximize applies the full-workspace window layout. Minimize removes the iframe (count 0); taskbar restore creates a fresh frame and the game loads again. Close removes both window and iframe (count 0).
 - The original site had one initial network fetch failure; reloading succeeded. No claim of offline availability or guaranteed third-party uptime. The app keeps a direct-site link and reload control.
 - Host pause/resume and room-audio focus use the existing same-origin desktop protocol; the third-party iframe itself cannot read the parent DOM. Required original notices inside the external site are unchanged.
+
+- Full local host flow also verified: START → baked room → native CRT approach → double-click SAMSY → third-party game scene renders inside the modeled monitor. Returning through the desktop room icon removes the game iframe (count 0). Direct desktop movement/jump was verified above; the automation driver cannot click the canvas through the nested 3D iframe transform, so CRT canvas pointer input is not claimed as a separate automated acceptance.
+- Studio TypeScript check passes after adding camera enter/exit lifecycle messages. Starting the music player minimizes any active game; audio focus remains with the foreground app.

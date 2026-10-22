@@ -153,6 +153,11 @@ export default class MonitorScreen extends EventEmitter {
         // Create iframe
         const iframe = document.createElement('iframe');
         this.iframe = iframe;
+        // Camera exit can happen without hiding the studio (for example Esc).
+        // Tell desktop apps separately so an online game cannot keep playing
+        // in the distant CRT, and host resume cannot accidentally restart it.
+        this.camera.on('enterMonitor', () => iframe.contentWindow?.postMessage({ source: 'serkon-host', type: 'desktopResume' }, location.origin));
+        this.camera.on('leftMonitor', () => iframe.contentWindow?.postMessage({ source: 'serkon-host', type: 'desktopPause' }, location.origin));
 
         // Bubble mouse move events to the main application, so we can affect the camera
         iframe.onload = () => {
