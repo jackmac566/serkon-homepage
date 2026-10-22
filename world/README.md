@@ -33,3 +33,9 @@ Kounine's Baguira/Boy/Sudo are CC0. SoundJay rain carries its separate source/te
 Deploy `world/dist` only to `serkon-world-preview` on the existing Cloudflare Pages project. Do not change production branch `main`, canonical deployment or bindings.
 
 `npm test --prefix world` checks byte-range handling and the retained legacy controller. It does not validate the new Rapier/GPU world; record actual browser QA separately in `QA.md`.
+
+## SAMSY desktop game
+
+The desktop and Start menu include a SAMSY icon. Double-clicking creates one classic window that embeds `https://samsy.ninja/` on demand; the original site is neither copied nor modified. Window controls support maximize, reload and close, with a direct-site link available. This is an online third-party experience, not a self-hosted/offline game.
+
+The frame is unloaded when minimized, closed, hidden by the host or the page is hidden. Restoring starts a new session; this avoids a hidden WebGL/audio loop. Game audio focus suppresses the studio background music through the existing desktop music message. The frame is cross-origin and sandboxed without top-navigation permission.

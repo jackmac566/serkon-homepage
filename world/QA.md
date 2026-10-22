@@ -32,3 +32,11 @@ Visible author/technology/license introductions and links were removed from scen
 - Native public ground-click checks: the landing route from (39.53, 37.83) to (42.09, 35.96) ends with the actual arrival message. A separate project-workshop route starts physical driving but safely stops near display props before arrival; this is not counted as a successful arrival. Bridge crossing is additionally covered by the regression with 432 actual original scenery/terrain colliders.
 - One first-load WASM network abort required a reload; the reloaded public world rendered and completed these interactions. This was a transport failure, not counted as a successful first-load check.
 - Draft PR: https://github.com/jackmac566/serkon-homepage/pull/3 . Production homepage has not been replaced.
+
+## SAMSY desktop integration — 2026-10-22
+
+- Combined production build and desktop JavaScript syntax check pass.
+- Actual desktop browser: double-click SAMSY opens its own window; the official third-party scene renders, the tutorial is dismissible, and Up/Space input changes the explored scene and avatar position. Screenshot: `outputs/serkon-samsy-desktop.png`.
+- Maximize applies the full-workspace window layout. Minimize removes the iframe (count 0); taskbar restore creates a fresh frame and the game loads again. Close removes both window and iframe (count 0).
+- The original site had one initial network fetch failure; reloading succeeded. No claim of offline availability or guaranteed third-party uptime. The app keeps a direct-site link and reload control.
+- Host pause/resume and room-audio focus use the existing same-origin desktop protocol; the third-party iframe itself cannot read the parent DOM. Required original notices inside the external site are unchanged.

@@ -2,6 +2,7 @@ const $ = selector => document.querySelector(selector);
 const workspace = $('#workspace'), layer = $('#windows'), tasks = $('#tasks');
 const asset = name => new URL('../assets/' + name, location.href).href;
 const HOME = 'https://serkon-homepage-cn.pages.dev/';
+const SAMSY = 'https://samsy.ninja/';
 const projects = [
   { title: '强鹰彩色胶', kind: '产品视觉与网站', href: 'https://qiangying-color-sealant-cn.pages.dev/', description: '126 色、硬支与软支两类规格，再到实际使用场景。把产品信息整理成一套统一的视觉和网站。', image: 'color.webp' },
   { title: '妙笔 AI', kind: '独立文案工作台', href: 'https://miaobi-appl-serkon.pages.dev/', description: '从想法到文字的独立工作台。这里连接到实际产品，可以直接打开看看。' },
@@ -20,6 +21,7 @@ const photos = [
 const apps = {
   home: { title: '我的主页 — Internet Explorer', label: '我的主页', icon: 'browser' },
   world: { label: '创作后院', icon: 'world' },
+  samsy: { title: 'SAMSY — 互动小游戏', label: 'SAMSY', icon: 'ninja' },
   photos: { title: '照片 — 图片查看器', label: '照片', icon: 'photos' },
   music: { title: '创世纪 — 媒体播放器', label: '音乐', icon: 'music' },
   credits: { title: '关于电脑', label: '关于电脑', icon: 'info' },
@@ -49,6 +51,7 @@ function icon(kind) {
   const drawings = {
     browser: '<path fill="#eee" stroke="#111" d="M4 5h28v24H4z"/><path fill="#000080" d="M5 6h26v5H5z"/><path fill="#fff" d="M7 14h22v12H7z"/><path fill="#008080" d="M10 16h16v3H10zm0 5h9v2h-9z"/><path stroke="#777" d="M8 31h20"/>',
     world: '<path fill="#d7c77c" stroke="#111" d="m4 14 14-8 14 8v17H4z"/><path fill="#488c5a" stroke="#173e27" d="m3 14 15-11 15 11z"/><path fill="#c2e1df" stroke="#111" d="M8 18h7v7H8zm14 0h6v7h-6z"/><path fill="#7a5137" stroke="#111" d="M16 21h5v10h-5z"/>',
+    ninja: '<path fill="#111" stroke="#000" d="M10 3h16v4h4v20h-4v6H10v-6H6V7h4z"/><path fill="#dbd7c5" d="M9 12h18v8H9z"/><path fill="#141414" d="M12 14h3v3h-3zm9 0h3v3h-3z"/><path fill="#d8323e" d="M6 8h24v4H6zm23 1h5v4h-5zm1 4h4v7h-4z"/><path fill="#555" d="M11 25h14v2H11z"/>',
     photos: '<path fill="#999" stroke="#111" d="m3 9 26-5 5 25-26 5z"/><path fill="#fff" stroke="#111" d="M5 5h26v25H5z"/><path fill="#b8e5e8" d="M8 8h20v17H8z"/><path fill="#399263" d="m8 25 6-11 6 7 4-5 4 9z"/><path fill="#f4db79" d="M23 10h3v3h-3z"/>',
     music: '<path fill="#fff" stroke="#111" d="M7 3h18l5 6v23H7z"/><path fill="#c0c0c0" stroke="#111" d="M25 3v6h5"/><path fill="#000080" d="M18 11h8v13h-4V15h-4v12h-4V13h4z"/><path fill="#008080" d="M11 25h7v5h-7zm10-4h7v5h-7z"/>',
     info: '<path fill="#f4e8a4" stroke="#111" d="m6 3 23 1 3 28-25 1z"/><path fill="#000080" d="M16 8h5v5h-5zm0 8h5v11h-5z"/>',
@@ -68,12 +71,13 @@ function launchApp(id, options = {}) {
   if (id === 'world') { post('launchWorld'); return; }
   if (id === 'room') { post('desktopRequest'); return; }
   const existing = windows.get(id);
-  if (existing) { existing.minimized = false; existing.element.hidden = false; focusWindow(existing); if (options.page) navigate(existing, options.page); return; }
+  if (existing) { existing.minimized = false; existing.element.hidden = false; focusWindow(existing); syncGame(existing); if (options.page) navigate(existing, options.page); return; }
   const app = apps[id], count = opening++;
-  const width = id === 'home' ? 940 : id === 'photos' ? 900 : id === 'music' ? 550 : 650;
-  const height = id === 'home' ? 760 : id === 'photos' ? 680 : id === 'music' ? 430 : 560;
+  const width = id === 'samsy' ? 1040 : id === 'home' ? 940 : id === 'photos' ? 900 : id === 'music' ? 550 : 650;
+  const height = id === 'samsy' ? 780 : id === 'home' ? 760 : id === 'photos' ? 680 : id === 'music' ? 430 : 560;
   const item = { id, ...app, x: Math.min(160 + count * 26, Math.max(8, innerWidth - width - 12)), y: Math.min(64 + count * 23, Math.max(8, innerHeight - height - 52)), width, height, minimized: false, maximized: false, history: ['home'], historyIndex: 0, photoIndex: 0 };
   item.element = node('section', { class: 'window', role: 'region', 'aria-label': app.title, tabindex: '-1' });
+  if (id === 'samsy') item.element.classList.add('game-window');
   const titlebar = node('header', { class: 'titlebar' });
   titlebar.append(icon(app.icon), node('span', { class: 'window-title', text: app.title }));
   const buttons = node('div', { class: 'title-controls' });
@@ -88,7 +92,7 @@ function launchApp(id, options = {}) {
   item.element.append(item.body, item.status);
   item.task = node('button', { type: 'button', class: 'task-button', 'aria-label': app.label, 'aria-pressed': 'false', onClick: () => {
     if (front === item && !item.minimized) windowAction(item, 'minimize');
-    else { item.minimized = false; item.element.hidden = false; focusWindow(item); }
+    else { item.minimized = false; item.element.hidden = false; focusWindow(item); syncGame(item); }
   } }, [icon(app.icon), node('span', { text: app.label })]);
   tasks.append(item.task); layer.append(item.element); windows.set(id, item);
   placeWindow(item); renderWindow(item); focusWindow(item, !options.initial);
@@ -108,11 +112,12 @@ function windowAction(item, action) {
   closePopup();
   if (action === 'close') {
     if (item.id === 'music') pauseAudio();
+    suspendGame(item);
     item.element.remove(); item.task.remove(); windows.delete(item.id); if (front === item) front = null;
     const next = [...windows.values()].filter(win => !win.minimized).sort((a, b) => Number(b.element.style.zIndex) - Number(a.element.style.zIndex))[0];
     if (next) focusWindow(next); announce('已关闭' + item.label); return;
   }
-  if (action === 'minimize') { item.minimized = true; item.element.hidden = true; item.task.classList.remove('active'); item.task.setAttribute('aria-pressed', 'false'); if (front === item) { front = null; const next = [...windows.values()].filter(win => !win.minimized).sort((a, b) => Number(b.element.style.zIndex) - Number(a.element.style.zIndex))[0]; if (next) focusWindow(next); } announce('已最小化' + item.label); return; }
+  if (action === 'minimize') { item.minimized = true; suspendGame(item); item.element.hidden = true; item.task.classList.remove('active'); item.task.setAttribute('aria-pressed', 'false'); if (front === item) { front = null; const next = [...windows.values()].filter(win => !win.minimized).sort((a, b) => Number(b.element.style.zIndex) - Number(a.element.style.zIndex))[0]; if (next) focusWindow(next); } announce('已最小化' + item.label); return; }
   if (action === 'maximize') { item.maximized = !item.maximized; placeWindow(item); focusWindow(item); }
 }
 function startDrag(item, titlebar, event) {
@@ -150,6 +155,7 @@ function renderWindow(item) {
   if (item.id === 'home') renderBrowser(item);
   else if (item.id === 'photos') renderPhotos(item);
   else if (item.id === 'music') renderMusic(item);
+  else if (item.id === 'samsy') renderGame(item);
   else renderCredits(item);
 }
 function renderBrowser(item) {
@@ -215,8 +221,9 @@ async function toggleAudio() {
 }
 function pauseAudio() { audio.pause(); musicNotice = '已暂停'; syncMusic(); }
 function syncMusic() {
-  if (lastMusicState !== !audio.paused) {
-    lastMusicState = !audio.paused;
+  const hasForegroundAudio = !audio.paused || !!windows.get('samsy')?.gameFrame;
+  if (lastMusicState !== hasForegroundAudio) {
+    lastMusicState = hasForegroundAudio;
     if (window.parent !== window) window.parent.postMessage({ source: 'serkon-desktop', type: 'music', playing: lastMusicState }, location.origin);
   }
   const item = windows.get('music');
@@ -231,6 +238,39 @@ function renderCredits(item) {
   const page = node('article', { class: 'credits-page' }, [node('h1', { text: '我的电脑' }), node('p', { text: '作品、照片和音乐，都收在这台电脑里。' }), node('p', { text: '打开「创作后院」，出去走走；想休息，就回到房间坐一会儿。' })]);
   item.body.append(page); item.status.textContent = '关于此桌面';
 }
+function renderGame(item) {
+  const toolbar = node('nav', { class: 'game-toolbar', 'aria-label': '小游戏操作' }, [
+    node('span', { text: 'SAMSY' }),
+    node('button', { type: 'button', text: '重新载入', onClick: () => { suspendGame(item); syncGame(item); } }),
+    link('单独打开 ↗', SAMSY),
+  ]);
+  item.gameStage = node('div', { class: 'game-stage' });
+  item.body.append(toolbar, item.gameStage);
+  syncGame(item);
+}
+function syncGame(item) {
+  if (item.id !== 'samsy' || !item.gameStage || item.gameFrame || item.minimized || !hostActive || document.hidden) return;
+  pauseAudio();
+  const frame = node('iframe', {
+    title: 'SAMSY 互动小游戏', src: SAMSY,
+    allow: 'autoplay; fullscreen; gamepad', allowfullscreen: '',
+    sandbox: 'allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-popups allow-popups-to-escape-sandbox',
+    referrerpolicy: 'no-referrer',
+  });
+  item.gameFrame = frame;
+  item.status.textContent = '正在打开 SAMSY…';
+  frame.addEventListener('load', () => { if (item.gameFrame === frame) item.status.textContent = 'SAMSY · 联机互动'; });
+  item.gameStage.append(frame);
+  syncMusic();
+}
+function suspendGame(item) {
+  if (item.id !== 'samsy' || !item.gameFrame) return;
+  // Cross-origin games have no shared pause API. Unload the frame so a hidden
+  // window cannot keep running WebGL/audio behind the room or explorer.
+  item.gameFrame.remove(); item.gameFrame = null;
+  item.status.textContent = '已停止 · 恢复窗口后重新开始';
+  syncMusic();
+}
 function closePopup() { popup?.remove(); popup = null; }
 function showPopup(button, entries) {
   closePopup(); closeStart(); const rect = button.getBoundingClientRect(); popup = node('div', { class: 'menu-popup', role: 'menu' });
@@ -244,7 +284,7 @@ for (const [id, app] of Object.entries(apps)) {
   button.addEventListener('click', event => { for (const other of $('#desktop-icons').children) other.classList.toggle('selected', other === button); if (event.detail === 0 || innerWidth <= 680 || matchMedia('(pointer:coarse)').matches) launchApp(id); });
   button.addEventListener('dblclick', () => launchApp(id)); $('#desktop-icons').append(button);
 }
-for (const [id, title] of [['home', '我的主页'], ['world', '创作后院'], ['photos', '照片'], ['music', '音乐'], ['contact', '联系我'], ['credits', '关于电脑'], ['room', '回到房间']]) {
+for (const [id, title] of [['home', '我的主页'], ['world', '创作后院'], ['samsy', 'SAMSY'], ['photos', '照片'], ['music', '音乐'], ['contact', '联系我'], ['credits', '关于电脑'], ['room', '回到房间']]) {
   const idForIcon = id === 'contact' ? 'home' : id;
   $('#start-items').append(node('button', { type: 'button', class: 'start-item', onClick: () => id === 'contact' ? launchApp('home', { page: 'contact' }) : launchApp(id) }, [icon(apps[idForIcon].icon), node('span', { text: title })]));
 }
@@ -262,11 +302,11 @@ window.addEventListener('keydown', event => {
 window.addEventListener('resize', () => { for (const item of windows.values()) { item.x = Math.max(0, Math.min(item.x, innerWidth - 120)); item.y = Math.max(0, Math.min(item.y, workspace.clientHeight - 30)); placeWindow(item); } closeStart(); closePopup(); });
 window.addEventListener('message', event => {
   if (event.source !== window.parent || event.origin !== location.origin || event.data?.source !== 'serkon-host') return;
-  if (['pause', 'desktopPause', 'hide'].includes(event.data.type)) { hostActive = false; pauseAudio(); closeStart(); closePopup(); drag = null; }
-  else if (['resume', 'enter', 'desktopResume'].includes(event.data.type)) hostActive = true;
+  if (['pause', 'desktopPause', 'hide'].includes(event.data.type)) { hostActive = false; pauseAudio(); for (const item of windows.values()) suspendGame(item); closeStart(); closePopup(); drag = null; }
+  else if (['resume', 'enter', 'desktopResume'].includes(event.data.type)) { hostActive = true; for (const item of windows.values()) syncGame(item); }
 });
-document.addEventListener('visibilitychange', () => { if (document.hidden) pauseAudio(); });
-window.addEventListener('pagehide', pauseAudio);
+document.addEventListener('visibilitychange', () => { if (document.hidden) { pauseAudio(); for (const item of windows.values()) suspendGame(item); } else { for (const item of windows.values()) syncGame(item); } });
+window.addEventListener('pagehide', () => { pauseAudio(); for (const item of windows.values()) suspendGame(item); });
 function clock() { const now = new Date(); $('#clock').textContent = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false }); $('#clock').dateTime = now.toISOString(); }
 clock(); setInterval(clock, 15000);
 launchApp('home', { initial: true });
