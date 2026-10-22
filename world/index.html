@@ -3,40 +3,16 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow"><link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <meta name="theme-color" content="#ffffff"><meta name="description" content="从一台3D电脑进入侯世康的桌面，再打开可以自由驾驶的创作后院。">
+  <meta name="theme-color" content="#b5b5b5"><meta name="description" content="从一台3D电脑进入侯世康的桌面，再打开可以自由驾驶的创作后院。">
   <title>Serkon — 电脑里的创作世界</title>
 </head>
-<body data-mode="boot">
+<body data-mode="studio">
   <a class="skip-world" href="#directory">跳过漫游，直接浏览内容</a>
-  <canvas id="world" aria-label="Serkon 的3D创作后院。可用方向键或WASD驾驶，也可用地点导航直接前往。" tabindex="0"></canvas>
-  <div id="loading" role="status"><span class="loading-mark">s.</span><p>正在打开后院<span>照片、作品，还有一张唱片。</span></p><a class="loading-fallback" href="https://serkon-homepage-cn.pages.dev/">加载较慢？先看原来的个人网站 ↗</a></div>
-  <section id="desk-entry" class="desk-entry" aria-labelledby="desk-entry-title">
-    <div class="desk-entry-brand"><strong>Serkon / 侯世康</strong><span>Personal Studio</span><div class="room-toolbar"><time id="room-clock" aria-label="北京时间"></time><button id="room-sound" aria-label="播放创世纪" aria-pressed="false">♫</button><button id="room-reset" aria-label="恢复房间默认视角">↺</button></div></div>
-    <div class="desk-entry-copy"><h1 id="desk-entry-title">侯世康的房间。</h1><div><button id="enter-computer">进入电脑 <span>↗</span></button><button id="skip-computer">直接到桌面</button><button id="skip-to-world">进入后院 ↗</button></div></div>
-    <div class="desk-entry-hint"><span>拖动视角 · 360° / 点击屏幕进入</span><button id="room-orbit" aria-pressed="true">暂停环绕</button></div>
-  </section>
-  <header class="world-header">
-    <a class="world-logo" href="https://serkon-homepage-cn.pages.dev/" target="_blank" rel="noopener noreferrer">serkon<span>侯世康的创作后院</span></a>
-    <div class="header-actions"><button id="back-desktop" class="pill-button">回到桌面 <span>↖</span></button><button id="directory" class="pill-button">直接浏览 <span>↗</span></button><button id="help-button" class="icon-button" aria-label="操作说明">?</button></div>
-  </header>
-  <section class="welcome" id="welcome" aria-label="开始探索">
-    <p class="world-edition">一个人的作品、照片与声音</p><h1>欢迎来<br>我的后院。</h1>
-    <p>开辆小车，随便转转。<br>点击任意空地，车就会开过去。</p>
-    <button id="start-driving">开始漫游 <span>↗</span></button>
-    <small>WASD / 方向键驾驶 · 拖动视角 · 滚轮缩放</small>
-  </section>
-  <div id="world-pins" class="world-pins" aria-label="场景地点"></div>
-  <aside class="world-map" aria-label="后院地图"><button id="map-toggle" aria-expanded="true">后院地图 <span>−</span></button><div id="map-body"><svg viewBox="0 0 140 140" role="img" aria-label="当前位置与五个地点"><rect x="8" y="8" width="124" height="124" rx="24" fill="#e0d9c7"/><circle cx="70" cy="70" r="25.5" fill="none" stroke="#f7f3e7" stroke-width="3.8"/><path d="M50 62H88M70 45V96M50 80H88" stroke="#f7f3e7" stroke-width="3" fill="none"/><g id="map-stations"></g><g id="map-car"><path d="M0-5 4 4 0 2-4 4Z" fill="#e7623f" stroke="#fff8e8" stroke-width="1.1"/></g></svg><p>空地也可以点到达</p></div></aside>
-  <div class="view-controls"><button id="view-mode" class="icon-button" aria-label="切换到全景视角">⌖</button><button id="reset-car" class="icon-button" aria-label="将小车放回中央广场">↺</button></div>
-  <aside id="arrival" class="arrival" hidden><span id="arrival-label"></span><button id="enter-station">进去看看 <kbd>E</kbd></button></aside>
-  <aside id="scene-action" class="scene-action" hidden><span id="scene-action-label"></span><button id="activate-scene-action"></button></aside>
-  <aside id="travel-status" class="travel-status" hidden><span></span><button id="travel-open">直接打开 ↗</button><button id="travel-cancel" aria-label="停止自动前往">×</button></aside>
-  <nav id="places" class="place-dock" aria-label="五个地点"></nav>
-  <p id="object-hint" class="object-hint" aria-hidden="true" hidden></p>
-  <div class="touch-controls" aria-label="触屏驾驶"><div class="joystick" id="joystick" role="group" aria-label="按住并拖动驾驶摇杆"><span class="joystick-base">驾驶</span><span id="joystick-thumb"></span></div><button id="touch-brake" aria-label="按住刹车">刹车</button></div>
-  <footer class="world-footer"><span id="drive-status" role="status">自由漫游</span><span class="footer-hints">WASD / ↑↓←→ <i>驾驶</i> · SPACE <i>刹车</i> · R <i>回到广场</i></span><button id="music-status">♫ <span>唱片未播放</span></button></footer>
-  <dialog id="help-dialog" class="help-dialog" aria-labelledby="help-title"><button class="help-close icon-button" aria-label="关闭操作说明">×</button><p class="world-edition">在这里怎么逛</p><h2 id="help-title">方向盘交给你。</h2><dl><div><dt>W / ↑</dt><dd>向前开</dd></div><div><dt>S / ↓</dt><dd>减速与倒车</dd></div><div><dt>A D / ← →</dt><dd>转向</dd></div><div><dt>空格</dt><dd>刹车</dd></div><div><dt>E / 点击地点</dt><dd>进入附近的地方</dd></div><div><dt>F</dt><dd>操作附近投影或唱机</dd></div><div><dt>R</dt><dd>把车放回广场</dd></div></dl><p>鼠标拖动可转满 360°，滚轮缩放。<br>手机用左下摇杆，右侧按钮刹车。<br>点击路面或空地，车会自动绕行到那里。<br>地图和底部地点可以直接前往作品。</p><label><input id="reduced-motion" type="checkbox"> 减少镜头和场景动态</label><button id="help-directory" class="pill-button">直接看全部内容 ↗</button><p class="world-credits">Ferrari 458 Italia · vicent091036 · <a href="./models/vehicle/LICENSE.md" target="_blank" rel="noopener noreferrer">CC BY 4.0</a><br>已调整材质、比例与车轮动画。<a href="./THIRD_PARTY_NOTICES.txt" target="_blank" rel="noopener noreferrer">全部素材署名与许可</a></p></dialog>
   <p id="world-notice" role="status" aria-live="polite"></p>
+  <section id="studio-fallback" class="studio-fallback" hidden role="region" aria-label="工作室加载恢复">
+    <p id="studio-fallback-message" role="status"></p>
+    <div><button id="studio-desktop-fallback" type="button">直接进入桌面</button><button id="studio-retry" type="button">重试房间</button></div>
+  </section>
   <noscript><main class="no-script"><h1>Serkon / 侯世康</h1><p>3D 后院需要 JavaScript；可以直接进入原来的作品与生活档案。</p><a href="https://serkon-homepage-cn.pages.dev/serkon">个人档案</a> · <a href="https://serkon-homepage-cn.pages.dev/life">生活影像</a> · <a href="https://qiangying-color-sealant-cn.pages.dev/">产品作品</a> · <a href="https://music.163.com/#/song?id=2753362002">创世纪</a></main></noscript>
   <script type="module" src="/src/main.js"></script>
 </body></html>

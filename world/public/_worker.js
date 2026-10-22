@@ -3,7 +3,7 @@
  * It never imports the production application or accesses a database.
  * Pages ASSETS may return full files for Range, so slice single audio ranges here.
  */
-const MUSIC_PATH = '/assets/genesis.mp3';
+const isMusicPath = path => path === '/assets/genesis.mp3' || path === '/explorer/assets/genesis.mp3' || /^\/explorer\/sounds\/musics\/[^/]+\.mp3$/i.test(path);
 const CACHE_CONTROL = 'public, max-age=86400';
 
 function parseRange(value, length) {
@@ -43,7 +43,7 @@ function rangeStillMatches(value, headers) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.pathname !== MUSIC_PATH) return env.ASSETS.fetch(request);
+    if (!isMusicPath(url.pathname)) return env.ASSETS.fetch(request);
     if (request.method !== 'GET' && request.method !== 'HEAD') {
       return new Response('Method not allowed', {
         status: 405,

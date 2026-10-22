@@ -28,7 +28,7 @@ export function createPanels({ onClose = () => {}, onVisit = () => {}, onTravel 
         <a class="wp-text-link wp-process-link" href="${HOME_URL}/life" ${external}>去原站看影像档案 ${iconArrow}</a>
       </section>
       <section class="wp-page" data-page="music" hidden>
-        <div class="wp-record-layout"><div class="wp-record-art"><div class="wp-vinyl" aria-hidden="true"><div class="wp-vinyl-label"><span>位面之子 FK</span><strong>创世纪</strong><small>GENESIS / SIDE A</small></div></div><p class="wp-record-caption">给后院放一张自己的唱片。</p></div><div class="wp-record-copy"><p class="wp-eyebrow">ORIGINAL MUSIC / 已公开发布</p><h3>创世纪</h3><p class="wp-artist">位面之子 FK</p><p>关于宇宙、回声与创造的一首歌。<br>坐一会儿听，也可以让它陪你继续逛。</p><button type="button" class="wp-play" aria-label="播放创世纪"><span aria-hidden="true">▷</span><span class="wp-play-label">放这张唱片</span></button><div class="wp-native-player"></div><p class="wp-audio-status" role="status" aria-live="polite">点击播放后开始。关闭这页，音乐可以继续。</p><a class="wp-text-link" href="https://music.163.com/#/song?id=2753362002" ${external}>网易云音乐上的发行页 ${iconArrow}</a></div></div>
+        <div class="wp-record-layout"><div class="wp-record-art"><div class="wp-vinyl" aria-hidden="true"><div class="wp-vinyl-label"><span>位面之子 FK</span><strong>创世纪</strong><small>GENESIS / SIDE A</small></div></div><p class="wp-record-caption">给后院放一张自己的唱片。</p></div><div class="wp-record-copy"><p class="wp-eyebrow">ORIGINAL MUSIC / 已公开发布</p><h3>创世纪</h3><p class="wp-artist">位面之子 FK</p><p>关于宇宙、回声与创造的一首歌。<br>坐一会儿听，也可以让它陪你继续逛。</p><button type="button" class="wp-play" aria-label="播放创世纪"><span aria-hidden="true">▷</span><span class="wp-play-label">放这张唱片</span></button><div class="wp-native-player"></div><p class="wp-audio-status" role="status" aria-live="polite">点击播放后开始。在桌面可继续播放；回到探索世界时恢复场景配乐。</p><a class="wp-text-link" href="https://music.163.com/#/song?id=2753362002" ${external}>网易云音乐上的发行页 ${iconArrow}</a></div></div>
         <details class="wp-release-proof"><summary>翻一下发行记录 <span aria-hidden="true">＋</span></summary><img src="${asset('genesis.webp')}" alt="原站公开的创世纪音乐发行页面截图" loading="lazy" decoding="async"></details>
       </section>
       <section class="wp-page" data-page="life" hidden>
@@ -178,7 +178,7 @@ export function createPanels({ onClose = () => {}, onVisit = () => {}, onTravel 
     playButton.setAttribute('aria-label', playing ? '暂停创世纪' : '播放创世纪');
     playButton.querySelector('[aria-hidden]').textContent = playing ? 'Ⅱ' : '▷';
     playLabel.textContent = playing ? '暂停这张唱片' : audio.currentTime > 0 && !audio.ended ? '继续听' : '放这张唱片';
-    if (playing) audioStatus.textContent = '正在播放。回到后院，音乐也会继续。';
+    if (playing) audioStatus.textContent = document.body.dataset.mode === 'world' ? '正在播放个人作品。关闭后恢复场景配乐。' : '正在播放。关闭这页，音乐也会继续。';
     else if (audio.ended) audioStatus.textContent = '这一面放完了。可以再听一次，或继续逛逛。';
     else if (audio.currentTime > 0) audioStatus.textContent = '已暂停，想听时再继续。';
     onMusic(playing);

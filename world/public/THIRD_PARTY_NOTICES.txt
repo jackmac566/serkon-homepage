@@ -1,3 +1,40 @@
+ACTIVE ROOM AND WORLD
+=====================
+Henry Heffernan — portfolio-website
+https://github.com/henryjeff/portfolio-website
+Revision c53c5a50183655eb83d70048403a5084f5d1214c
+Copyright 2024 Henry Heffernan. MIT.
+Original room geometry, baked light, camera, CRT, coffee steam and entry are
+adapted with user content. Full permission and disclaimer: studio/LICENSE.md.
+Provenance and changes: studio/UPSTREAM.md.
+No portfolio-inner-site source is redistributed; the retro desktop is original.
+Undocumented original recordings/radio songs are excluded. Room music is the
+CC0 Baguira track below; clicks, keys and startup are synthesized PCM.
+
+Bruno Simon — folio-2025
+https://github.com/brunosimon/folio-2025
+Revision 41046b57eeed8d156d9c3fd7fa259900baef7816
+Copyright 2025 Bruno Simon. MIT.
+Original world, models, shaders and vehicle/physics/interaction implementation
+are adapted with Serkon content and local host/navigation integration.
+Full permission and disclaimer: explorer/license.md.
+Provenance and changes: explorer/UPSTREAM.md.
+
+Music: Kounine — Baguira, Boy, Sudo. CC0 1.0.
+Original complete license: explorer/sounds/musics/license.md.
+Rain: SoundJay rain-on-leaves_main-01.
+https://www.soundjay.com/tos.html
+License note: explorer/sounds/rain/LICENSE.txt.
+Other undocumented folio recordings are not redistributed; interaction effects
+are synthesized by this application.
+Fonts: Amatic SC and Nunito from Google Fonts, SIL OFL 1.1.
+Full licenses and source hashes: explorer/fonts/.
+
+DEPENDENCIES AND PREVIOUS PREVIEW ASSETS
+=======================================
+The following notices also cover retained legacy source/assets. The active
+exploration world uses the Bruno vehicle and terrain described above.
+
 Three.js
 
 The MIT License

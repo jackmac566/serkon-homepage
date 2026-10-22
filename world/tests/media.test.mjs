@@ -105,3 +105,13 @@ test('non-media requests remain plain static fetches; music has no write methods
   assert.equal(response.headers.get('Allow'), 'GET, HEAD');
   assert.equal(calls.length, 0);
 });
+
+test('all self-hosted Explorer music paths retain exact byte-range handling', async () => {
+  for (const path of ['/explorer/sounds/musics/Baguira.mp3', '/explorer/sounds/musics/Boy.mp3', '/explorer/sounds/musics/Sudo.mp3', '/explorer/assets/genesis.mp3']) {
+    const state = fixture();
+    const response = await worker.fetch(new Request('https://preview.example'+path, { headers: { Range: 'bytes=0-1' } }), state.env);
+    assert.equal(response.status, 206, path);
+    assert.equal(response.headers.get('Content-Range'), 'bytes 0-1/32');
+    assert.deepEqual(new Uint8Array(await response.arrayBuffer()), file.slice(0, 2));
+  }
+});

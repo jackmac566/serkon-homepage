@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#008080">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+  <title>Serkon — 我的电脑</title>
+</head>
+<body>
+  <main id="workspace" aria-label="个人电脑桌面">
+    <nav id="desktop-icons" aria-label="桌面图标"></nav>
+    <div id="windows" aria-label="打开的窗口"></div>
+  </main>
+  <aside id="start-menu" aria-label="开始菜单" hidden>
+    <div class="start-menu-brand">Serkon<span>98</span></div>
+    <div id="start-items"></div>
+  </aside>
+  <footer id="taskbar" aria-label="任务栏">
+    <button id="start-button" type="button" aria-expanded="false" aria-controls="start-menu"><span aria-hidden="true">▦</span> 开始</button>
+    <div id="tasks" aria-label="打开的程序"></div>
+    <div id="tray"><button id="sound-button" type="button" aria-label="打开音乐播放器" title="音乐播放器">♪</button><time id="clock" aria-label="当前时间"></time></div>
+  </footer>
+  <p id="desktop-status" class="sr-only" role="status" aria-live="polite"></p>
+  <noscript><p>此桌面需要 JavaScript。<a href="https://serkon-homepage-cn.pages.dev/">打开个人主页</a> · <a href="mailto:shikanghou4@gmail.com">写封邮件</a></p></noscript>
+  <script type="module" src="./desktop.js"></script>
+</body>
+</html>

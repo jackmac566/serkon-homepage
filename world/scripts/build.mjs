@@ -1,4 +1,5 @@
-import { copyFile, mkdir, stat } from 'node:fs/promises';
+import { copyFile, mkdir, stat, cp } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from 'vite';
@@ -29,6 +30,20 @@ await mkdir(destination, { recursive: true });
 await Promise.all(Object.entries(assets).map(([name, relative]) =>
   copyFile(path.join(source, relative), path.join(destination, name))));
 
+const explorer = path.join(project, 'explorer');
+const explorerAssets = path.join(explorer, 'static', 'assets');
+await mkdir(explorerAssets, { recursive: true });
+await Promise.all(Object.keys(assets).map(name => copyFile(path.join(destination, name), path.join(explorerAssets, name))));
+await cp(path.join(explorer, 'serkon-assets'), explorerAssets, { recursive: true });
+await copyFile(path.join(explorer, 'license.md'), path.join(explorer, 'static', 'license.md'));
+await copyFile(path.join(explorer, 'UPSTREAM.md'), path.join(explorer, 'static', 'UPSTREAM.md'));
+execFileSync(process.execPath, [path.join(explorer, 'node_modules', 'vite', 'bin', 'vite.js'), 'build', '--mode', 'serkon'], { cwd: explorer, stdio: 'inherit' });
+
+const studio = path.join(project, 'studio');
+await copyFile(path.join(studio, 'UPSTREAM.md'), path.join(studio, 'static', 'UPSTREAM.md'));
+await copyFile(path.join(studio, 'LICENSE.md'), path.join(studio, 'static', 'LICENSE.md'));
+execFileSync(process.execPath, [path.join(studio, 'node_modules', 'webpack', 'bin', 'webpack.js'), '--config', './bundler/webpack.prod.js'], { cwd: studio, stdio: 'inherit' });
+
 await build({
   configFile: false,
   root: project,
@@ -41,6 +56,11 @@ await build({
     assetsInlineLimit: 0,
   },
 });
+
+await cp(path.join(explorer, 'dist'), path.join(project, 'dist', 'explorer'), { recursive: true });
+
+await cp(path.join(studio, 'dist'), path.join(project, 'dist', 'studio'), { recursive: true });
+await cp(path.join(project, 'desktop'), path.join(project, 'dist', 'desktop'), { recursive: true });
 
 for (const relative of ['index.html', '_worker.js', '_routes.json', 'assets/genesis.mp3']) {
   await stat(path.join(project, 'dist', relative));

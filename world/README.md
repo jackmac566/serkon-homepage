@@ -1,42 +1,35 @@
-# Serkon 电脑里的创作世界
+# Serkon · Studio and Explorer
 
-独立的 3D 个人世界。此目录的构建和预览不替换正式个人主页，也不使用正式站的数据库、管理员凭据或旧应用 Worker。
+Independent preview of a personal studio, retro computer and explorable portfolio. Production homepage and D1 data are separate.
 
-入口先显示真实资源加载的黑白 BIOS，全部完成后切换到居中白框 START，等待用户点击。随后是一间可 360° 环绕、点击电脑屏幕进入的 3D 房间。镜头进入 Serkon OS 后，可以打开真实作品、切换本人照片，拖动、最小化或最大化窗口；“创作后院”应用进入可驾驶的五地点世界，返回桌面时保留窗口状态。音乐在桌面和后院之间共用同一个播放器。
+The room directly adapts Henry Heffernan's MIT portfolio-website at `c53c5a50183655eb83d70048403a5084f5d1214c`: baked models, camera choreography, CRT and coffee steam. The inner desktop is an independent implementation because portfolio-inner-site did not include a reuse license. The world adapts Bruno Simon's MIT folio-2025 at `41046b57eeed8d156d9c3fd7fa259900baef7816`: vehicle/Rapier physics, terrain, shaders, foliage and interactive areas. See each `UPSTREAM.md`, original licenses and `public/THIRD_PARTY_NOTICES.txt`.
 
-## 开发与构建
+## Build and preview
 
-```sh
-cd world
-npm ci
-npm run build
-npm run dev
-```
-
-`scripts/build.mjs` 从仓库已有 `public/` 复制本人公开素材至本项目的 `public/assets/`，随后以 `base: './'` 独立运行 Vite，输出 `world/dist/`。复制源缺失时构建会直接失败。打包不需要运行根目录的构建，也不会更改根目录的版本记录。
-
-媒体路由验证：
+Requires Node 22+.
 
 ```sh
-npm test
+npm ci --prefix world
+npm ci --prefix world/explorer --ignore-scripts --legacy-peer-deps
+npm ci --prefix world/studio --ignore-scripts --legacy-peer-deps
+npm run build --prefix world
+cd world && npx vite preview --host 127.0.0.1 --port 4390
 ```
 
-测试覆盖车辆转向、碰撞、绕行、五个停车点，以及 Safari 常用的两字节音频探测、单区间/后缀/开放区间、越界、HEAD、If-Range 与静态转发。真正的桌面操作、播放与拖动仍需浏览器验收，HTTP 测试不代替 WebKit 播放测试。
+Use the built static preview for combined QA. The previous procedural room/park modules are retained as legacy source but are not loaded by the active entry point. Root `npm run dev` is only a source-development convenience; nested compiled paths require a full build.
 
-## 预览部署
+## Flow
 
-使用现有 `serkon-homepage-cn` Pages 项目的**专用预览分支**，部署目录只传本项目 `dist/`。不要把该目录发布到 `main` 或生产环境。不要把根目录 `deploy/_worker.js` 覆盖进本项目，它依赖原应用和后端。
+Real resource loading → centered START gate → original studio camera → CRT computer → local retro desktop → full explorer. The same-origin host bridge pauses rendering/audio/input while a scene is hidden. Return to desktop keeps the computer session. A keyboard-accessible skip link opens personal content without driving.
 
-本项目 `public/_worker.js` 只为 `/assets/genesis.mp3` 提供字节范围响应，以兼容 Safari/WKWebView 音频。`public/_routes.json` 只让这一条路由进入 Worker；其余 JavaScript、图片、HTML 由静态资源服务返回。两者都由 Vite 从 `public/` 复制到产物，必须一起发布。Worker 只读取 `env.ASSETS`，没有 D1、R2、账户或写入路径。
+The explorer map is the original large modal map, with graphical location markers and the current vehicle position. No location list or credits appear over the map. This edition targets desktop computers only. Keyboard controls are retained; inherited touch styles are not a mobile deliverable. Right drag or Alt+left drag rotates 360 degrees; a short bare-ground click gives the original vehicle a path and pedal/steering input through A*, rather than teleporting. Manual input, obstacle failure, modals and host pause cancel automatic driving.
 
-部署后至少检查首页、打包 JS、真实图片，以及 `Range: bytes=0-1` 返回 `206`、越界返回 `416`、HEAD 无响应体。用 WebKit 实际点击播放/暂停并尝试拖动进度；同时检查手机竖屏、横屏、键盘、减少动态效果和无 WebGL 时的内容入口。
+Personal content comes from repository public assets. AI London images are identified as generated process screenshots. Song 创世纪 is credited to 位面之子 FK. No fictional work history, author biography, analytics or author private game server is copied.
 
-## 素材与署名
+## Music and deployment
 
-Three.js 等依赖保留各自许可证。代码许可不覆盖侯世康 / Serkon 的照片、音乐、个人资料、品牌或项目素材；素材来自已有公开个人站，仅用于本次获授权的个人网站体验，不代表可被第三方自由复用或商用。伦敦图片是原站 AI 影像过程材料，不是真实旅行摄影。
+Kounine's Baguira/Boy/Sudo are CC0. SoundJay rain carries its separate source/terms note. Other undocumented recordings were excluded; interaction sounds are synthesized locally. The room uses Baguira. Music/media range requests use a read-only ASSETS worker for Safari byte probes; no database binding is needed.
 
-## 环境与后续分期
+Deploy `world/dist` only to `serkon-world-preview` on the existing Cloudflare Pages project. Do not change production branch `main`, canonical deployment or bindings.
 
-当前包含黑白 BIOS→START、参考配色的极简电脑房间、160×160 米导航区域与 256×256 米连续地形。五个内容地点采用不同形态，外侧四个景观点可以点击前往。放映场投影屏、听音廊唱机均有实际开关反馈。完整总目标和后续角色/背包/文字 NPC 的范围见 `ROADMAP.md`；这些游戏系统尚未实施。
-
-环境使用 Poly Haven 的 CC0 实物采集表面、户外 HDR 环境光和少量扫描岩石。静态文件全部自托管，资产来源、原始 URL 与哈希记录于 `public/materials/provenance.json`、`public/models/boulder/provenance.json`。代码启动与探索交互参考 Henry Heffernan 和 Bruno Simon 的公开实现；未复制作者的个人内容。默认汽车是 Three.js 官方 r186 示例提供的 Ferrari 458 Italia（vicent091036，CC BY 4.0）；Bruno Simon 的 MIT oldSchool 仅作加载失败回退。模型、Draco 解码器均自托管，来源、变更说明、固定版本、哈希和完整许可证见 `public/models/vehicle/`，操作说明保留公开署名入口。
+`npm test --prefix world` checks byte-range handling and the retained legacy controller. It does not validate the new Rapier/GPU world; record actual browser QA separately in `QA.md`.
