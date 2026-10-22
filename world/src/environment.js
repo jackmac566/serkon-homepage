@@ -35,6 +35,7 @@ export function createEnvironment(THREE, scene, { assetBase = './assets/', surfa
     plaster:material('#d4d1c5'),concrete:material('#aeb0a6'),dark:material('#303934'),steel:material('#515b58',{metalness:.68,roughness:.36}),
     aluminium:material('#a4aaa5',{metalness:.78,roughness:.26}),black:material('#1e2422',{roughness:.73}),paper:material('#e6e1d4'),
     clay:material('#867367'),fabric:material('#6d7469',{roughness:1}),paint:material('#d8d8ca',{roughness:.91}),bark:material('#5f5849',{roughness:1})};
+  mat.ground.color.set('#a5b99b');
   mat.light=material('#e7dcc2',{emissive:'#ffdb9d',emissiveIntensity:.22,roughness:.4});
   mat.glass=new THREE.MeshPhysicalMaterial({color:'#a6b7ad',roughness:.12,metalness:.12,transparent:true,opacity:.29,depthWrite:false,side:THREE.DoubleSide,clearcoat:1});materials.add(mat.glass);
   mat.optic=new THREE.MeshPhysicalMaterial({color:'#344d4d',roughness:.08,metalness:.5,clearcoat:1});materials.add(mat.optic);
@@ -354,9 +355,9 @@ export function createEnvironment(THREE, scene, { assetBase = './assets/', surfa
     activateAction(action){if(action==='projection-toggle'){moving.projection.playing=!moving.projection.playing;moving.projection.clock=0;advanceProjection();return {playing:moving.projection.playing};}return null;},
     getActionState(action){return action==='projection-toggle'?{playing:moving.projection.playing}:null;},
     update(dt,time,state={}){
-      if(state.musicPlaying||state.audioPlaying)moving.record.rotation.y-=dt*2.1;
+      if(!state.reducedMotion&&(state.musicPlaying||state.audioPlaying))moving.record.rotation.y-=dt*2.1;
       moving.mailFlag.rotation.y=state.activeId==='about'?-.08:0;
-      const p=moving.projection;if(p.playing){p.clock+=dt;if(p.clock>3.6){p.clock=0;p.frame=(p.frame+1)%p.files.length;advanceProjection();}}
+      const p=moving.projection;if(p.playing&&!state.reducedMotion){p.clock+=dt;if(p.clock>3.6){p.clock=0;p.frame=(p.frame+1)%p.files.length;advanceProjection();}}
     },
     dispose(){root.removeFromParent();for(const g of new Set(geometries.values()))g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();},
   };
