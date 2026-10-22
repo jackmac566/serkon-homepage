@@ -1,5 +1,6 @@
 // Run from any directory: node --test world/explorer/tests/navigation.test.mjs
-// Uses the source terrain and collider geometry, and a native Rapier vehicle.
+// Uses source terrain/colliders and the production PhysicsVehicle methods.
+// The render frame is 1/60s; the original Ticker.scale=2 makes Rapier step 1/30s.
 // Stationary props are fixed in this fixture so a successful route must clear
 // them; this is a navigation regression, not a renderer or browser substitute.
 import assert from 'node:assert/strict';
@@ -8,8 +9,12 @@ import { test } from 'node:test';
 import { register } from 'node:module';
 import { fileURLToPath } from 'node:url';
 // Upstream Rapier 0.17 ships extensionless ESM imports and a WASM module.
-// This local loader only resolves those Rapier-internal relative imports.
+// Resolve those Rapier-internal imports and isolate the vehicle from renderer startup.
 register('data:text/javascript,' + encodeURIComponent(`export async function resolve(specifier, context, next) {
+  // PhysicsVehicle only consults Game in its constructor. Instantiate its real
+  // prototype below without bringing the browser renderer into this fixture.
+  if(specifier === '../Game.js' && context.parentURL?.endsWith('/Game/Physics/PhysicsVehicle.js'))
+    return { url: 'data:text/javascript,export const Game = {}', shortCircuit: true };
   try { return await next(specifier, context) }
   catch(error) {
     if(specifier.startsWith('.') && context.parentURL?.includes('/@dimforge/rapier3d/')) {
@@ -22,16 +27,42 @@ register('data:text/javascript,' + encodeURIComponent(`export async function res
 const base=fileURLToPath(new URL('../', import.meta.url));
 const R=await import(base+'/node_modules/@dimforge/rapier3d/rapier.js'),THREE=await import(base+'/node_modules/three/build/three.webgpu.js');
 const {Events}=await import(base+'/sources/Game/Events.js'),{attachSerkonNavigation}=await import(base+'/sources/serkon-navigation.js');
-test('real terrain, original bridge collision geometry, physical arrival and cancellation', () => {
+const {PhysicsVehicle}=await import(base+'/sources/Game/Physics/PhysicsVehicle.js');
+test('real terrain, production vehicle timing, bridge arrival and cancellation', t => {
 const listeners={};const el=()=>({style:{},children:[],setAttribute(){},addEventListener(){},append(...x){this.children.push(...x)}});
 globalThis.document={hidden:false,createElement:el,body:el(),addEventListener(){}};globalThis.window={addEventListener(name,cb){(listeners[name]??=[]).push(cb)}};window.parent=window;globalThis.location={origin:'http://localhost'};
-const world=new R.World({x:0,y:-9.81,z:0});world.timestep=1/60;
+const world=new R.World({x:0,y:-9.81,z:0});world.timestep=1/30;
 const tb=fs.readFileSync(base+'/static/terrain/terrain.glb'),tj=JSON.parse(tb.subarray(20,20+tb.readUInt32LE(12)).toString().trim()),ta=tj.accessors[tj.meshes[0].primitives[0].attributes.POSITION],tv=tj.bufferViews[ta.bufferView],to=20+tb.readUInt32LE(12)+8+(tv.byteOffset||0)+(ta.byteOffset||0),heights=new Float32Array(ta.count),rows=Math.sqrt(ta.count);for(let i=0;i<ta.count;i++){const x=tb.readFloatLE(to+i*12),y=tb.readFloatLE(to+i*12+4),z=tb.readFloatLE(to+i*12+8);heights[Math.round((z/192+.5)*(rows-1))+Math.round((x/192+.5)*(rows-1))*rows]=y;}const floor=world.createCollider(R.ColliderDesc.heightfield(rows-1,rows-1,heights,{x:192,y:1,z:192}));
-const body=world.createRigidBody(R.RigidBodyDesc.dynamic().setTranslation(39.52898,1.1,37.82523).setLinearDamping(.1).setAngularDamping(.1));world.createCollider(R.ColliderDesc.cuboid(1.3,.4,.85).setTranslation(0,-.1,0).setMassProperties(2.5,{x:0,y:-.5,z:0},{x:1,y:1,z:1},{x:0,y:0,z:0,w:1}),body);
-const controller=world.createVehicleController(body);for(const x of[.9,-.9])for(const z of[.75,-.75]){controller.addWheel({x,y:0,z},{x:0,y:-1,z:0},{x:0,y:0,z:1},.88,.4);const i=controller.numWheels()-1;controller.setWheelSuspensionStiffness(i,20);controller.setWheelMaxSuspensionForce(i,150);controller.setWheelMaxSuspensionTravel(i,2);controller.setWheelSideFrictionStiffness(i,3);controller.setWheelSuspensionCompression(i,10);controller.setWheelSuspensionRelaxation(i,2.7);controller.setWheelFrictionSlip(i,.9);}
-const player={state:1,position:new THREE.Vector3(39.52898,1.1,37.82523),accelerating:0,steering:0,boosting:0,braking:0},vehicle={chassis:{physical:{body}},forward:new THREE.Vector3(1,0,0),upward:new THREE.Vector3(0,1,0),xzSpeed:0};
-const game={RAPIER:R,physics:{world,groups:{bumper:4}},world:{floor:{physical:{colliders:[floor]}}},player,physicalVehicle:vehicle,inputs:{filters:new Set(['wandering']),actions:new Map(),nipple:{active:false,progress:0},gamepad:{joysticks:{left:{active:false}}},events:new Events()},ticker:{elapsed:0,delta:1/60,events:new Events(),wait(){}},reveal:{step:2},modals:{state:3,events:new Events()},menu:{state:3,events:new Events()},terrain:{size:192},water:{surfaceElevation:-.3},scene:new THREE.Scene(),canvasElement:el(),view:{focusPoint:{isTracking:false}},rayCursor:{intersects:[]}};
-function tick(){game.ticker.elapsed+=1/60;player.accelerating=player.steering=player.braking=player.boosting=0;game.ticker.events.trigger('tick');const speed=vehicle.xzSpeed;const force=player.accelerating*10/(1+Math.max(0,speed-5)),brake=player.braking||(!player.accelerating?.1:0);for(let i=0;i<4;i++){controller.setWheelEngineForce(i,force);controller.setWheelBrake(i,brake*35/30);controller.setWheelSteering(i,i<2?player.steering*.5:0);}controller.updateVehicle(1/60);world.step();const old=player.position.clone();player.position.copy(body.translation());vehicle.forward.set(1,0,0).applyQuaternion(body.rotation());vehicle.upward.set(0,1,0).applyQuaternion(body.rotation());vehicle.xzSpeed=player.position.distanceTo(old)*30;}
+const landing=glb('respawns/respawnsReferences.glb').nodes.find(n=>n.name==='respawnLanding'),landingRotation={x:landing.rotation[0],y:landing.rotation[1],z:landing.rotation[2],w:landing.rotation[3]};
+const body=world.createRigidBody(R.RigidBodyDesc.dynamic().setTranslation(landing.translation[0],1.1,landing.translation[2]).setRotation(landingRotation).setLinearDamping(.1).setAngularDamping(.1));world.createCollider(R.ColliderDesc.cuboid(1.3,.4,.85).setTranslation(0,-.1,0).setMassProperties(2.5,{x:0,y:-.5,z:0},{x:1,y:1,z:1},{x:0,y:0,z:0,w:1}),body);
+const controller=world.createVehicleController(body);
+const player={state:1,position:new THREE.Vector3(39.52898,1.1,37.82523),accelerating:0,steering:0,boosting:0,braking:0,suspensions:['low','low','low','low']},vehicle=Object.assign(Object.create(PhysicsVehicle.prototype),{chassis:{physical:{body}},forward:new THREE.Vector3(1,0,0),upward:new THREE.Vector3(0,1,0),xzSpeed:0});
+const game={RAPIER:R,physics:{world,groups:{bumper:4}},world:{floor:{physical:{colliders:[floor]}}},player,physicalVehicle:vehicle,inputs:{filters:new Set(['wandering']),actions:new Map(),nipple:{active:false,progress:0},gamepad:{joysticks:{left:{active:false}}},events:new Events()},debug:{active:false},quality:{level:1},ticker:{elapsed:0,delta:1/60,deltaScaled:1/30,deltaAverage:1/60,events:new Events(),wait(){}},reveal:{step:2},modals:{state:3,events:new Events()},menu:{state:3,events:new Events()},terrain:{size:192},water:{surfaceElevation:-.3},scene:new THREE.Scene(),canvasElement:el(),view:{focusPoint:{isTracking:false}},rayCursor:{intersects:[]}};
+Object.assign(vehicle, {
+    game, controller, events: new Events(),
+    steeringAmplitude: .5, engineForceAmplitude: 300, boostMultiplier: 2,
+    topSpeed: 5, topSpeedBoost: 40, brakeAmplitude: 35, idleBrake: .06, reverseBrake: .4,
+    suspensionsHeights: { low: .88, mid: 1.23, high: 1.63 },
+    suspensionsStiffness: { low: 20, mid: 30, high: 40 },
+    position: player.position.clone(), quaternion: new THREE.Quaternion(),
+    sideward: new THREE.Vector3(0, 0, 1), velocity: new THREE.Vector3(),
+    direction: new THREE.Vector3(1, 0, 0), speed: 0,
+});
+vehicle.setWheels(); vehicle.setStop(); vehicle.setUpsideDown(); vehicle.setStuck(); vehicle.setFlip();
+function tick()
+{
+    game.ticker.elapsed += game.ticker.delta;
+    player.accelerating = player.steering = player.braking = player.boosting = 0;
+    game.ticker.events.trigger('tick');
+    // Execute the actual wheel force, steering, reversing brake and telemetry
+    // code, with the same controller delta and scaled world delta as the site.
+    vehicle.updatePrePhysics();
+    world.timestep = game.ticker.deltaScaled;
+    world.step();
+    vehicle.updatePostPhysics();
+    player.position.copy(vehicle.position);
+}
+
 function glb(file){const b=fs.readFileSync(base+'/static/'+file),j=JSON.parse(b.subarray(20,20+b.readUInt32LE(12)).toString().trim());return j;}
 const labels=new Map();function physical(n,children,label){const p=n.translation||[0,0,0],q=n.rotation||[0,0,0,1],rb=world.createRigidBody(R.RigidBodyDesc.fixed().setTranslation(...p).setRotation({x:q[0],y:q[1],z:q[2],w:q[3]}));for(const c of children){const sc=c.scale||[1,1,1],cp=c.translation||[0,0,0],cq=c.rotation||[0,0,0,1];let desc;if(c.name?.startsWith('cuboid'))desc=R.ColliderDesc.cuboid(sc[0]/2,sc[1]/2,sc[2]/2);else if(c.name?.startsWith('tube'))desc=R.ColliderDesc.cylinder(sc[1]/2,sc[0]/2);if(desc){const col=world.createCollider(desc.setTranslation(...cp).setRotation({x:cq[0],y:cq[1],z:cq[2],w:cq[3]}),rb);labels.set(col.handle,label);}}}
 for(const dir of ['benches','fences']){const j=glb(dir+'/'+dir+'.glb'),roots=j.scenes[0].nodes.map(i=>j.nodes[i]),base=roots[0];for(const n of roots)physical(n,base.children.map(i=>j.nodes[i]),dir+':'+n.name);}
@@ -47,7 +78,15 @@ allphysical('playground/playgroundPhysical.glb',false);
 for(let i=0;i<90;i++)tick();
 assert(world.colliders.len() > 400, 'fixture includes real area/scenery hulls, bridges and scattered props'); const near=[];world.intersectionsWithShape({x:player.position.x,y:1.1,z:player.position.z},{x:0,y:0,z:0,w:1},new R.Ball(1.65),c=>{if(c.parent()?.handle!==body.handle&&c.handle!==floor.handle){near.push({handle:c.handle,label:labels.get(c.handle),projection:c.projectPoint({x:player.position.x,y:1.1,z:player.position.z},false)});}return true;});assert.equal(near.length, 0, 'original landing spawn begins clear of obstacles');
 const nav=attachSerkonNavigation(game);const accepted=nav.navigateTo({x:17,z:36});assert(accepted, 'ground navigation accepts original spawn');
-if(accepted){for(let i=0;i<6000&&nav.active;i++)tick(); assert.match(document.body.children[0].children[0].textContent,/到了/); assert(Math.hypot(player.position.x-17,player.position.z-36)<1.5,'real car completes west bridge');}
+if(accepted)
+{
+    let frames = 0;
+    for(; frames < 6000 && nav.active; frames++) tick();
+    const error = Math.hypot(player.position.x - 17, player.position.z - 36);
+    assert.match(document.body.children[0].children[0].textContent, /到了/);
+    assert(error < 1.5, 'production vehicle completes west bridge');
+    t.diagnostic(JSON.stringify({ colliders: world.colliders.len(), frames, worldDelta: world.timestep, controllerDelta: 1/60, arrivalError: error }));
+}
 assert.equal(nav.active, false);
 assert(nav.navigateTo({x:10,z:36}));
 game.inputs.actions.set('forward',{active:true}); tick();

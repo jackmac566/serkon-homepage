@@ -19,6 +19,16 @@ Scope: independent preview, desktop only. Production homepage/data are not part 
 - Music playback state and media loading were checked; no claim of an audible listening review.
 - Original private game server is disconnected: public whispers and global race-score persistence are offline. Local circuit/physics remain available.
 - NPC, character, inventory and shop systems remain a later phase.
-- The new navigation regression reproduces 432 original terrain/scenery collisions, default spawn departure, physical bridge crossing and cancellation. Do not treat legacy controller tests as acceptance of this controller.
+- The navigation regression uses 432 original terrain/scenery colliders and production PhysicsVehicle update methods, original landing orientation, 1/30 physics and 1/60 controller timing. It crosses the west bridge in 954 frames with 1.309 m target error; manual/host cancellation passes. This is physical-controller evidence, not a renderer/browser substitute. Legacy controller tests are not acceptance of this controller.
 
 Visible author/technology/license introductions and links were removed from scene and desktop interfaces at the user’s request. Necessary original copyright and permission texts remain in distributed source/license files; the UI does not claim all reused assets are original work by the site owner.
+
+## Public preview acceptance
+
+- Preview: https://e306b40f.serkon-homepage-cn.pages.dev/ ; runtime commit `fc08fae2fa4b2a53b0dd8050a083c4f900840aa3`.
+- Public HTTP verification passes 20 checks: entry, studio/desktop/explorer assets, source notice files and media Range/HEAD/error handling. Cloudflare API confirms successful preview, zero preview D1 bindings and unchanged production main deployment.
+- Native public browser confirms the question tab now contains only the owner's exploration text; screenshot `outputs/serkon-final-explore.png`. Built runtime HTML/JS/CSS contains no upstream author names or visible license/credits introduction. Required separate notice files are retained.
+- Native public map opens as a centered full-map modal with 12 Chinese-labelled diamond buttons and live vehicle icon; screenshot `outputs/serkon-final-map.png`. Clicking the projects marker closes the map and respawns at the personal project workshop.
+- Native public ground-click checks: the landing route from (39.53, 37.83) to (42.09, 35.96) ends with the actual arrival message. A separate project-workshop route starts physical driving but safely stops near display props before arrival; this is not counted as a successful arrival. Bridge crossing is additionally covered by the regression with 432 actual original scenery/terrain colliders.
+- One first-load WASM network abort required a reload; the reloaded public world rendered and completed these interactions. This was a transport failure, not counted as a successful first-load check.
+- Draft PR: https://github.com/jackmac566/serkon-homepage/pull/3 . Production homepage has not been replaced.
