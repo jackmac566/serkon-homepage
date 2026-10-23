@@ -1,6 +1,6 @@
 # 总目标与验收阶段
 
-从 Henry Heffernan 的极简工作室、真实 CRT 和复古桌面进入 Bruno Simon 的完整探索世界；个人作品、照片、音乐替换原作者内容。仅交付独立预览，保留正式站与生产数据。
+从 Henry Heffernan 的极简工作室、真实 CRT 和复古桌面进入 Bruno Simon 的完整探索世界；个人作品、照片、音乐替换原作者内容。按 2026-10-23 的授权上线独立正式 3D 站，保留原主页与生产数据。
 
 ## 本次必须完成
 
@@ -24,3 +24,5 @@
 最新地图要求：删除原侧栏和地点列表，恢复原生大幅地图与白色菱形地点标记。地图里不显示作者/音乐文字，必要版权和许可通知仅保留在源码及随附许可证文件中，界面没有许可或鸣谢入口。
 
 交付预览：https://e306b40f.serkon-homepage-cn.pages.dev/ 。运行时代码版本 fc08fae2fa4b2a53b0dd8050a083c4f900840aa3；生产 main 部署和 D1 绑定均未改动。
+
+正式上线（2026-10-23）：https://serkon-world.pages.dev/ 。独立 Cloudflare 项目 `serkon-world`，Production/main，运行时代码 `43a17f7`；原主页保留。

@@ -1,6 +1,6 @@
 # Serkon · Studio and Explorer
 
-Independent preview of a personal studio, retro computer and explorable portfolio. Production homepage and D1 data are separate.
+Independent 3D personal website with a studio, retro computer and explorable portfolio. Its dedicated Cloudflare Pages project is `serkon-world`; the original homepage and D1 data remain separate.
 
 The room directly adapts Henry Heffernan's MIT portfolio-website at `c53c5a50183655eb83d70048403a5084f5d1214c`: baked models, camera choreography, CRT and coffee steam. The inner desktop is an independent implementation because portfolio-inner-site did not include a reuse license. The world adapts Bruno Simon's MIT folio-2025 at `41046b57eeed8d156d9c3fd7fa259900baef7816`: vehicle/Rapier physics, terrain, shaders, foliage and interactive areas. See each `UPSTREAM.md`, original licenses and `public/THIRD_PARTY_NOTICES.txt`.
 
@@ -30,7 +30,16 @@ Personal content comes from repository public assets. AI London images are ident
 
 Kounine's Baguira/Boy/Sudo are CC0. SoundJay rain carries its separate source/terms note. Other undocumented recordings were excluded; interaction sounds are synthesized locally. The room uses Baguira. Music/media range requests use a read-only ASSETS worker for Safari byte probes; no database binding is needed.
 
-Deploy `world/dist` only to `serkon-world-preview` on the existing Cloudflare Pages project. Do not change production branch `main`, canonical deployment or bindings.
+The user authorized a separate production deployment on 2026-10-23. The public share URL is **https://serkon-world.pages.dev/**. Deploy the tested `world/dist` to the dedicated `serkon-world` project using `--branch main`. This direct-upload project is independent of the original `serkon-homepage-cn` site; preserve that site's production branch, canonical deployment and database bindings.
+
+```sh
+cd world
+../node_modules/.bin/wrangler pages deploy dist --project-name serkon-world --branch main --commit-dirty=false
+```
+
+The source remains in the same GitHub repository on `codex/serkon-world`; pushing Git alone does not publish this direct-upload Pages project. Future releases should deploy to the same project so the public share URL stays unchanged. The old `serkon-world-preview` branch on `serkon-homepage-cn` is a separate preview target, not the public production URL.
+
+Visitors can open the public URL without signing in. Share the root URL for the complete loading → room → desktop → world experience; `/desktop/` opens the computer directly. This edition is intended for desktop browsers. SAMSY remains an online third-party experience. Current noindex metadata only limits search indexing, not public access or link sharing.
 
 `npm test --prefix world` checks byte-range handling and the retained legacy controller. It does not validate the new Rapier/GPU world; record actual browser QA separately in `QA.md`.
 

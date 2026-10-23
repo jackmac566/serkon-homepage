@@ -43,3 +43,14 @@ Visible author/technology/license introductions and links were removed from scen
 
 - Full local host flow also verified: START → baked room → native CRT approach → double-click SAMSY → third-party game scene renders inside the modeled monitor. Returning through the desktop room icon removes the game iframe (count 0). Direct desktop movement/jump was verified above; the automation driver cannot click the canvas through the nested 3D iframe transform, so CRT canvas pointer input is not claimed as a separate automated acceptance.
 - Studio TypeScript check passes after adding camera enter/exit lifecycle messages. Starting the music player minimizes any active game; audio focus remains with the foreground app.
+
+## Independent production release — 2026-10-23
+
+The user authorized publishing the latest 3D site as its own production website. Existing tested build reused without rerunning functional checks.
+
+- Cloudflare Pages project: `serkon-world`, direct upload, production branch `main`.
+- Public share URL: https://serkon-world.pages.dev/ . No login required; desktop edition.
+- Production deployment: `3e440035-6132-4c28-9732-2f63790c2278`, built runtime source `43a17f7`. Immutable release URL: https://3e440035.serkon-world.pages.dev/ .
+- Wrangler confirms Production/main/43a17f7. The stable public URL returns HTTP 200. The first upload failed on transport; retry completed all 987 asset uploads, Worker and routes successfully.
+- Dedicated project uses the read-only ASSETS worker, with no database or production-data integration. No deployment or configuration mutation was made to the existing `serkon-homepage-cn` project.
+- Source remains on GitHub `codex/serkon-world`; this direct-upload project needs an explicit Pages deploy for subsequent site releases. The fixed share URL remains the same across releases.
