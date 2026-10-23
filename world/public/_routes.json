@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "include": ["/assets/genesis.mp3", "/explorer/assets/genesis.mp3", "/explorer/sounds/musics/*.mp3"],
+  "exclude": []
+}

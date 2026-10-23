@@ -1,0 +1,177 @@
+{
+  "source": "Poly Haven",
+  "license": "CC0-1.0",
+  "license_url": "https://polyhaven.com/license",
+  "assets": [
+    {
+      "name": "leafy_grass",
+      "page": "https://polyhaven.com/a/leafy_grass"
+    },
+    {
+      "name": "cobblestone_floor_08",
+      "page": "https://polyhaven.com/a/cobblestone_floor_08"
+    },
+    {
+      "name": "wood_floor_deck",
+      "page": "https://polyhaven.com/a/wood_floor_deck"
+    },
+    {
+      "name": "asphalt_02",
+      "page": "https://polyhaven.com/a/asphalt_02"
+    },
+    {
+      "name": "american_walnut_veneer",
+      "page": "https://polyhaven.com/a/american_walnut_veneer"
+    },
+    {
+      "name": "qwantani_afternoon_puresky",
+      "page": "https://polyhaven.com/a/qwantani_afternoon_puresky"
+    }
+  ],
+  "files": [
+    {
+      "asset": "leafy_grass",
+      "kind": "Diffuse",
+      "file": "ground-Diffuse.jpg",
+      "size": 1195394,
+      "md5": "0dbc071e91d6905edfcfbe8eb785a1ab",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/leafy_grass/leafy_grass_diff_1k.jpg",
+      "sha256": "cfa40bc9d9417d1852db8753a8d5917f110c40101179f63543c382e39bc05e4a"
+    },
+    {
+      "asset": "leafy_grass",
+      "kind": "nor_gl",
+      "file": "ground-nor_gl.jpg",
+      "size": 1466049,
+      "md5": "8279e096e204ea326d57a318869f99df",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/leafy_grass/leafy_grass_nor_gl_1k.jpg",
+      "sha256": "832328216adc0a7e1f70a31d5ee48c9ab7f2152d83816122736cf42ac4b2ebd6"
+    },
+    {
+      "asset": "leafy_grass",
+      "kind": "Rough",
+      "file": "ground-Rough.jpg",
+      "size": 511385,
+      "md5": "05f6bb1383e12b327727d313c5899cf2",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/leafy_grass/leafy_grass_rough_1k.jpg",
+      "sha256": "0c2a1d91aacb8e54a496051b59854e51e456fe858abeade778e308359ef16463"
+    },
+    {
+      "asset": "cobblestone_floor_08",
+      "kind": "Diffuse",
+      "file": "stone-Diffuse.jpg",
+      "size": 585727,
+      "md5": "bb640125356d18e3ad8515b9d5bfccef",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/cobblestone_floor_08/cobblestone_floor_08_diff_1k.jpg",
+      "sha256": "ec131f7a99a1e7f9df25d4725609c55a6dad1df487630685e9a66ecbf41ec33a"
+    },
+    {
+      "asset": "cobblestone_floor_08",
+      "kind": "nor_gl",
+      "file": "stone-nor_gl.jpg",
+      "size": 1002410,
+      "md5": "7a90780c7c49a1307e928d4d32c4773c",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/cobblestone_floor_08/cobblestone_floor_08_nor_gl_1k.jpg",
+      "sha256": "26bfff70b266a4e86983814c7e56a9b48daf93cd34dcdc16a5db13e4fabcfbb6"
+    },
+    {
+      "asset": "cobblestone_floor_08",
+      "kind": "Rough",
+      "file": "stone-Rough.jpg",
+      "size": 408718,
+      "md5": "1471921512da4a43e94ec08c32c273f7",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/cobblestone_floor_08/cobblestone_floor_08_rough_1k.jpg",
+      "sha256": "f92bcaf897cd98bc3cf11e6409b3e42145e7d0f659eaaad8807dfb0c5d16afc6"
+    },
+    {
+      "asset": "wood_floor_deck",
+      "kind": "Diffuse",
+      "file": "wood-Diffuse.jpg",
+      "size": 925789,
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_floor_deck/wood_floor_deck_diff_1k.jpg",
+      "md5": "186a695239216a4b9dc970a87d6dbb15",
+      "sha256": "1f2c623e87b0ee905f6f4ec8664dd19b4b135207c96e86198ff2919770b47166"
+    },
+    {
+      "asset": "wood_floor_deck",
+      "kind": "nor_gl",
+      "file": "wood-nor_gl.jpg",
+      "size": 665094,
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_floor_deck/wood_floor_deck_nor_gl_1k.jpg",
+      "md5": "dddabd549ede92e370d5268b0d895179",
+      "sha256": "2fa427b9196099c0ff72d1a1ab472e2a79ca2a76906a5c46d134f8a86e086d23"
+    },
+    {
+      "asset": "wood_floor_deck",
+      "kind": "Rough",
+      "file": "wood-Rough.jpg",
+      "size": 658448,
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_floor_deck/wood_floor_deck_rough_1k.jpg",
+      "md5": "ff891ac48e0a9db02a665d2ae9bba36a",
+      "sha256": "5754d2c2a91a288bb257e0fa8c697d97b48472c9fb77c4c7f0ffcc302f3f60a2"
+    },
+    {
+      "asset": "asphalt_02",
+      "kind": "Diffuse",
+      "file": "asphalt-Diffuse.jpg",
+      "size": 731707,
+      "md5": "fa19772d4817754c3efab708c651f5a8",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_02/asphalt_02_diff_1k.jpg",
+      "sha256": "1aa5ce99f58a625c71d48cfc3e68b65ca85ccb00f39e045c0a928608a0ea25ed"
+    },
+    {
+      "asset": "asphalt_02",
+      "kind": "nor_gl",
+      "file": "asphalt-nor_gl.jpg",
+      "size": 1240122,
+      "md5": "338da8de636ea36133170578cac82e8e",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_02/asphalt_02_nor_gl_1k.jpg",
+      "sha256": "42a1c381b53204e83a982db2864479a30bc127bbdeebb1006f8ee51bff099df3"
+    },
+    {
+      "asset": "asphalt_02",
+      "kind": "Rough",
+      "file": "asphalt-Rough.jpg",
+      "size": 544032,
+      "md5": "ec80a2929797c1b3ffc121c4f665585a",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_02/asphalt_02_rough_1k.jpg",
+      "sha256": "70ba3edc65525eb4dc366cf010ca7ae0bd34e0251ff0225c2dad627a873d0712"
+    },
+    {
+      "asset": "american_walnut_veneer",
+      "kind": "Diffuse",
+      "file": "desk-Diffuse.jpg",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/american_walnut_veneer/american_walnut_veneer_diff_1k.jpg",
+      "md5": "748b39ed2ba9dce314104055f18837f0",
+      "size": 579182,
+      "sha256": "10d983003bb686db4af3d35d91197fdb6144dcd15d3dcea2ef315600f51b1af5"
+    },
+    {
+      "asset": "american_walnut_veneer",
+      "kind": "nor_gl",
+      "file": "desk-nor_gl.jpg",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/american_walnut_veneer/american_walnut_veneer_nor_gl_1k.jpg",
+      "md5": "4bd673f87d8aef1fcce85625d748fa0e",
+      "size": 414945,
+      "sha256": "f54890d8dd352c8668d643adaa0ad66bd5a3b62995198b7dfb518fa59efebca2"
+    },
+    {
+      "asset": "american_walnut_veneer",
+      "kind": "Rough",
+      "file": "desk-Rough.jpg",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/american_walnut_veneer/american_walnut_veneer_rough_1k.jpg",
+      "md5": "d9fa24afc4790122e9ba3c535af8b615",
+      "size": 691712,
+      "sha256": "a13cd23228a4cb1bf0e342b4602d636123699cde61a2ff16bec1ce45a33ac62e"
+    },
+    {
+      "asset": "qwantani_afternoon_puresky",
+      "kind": "hdri",
+      "file": "sky-hdri.hdr",
+      "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/qwantani_afternoon_puresky_1k.hdr",
+      "md5": "82dcd1fd609c7235d34e7b8c24035834",
+      "size": 1086770,
+      "sha256": "fe51588d9957afe0fc24b24433df8bebff507be9b6630211d6f618e15f3921a9"
+    }
+  ]
+}

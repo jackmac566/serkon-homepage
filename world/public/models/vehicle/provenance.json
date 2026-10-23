@@ -1,0 +1,75 @@
+{
+  "title": "Ferrari 458 Italia",
+  "author": "vicent091036",
+  "original_model": "https://sketchfab.com/models/57bf6cc56931426e87494f554df1dab6",
+  "repository": "https://github.com/mrdoob/three.js",
+  "revision": "r186",
+  "source_path": "examples/models/gltf/ferrari.glb",
+  "source_url": "https://raw.githubusercontent.com/mrdoob/three.js/r186/examples/models/gltf/ferrari.glb",
+  "official_example": "https://threejs.org/examples/webgl_materials_car.html",
+  "official_example_source": "https://github.com/mrdoob/three.js/blob/r186/examples/webgl_materials_car.html",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "license_file": "LICENSE-CC-BY-4.0.txt",
+  "license_evidence": "https://github.com/mrdoob/three.js/issues/23089",
+  "bytes": 1681572,
+  "sha256": "cafe3f48da6797aa9bde75ca768bc5b57db366575fd233e90df186ae988a876e",
+  "modifications": "Original GLB bytes unchanged. Runtime adapter scales length to 4.4m, grounds tires, adds front steering pivots and distance-based wheel roll, and assigns dark wine red clearcoat paint, silver alloy, tinted glass and tire materials. No endorsement by the author or vehicle manufacturer is implied.",
+  "default": {
+    "title": "Ferrari 458 Italia",
+    "author": "vicent091036",
+    "original_model": "https://sketchfab.com/models/57bf6cc56931426e87494f554df1dab6",
+    "repository": "https://github.com/mrdoob/three.js",
+    "revision": "r186",
+    "source_path": "examples/models/gltf/ferrari.glb",
+    "source_url": "https://raw.githubusercontent.com/mrdoob/three.js/r186/examples/models/gltf/ferrari.glb",
+    "official_example": "https://threejs.org/examples/webgl_materials_car.html",
+    "official_example_source": "https://github.com/mrdoob/three.js/blob/r186/examples/webgl_materials_car.html",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "license_file": "LICENSE-CC-BY-4.0.txt",
+    "license_evidence": "https://github.com/mrdoob/three.js/issues/23089",
+    "bytes": 1681572,
+    "sha256": "cafe3f48da6797aa9bde75ca768bc5b57db366575fd233e90df186ae988a876e",
+    "modifications": "Original GLB bytes unchanged. Runtime adapter scales length to 4.4m, grounds tires, adds front steering pivots and distance-based wheel roll, and assigns dark wine red clearcoat paint, silver alloy, tinted glass and tire materials. No endorsement by the author or vehicle manufacturer is implied."
+  },
+  "fallback": {
+    "title": "oldSchool vehicle mesh",
+    "author": "Bruno Simon",
+    "repository": "https://github.com/brunosimon/folio-2025",
+    "revision": "41046b57eeed8d156d9c3fd7fa259900baef7816",
+    "source_path": "static/vehicle/oldSchool.glb",
+    "source_url": "https://raw.githubusercontent.com/brunosimon/folio-2025/41046b57eeed8d156d9c3fd7fa259900baef7816/static/vehicle/oldSchool.glb",
+    "source_page": "https://github.com/brunosimon/folio-2025/blob/41046b57eeed8d156d9c3fd7fa259900baef7816/static/vehicle/oldSchool.glb",
+    "license": "MIT",
+    "license_file": "LICENSE-oldSchool-MIT.txt",
+    "bytes": 175396,
+    "sha256": "90b176d3c6d42bd23cef4d688eb167bd0c72a59db8e45eee5cb935099fadcfe0",
+    "modifications": "The original GLB is unchanged. car.js assembles four cloned wheels, rotates the native +X front to -Z, scales the chassis length to 4 metres, assigns separate physical paint/trim/glass/chrome/rubber materials, adds procedural tire bump and SK identity plates, and drives steering/roll from the existing state."
+  },
+  "decoder": {
+    "name": "Google Draco glTF decoder",
+    "source": "Three.js npm package 0.186.1, examples/jsm/libs/draco/gltf",
+    "license": "Apache-2.0",
+    "license_file": "draco/LICENSE-APACHE-2.0.txt",
+    "source_license": "https://github.com/google/draco/blob/main/LICENSE",
+    "files": [
+      {
+        "file": "draco/draco_decoder.js",
+        "bytes": 512465,
+        "sha256": "8625489da79a805f4f2a7d511c3e52d8b4085608a9d2a4d5f4f9de5db0aea04f"
+      },
+      {
+        "file": "draco/draco_decoder.wasm",
+        "bytes": 192420,
+        "sha256": "a680d927bed9cb864ddbd63521868891af2bfbe755092761b4837487618df8ac"
+      },
+      {
+        "file": "draco/draco_wasm_wrapper.js",
+        "bytes": 58456,
+        "sha256": "8bb2952d2ba7d67e1414f8df819410cb0434a666be53f671fff75f68843d76f6"
+      }
+    ],
+    "runtime_requests": "Local /models/vehicle/draco/ only; workers use local decoder code and WASM. No CDN requests."
+  }
+}

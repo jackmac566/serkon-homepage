@@ -1,0 +1,88 @@
+ACTIVE ROOM AND WORLD
+=====================
+Henry Heffernan — portfolio-website
+https://github.com/henryjeff/portfolio-website
+Revision c53c5a50183655eb83d70048403a5084f5d1214c
+Copyright 2024 Henry Heffernan. MIT.
+Original room geometry, baked light, camera, CRT, coffee steam and entry are
+adapted with user content. Full permission and disclaimer: studio/LICENSE.md.
+Provenance and changes: studio/UPSTREAM.md.
+No portfolio-inner-site source is redistributed; the retro desktop is original.
+Undocumented original recordings/radio songs are excluded. Room music is the
+CC0 Baguira track below; clicks, keys and startup are synthesized PCM.
+
+Bruno Simon — folio-2025
+https://github.com/brunosimon/folio-2025
+Revision 41046b57eeed8d156d9c3fd7fa259900baef7816
+Copyright 2025 Bruno Simon. MIT.
+Original world, models, shaders and vehicle/physics/interaction implementation
+are adapted with Serkon content and local host/navigation integration.
+Full permission and disclaimer: explorer/license.md.
+Provenance and changes: explorer/UPSTREAM.md.
+
+Music: Kounine — Baguira, Boy, Sudo. CC0 1.0.
+Original complete license: explorer/sounds/musics/license.md.
+Rain: SoundJay rain-on-leaves_main-01.
+https://www.soundjay.com/tos.html
+License note: explorer/sounds/rain/LICENSE.txt.
+Other undocumented folio recordings are not redistributed; interaction effects
+are synthesized by this application.
+Fonts: Amatic SC and Nunito from Google Fonts, SIL OFL 1.1.
+Full licenses and source hashes: explorer/fonts/.
+
+DEPENDENCIES AND PREVIOUS PREVIEW ASSETS
+=======================================
+The following notices also cover retained legacy source/assets. The active
+exploration world uses the Bruno vehicle and terrain described above.
+
+Three.js
+
+The MIT License
+
+Copyright © 2010-2026 three.js authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+Additional environment assets
+-----------------------------
+PBR surface scans, outdoor HDR lighting and boulder_01 geometry/textures:
+Poly Haven, CC0 1.0 (public domain).
+https://polyhaven.com/license
+See materials/provenance.json and models/boulder/provenance.json for asset pages,
+original download URLs and verified hashes. Assets are self-hosted; this website
+makes no runtime request to the Poly Haven API.
+
+Interaction references (original application/DOM implementation):
+Henry Heffernan: https://github.com/henryjeff/portfolio-website
+Bruno Simon: https://github.com/brunosimon/folio-2025
+
+Vehicle geometry
+----------------
+Default: Ferrari 458 Italia by vicent091036, CC BY 4.0.
+Original model: https://sketchfab.com/models/57bf6cc56931426e87494f554df1dab6
+Distributed through Three.js r186 official car example:
+https://github.com/mrdoob/three.js/blob/r186/examples/webgl_materials_car.html
+License: https://creativecommons.org/licenses/by/4.0/
+Changes: 4.4m scale, grounded tires, steering/wheel animation, wine red paint,
+silver wheels, tinted glass. Original GLB bytes unchanged.
+
+Fallback: oldSchool.glb, Copyright (c) 2025 Bruno Simon, folio-2025, MIT.
+Draco decoder: Google Draco, Apache-2.0; all decoder files are self-hosted.
+Complete licenses, fixed source details and verified hashes:
+models/vehicle/LICENSE.md and models/vehicle/provenance.json.
